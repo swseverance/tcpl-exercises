@@ -45,3 +45,7 @@ Thumbs.db
 
 # Local App Hosting overrides
 apphosting.local.yaml
+
+# Agent skill scaffolding
+/.agents/
+/.claude/
