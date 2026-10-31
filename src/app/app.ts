@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { ENVIRONMENT } from '../environments/environment.token';
+import { ENVIRONMENT } from './tokens/environment';
 
 @Component({
   selector: 'app-root',

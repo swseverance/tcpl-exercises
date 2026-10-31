@@ -1,5 +1,5 @@
-import { Environment } from './environment.interface';
+import { Environment } from '../models/environment';
 
 export const environment = {
-  value: 'development'
+  name: 'local'
 } satisfies Environment;

@@ -54,10 +54,21 @@
             "development": {
               "optimization": false,
               "extractLicenses": false,
+              "sourceMap": true,
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.dev.ts"
+                }
+              ]
+            },
+            "local": {
+              "optimization": false,
+              "extractLicenses": false,
               "sourceMap": true
             }
           },
-          "defaultConfiguration": "development"
+          "defaultConfiguration": "local"
         },
         "serve": {
           "builder": "@angular/build:dev-server",
@@ -67,9 +78,12 @@
             },
             "development": {
               "buildTarget": "tcpl-exercises:build:development"
+            },
+            "local": {
+              "buildTarget": "tcpl-exercises:build:local"
             }
           },
-          "defaultConfiguration": "development"
+          "defaultConfiguration": "local"
         },
         "test": {
           "builder": "@angular/build:unit-test"
