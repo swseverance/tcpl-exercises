@@ -1,4 +1,5 @@
 {
+  "plugins": ["prettier-plugin-organize-imports"],
   "printWidth": 100,
   "singleQuote": true,
   "overrides": [
@@ -8,5 +9,6 @@
         "parser": "angular"
       }
     }
-  ]
+  ],
+  "trailingComma": "none"
 }

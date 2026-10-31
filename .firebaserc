@@ -1,0 +1,7 @@
+{
+  "projects": {
+    "default": "tcpl-exercises-dev",
+    "dev": "tcpl-exercises-dev",
+    "prod": "tcpl-exercises-prod"
+  }
+}
