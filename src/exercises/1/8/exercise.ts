@@ -3,6 +3,7 @@ import solution from './main.c' with { type: 'text' };
 
 export const exercise1_8: Exercise = {
   id: '1-8',
+  chapter: 1,
   number: 8,
   description: 'Write a program to count blanks, tabs, and newlines.',
   solution,

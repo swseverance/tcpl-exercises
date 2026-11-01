@@ -3,6 +3,7 @@ import solution from './main.c' with { type: 'text' };
 
 export const exercise33_1: Exercise = {
   id: '33-1',
+  chapter: 33,
   number: 1,
   description: 'Dummy exercise: read an integer and print double its value.',
   solution,

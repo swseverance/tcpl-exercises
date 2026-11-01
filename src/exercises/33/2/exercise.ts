@@ -3,6 +3,7 @@ import solution from './main.c' with { type: 'text' };
 
 export const exercise33_2: Exercise = {
   id: '33-2',
+  chapter: 33,
   number: 2,
   description: 'Dummy exercise: read two integers and print their sum.',
   solution,

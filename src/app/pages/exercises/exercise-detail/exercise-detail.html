@@ -1,4 +1,13 @@
 @if (exercise(); as ex) {
-  <h2>Exercise {{ ex.number }}</h2>
+  <h2>Exercise {{ ex.chapter }}-{{ ex.number }}{{ ex.suffix ?? '' }}</h2>
   <p>{{ ex.description }}</p>
+  <app-code-editor [(code)]="code" />
+
+  <button nz-button nzType="primary" type="button" [nzLoading]="running()" (click)="submit()">
+    Submit
+  </button>
+
+  @if (result(); as r) {
+    <pre>{{ r.stdout }}{{ r.stderr }}</pre>
+  }
 }

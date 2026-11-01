@@ -1,14 +1,24 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { GithubOutline, MoonOutline, SunOutline } from '@ant-design/icons-angular/icons';
+import {
+  GithubOutline,
+  LoginOutline,
+  LogoutOutline,
+  MoonOutline,
+  SunOutline
+} from '@ant-design/icons-angular/icons';
 import { provideNzIcons } from 'ng-zorro-antd/icon';
+import { NzModalModule } from 'ng-zorro-antd/modal';
 import { App } from './app';
 
 describe('App', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [App],
-      providers: [provideRouter([]), provideNzIcons([GithubOutline, MoonOutline, SunOutline])]
+      imports: [App, NzModalModule],
+      providers: [
+        provideRouter([]),
+        provideNzIcons([GithubOutline, LoginOutline, LogoutOutline, MoonOutline, SunOutline])
+      ]
     }).compileComponents();
   });
 

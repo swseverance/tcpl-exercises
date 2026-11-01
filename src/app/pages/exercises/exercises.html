@@ -5,7 +5,9 @@
         <ul>
           @for (exercise of chapter.exercises; track exercise.id) {
             <li nz-menu-item nzMatchRouter>
-              <a [routerLink]="[exercise.id]">Exercise {{ exercise.number }}</a>
+              <a [routerLink]="[exercise.id]"
+                >Exercise {{ exercise.number }}{{ exercise.suffix ?? '' }}</a
+              >
             </li>
           }
         </ul>
