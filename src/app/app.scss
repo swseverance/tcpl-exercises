@@ -9,6 +9,18 @@ nz-header {
   justify-content: space-between;
   padding: 0 16px;
 
+  &.tcpl-exercises-light-theme {
+    background: #fff;
+    color: rgba(0, 0, 0, 0.85);
+    border-bottom: 1px solid #1890ff;
+  }
+
+  &.tcpl-exercises-dark-theme {
+    background: rgb(20, 20, 20);
+    color: rgba(255, 255, 255, 0.85);
+    border-bottom: 1px solid #177ddc;
+  }
+
   .icons {
     margin-left: auto;
     display: flex;
@@ -26,35 +38,15 @@ nz-content {
   flex-direction: column;
   padding: 16px;
   overflow-y: auto;
-}
 
-::ng-deep .tcpl-exercises-light-theme app-root {
-  background: #fff;
-  color: rgba(0, 0, 0, 0.85);
-
-  .ant-layout-header {
+  &.tcpl-exercises-light-theme {
     background: #fff;
     color: rgba(0, 0, 0, 0.85);
-    border-bottom: 1px solid #1890ff;
   }
 
-  .ant-layout-content {
-    background: #fff;
-  }
-}
-
-::ng-deep .tcpl-exercises-dark-theme app-root {
-  background: rgb(20, 20, 20);
-  color: rgba(255, 255, 255, 0.85);
-
-  .ant-layout-header {
+  &.tcpl-exercises-dark-theme {
     background: rgb(20, 20, 20);
     color: rgba(255, 255, 255, 0.85);
-    border-bottom: 1px solid #177ddc;
-  }
-
-  .ant-layout-content {
-    background: rgb(20, 20, 20);
   }
 }
 

@@ -10,6 +10,7 @@ import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzLayoutModule } from 'ng-zorro-antd/layout';
 import { RunCResponse } from '../models/run-c';
+import { ThemeClass } from './directives/theme-class';
 import { CodeRunner } from './services/code-runner';
 import { ENVIRONMENT } from './tokens/environment';
 import { AUTH } from './tokens/firebase';
@@ -25,7 +26,7 @@ int main(void) {
 
 @Component({
   selector: 'app-root',
-  imports: [NzLayoutModule, NzButtonModule, NzIconModule],
+  imports: [NzLayoutModule, NzButtonModule, NzIconModule, ThemeClass],
   styleUrl: './app.scss',
   templateUrl: './app.html'
 })

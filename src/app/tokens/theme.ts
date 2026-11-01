@@ -3,7 +3,7 @@ import { inject, InjectionToken, PLATFORM_ID } from '@angular/core';
 import { WINDOW } from './window';
 
 type ThemeService = {
-  theme: 'tcpl-exercises-light-theme' | 'tcpl-exercises-dark-theme';
+  theme: 'light' | 'dark';
   toggle(): void;
 };
 

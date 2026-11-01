@@ -13,38 +13,30 @@
   </head>
   <body>
     <script>
-      const LIGHT = 'tcpl-exercises-light-theme';
-      const DARK = 'tcpl-exercises-dark-theme';
+      const LIGHT = 'light';
+      const DARK = 'dark';
 
       const lightStyle = document.querySelector('link[href^="light-theme"]');
       const darkStyle = document.querySelector('link[href^="dark-theme"]');
 
+      const THEMES = [
+        { name: LIGHT, style: lightStyle },
+        { name: DARK, style: darkStyle }
+      ];
+
       var themeService = {
         theme: null,
-        applyLightTheme: function () {
-          localStorage.setItem('theme', LIGHT);
+        applyTheme: function (theme) {
+          localStorage.setItem('theme', theme);
 
-          lightStyle.disabled = false;
-          document.body.classList.add(LIGHT);
+          this.theme = theme;
 
-          darkStyle.disabled = true;
-          document.body.classList.remove(DARK);
-
-          this.theme = LIGHT;
-        },
-        applyDarkTheme: function () {
-          localStorage.setItem('theme', DARK);
-
-          lightStyle.disabled = true;
-          document.body.classList.remove(LIGHT);
-
-          darkStyle.disabled = false;
-          document.body.classList.add(DARK);
-
-          this.theme = DARK;
+          for (const { name, style } of THEMES) {
+            style.disabled = name !== theme;
+          }
         },
         toggle: function () {
-          this.theme === LIGHT ? this.applyDarkTheme() : this.applyLightTheme();
+          this.applyTheme(this.theme === LIGHT ? DARK : LIGHT);
         }
       };
 
@@ -58,7 +50,7 @@
         theme = DARK;
       }
 
-      theme === LIGHT ? themeService.applyLightTheme() : themeService.applyDarkTheme();
+      themeService.applyTheme(theme);
     </script>
     <app-root></app-root>
   </body>

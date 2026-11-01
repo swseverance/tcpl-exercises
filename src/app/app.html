@@ -1,5 +1,5 @@
 <nz-layout>
-  <nz-header>
+  <nz-header appThemeClass>
     <strong>The C Programming Language Exercises</strong>
 
     <span class="icons">
@@ -12,7 +12,7 @@
       >
         <span
           nz-icon
-          [nzType]="themeService?.theme === 'tcpl-exercises-light-theme' ? 'moon' : 'sun'"
+          [nzType]="themeService?.theme === 'light' ? 'moon' : 'sun'"
           nzTheme="outline"
         ></span>
       </button>
@@ -30,7 +30,7 @@
     </span>
   </nz-header>
 
-  <nz-content>
+  <nz-content appThemeClass>
     <p>env: {{ environment.name }}</p>
 
     @if (user()) {
