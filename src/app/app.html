@@ -1,14 +1,8 @@
-<!-- NG-ZORRO -->
-<a
-  href="https://github.com/NG-ZORRO/ng-zorro-antd"
-  target="_blank"
-  style="display: flex; align-items: center; justify-content: center; height: 100%; width: 100%"
->
-  <img
-    height="300"
-    alt="logo"
-    src="https://img.alicdn.com/tfs/TB1X.qJJgHqK1RjSZFgXXa7JXXa-89-131.svg"
-  />
-</a>
+<p>env: {{ environment.name }}</p>
 
-<h1>env: {{ environment.name }}</h1>
+@if (user()) {
+  <p>{{ user()?.displayName }}</p>
+  <button type="button" (click)="logout()">Log out</button>
+} @else {
+  <button type="button" (click)="login()">Log in with Google</button>
+}
