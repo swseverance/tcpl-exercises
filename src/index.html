@@ -1,13 +1,61 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>TcplExercises</title>
-  <base href="/">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" type="image/x-icon" href="favicon.ico">
-</head>
-<body>
-  <app-root></app-root>
-</body>
+  <head>
+    <meta charset="utf-8" />
+    <title>TcplExercises</title>
+    <base href="/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/x-icon" href="favicon.ico" />
+  </head>
+  <body>
+    <script>
+      const LIGHT = 'tcpl-exercises-light-theme';
+      const DARK = 'tcpl-exercises-dark-theme';
+
+      const lightStyle = document.querySelector('link[href^="light-theme"]');
+      const darkStyle = document.querySelector('link[href^="dark-theme"]');
+
+      var themeService = {
+        theme: null,
+        applyLightTheme: function () {
+          localStorage.setItem('theme', LIGHT);
+
+          lightStyle.disabled = false;
+          document.body.classList.add(LIGHT);
+
+          darkStyle.disabled = true;
+          document.body.classList.remove(DARK);
+
+          this.theme = LIGHT;
+        },
+        applyDarkTheme: function () {
+          localStorage.setItem('theme', DARK);
+
+          lightStyle.disabled = true;
+          document.body.classList.remove(LIGHT);
+
+          darkStyle.disabled = false;
+          document.body.classList.add(DARK);
+
+          this.theme = DARK;
+        },
+        toggle: function () {
+          this.theme === LIGHT ? this.applyDarkTheme() : this.applyLightTheme();
+        }
+      };
+
+      let theme = LIGHT;
+
+      if (
+        localStorage.getItem('theme') === DARK ||
+        (!localStorage.getItem('theme') &&
+          window.matchMedia('(prefers-color-scheme: dark)').matches)
+      ) {
+        theme = DARK;
+      }
+
+      theme === LIGHT ? themeService.applyLightTheme() : themeService.applyDarkTheme();
+    </script>
+    <app-root></app-root>
+  </body>
 </html>

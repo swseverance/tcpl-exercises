@@ -28,9 +28,24 @@
               {
                 "glob": "**/*",
                 "input": "public"
+              },
+              {
+                "glob": "**/*",
+                "input": "./node_modules/@ant-design/icons-angular/src/inline-svg/",
+                "output": "/assets/"
               }
             ],
-            "styles": ["src/styles.scss"],
+            "styles": [
+              {
+                "input": "src/themes/light-theme.less",
+                "bundleName": "light-theme"
+              },
+              {
+                "input": "src/themes/dark-theme.less",
+                "bundleName": "dark-theme"
+              },
+              "src/styles.scss"
+            ],
             "server": "src/main.server.ts",
             "outputMode": "server",
             "security": {
@@ -44,6 +59,12 @@
             "production": {
               "budgets": [],
               "outputHashing": "all",
+              "optimization": {
+                "styles": {
+                  "minify": true,
+                  "inlineCritical": false
+                }
+              },
               "fileReplacements": [
                 {
                   "replace": "src/environments/environment.ts",
@@ -52,7 +73,13 @@
               ]
             },
             "development": {
-              "optimization": false,
+              "outputHashing": "all",
+              "optimization": {
+                "styles": {
+                  "minify": true,
+                  "inlineCritical": false
+                }
+              },
               "extractLicenses": false,
               "sourceMap": true,
               "fileReplacements": [
@@ -63,6 +90,7 @@
               ]
             },
             "local": {
+              "outputHashing": "none",
               "optimization": false,
               "extractLicenses": false,
               "sourceMap": true
