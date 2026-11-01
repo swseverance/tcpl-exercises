@@ -1,2 +1,15 @@
 scripts:
   buildCommand: ng build --configuration=production
+
+env:
+  - variable: VERCEL_PROJECT_ID
+    value: prj_hDT7wwchGhgvhjZTFnn4br5p5huv # tcpl-exercises-prod
+    availability:
+      - RUNTIME
+  # Scoped to only the tcpl-exercises-prod project. Secrets are per-GCP-project
+  # resources, so this is a separate secret from the one apphosting.dev.yaml
+  # references even though they share the same name.
+  - variable: VERCEL_TOKEN
+    secret: VERCEL_TOKEN
+    availability:
+      - RUNTIME

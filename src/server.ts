@@ -5,11 +5,16 @@ import {
   writeResponseToNodeResponse
 } from '@angular/ssr/node';
 import express from 'express';
+import { initializeApp } from 'firebase-admin/app';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import { join } from 'node:path';
 import { environment } from './environments/environment';
+import { runCHandler } from './server/api/run-c.handler';
+import { appCheckMiddleware } from './server/middleware/appcheck';
 
 const browserDistFolder = join(import.meta.dirname, '../browser');
+
+initializeApp({ projectId: environment.firebaseConfig.projectId });
 
 const app = express();
 const angularApp = new AngularNodeAppEngine();
@@ -21,6 +26,15 @@ app.use(
     pathFilter: '/__/auth/**'
   })
 );
+
+app.use('/api/', (_req, res, next) => {
+  res.setHeader('Cache-Control', 'no-store');
+  next();
+});
+app.use('/api/', express.json({ limit: '64kb' }));
+app.use('/api/', appCheckMiddleware);
+
+app.post('/api/run-c', runCHandler);
 
 /**
  * Serve static files from /browser

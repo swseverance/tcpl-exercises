@@ -6,3 +6,40 @@
 } @else {
   <button type="button" (click)="login()">Log in with Google</button>
 }
+
+<section class="code-runner">
+  <h2>Run a C program</h2>
+
+  <label for="c-source">C source</label>
+  <textarea
+    id="c-source"
+    class="code-runner__editor"
+    spellcheck="false"
+    [value]="code()"
+    (input)="onCodeInput($event)"
+  ></textarea>
+
+  <button type="button" [disabled]="running()" (click)="run()">
+    {{ running() ? 'Running…' : 'Run' }}
+  </button>
+
+  @if (error()) {
+    <p class="code-runner__error" role="alert">{{ error() }}</p>
+  }
+
+  @if (result()) {
+    <div class="code-runner__output">
+      <p>Exit code: {{ result()?.exitCode }}{{ result()?.timedOut ? ' (timed out)' : '' }}</p>
+
+      @if (result()?.stdout) {
+        <h3>stdout</h3>
+        <pre>{{ result()?.stdout }}</pre>
+      }
+
+      @if (result()?.stderr) {
+        <h3>stderr</h3>
+        <pre>{{ result()?.stderr }}</pre>
+      }
+    </div>
+  }
+</section>

@@ -8,17 +8,14 @@ runConfig:
   # memoryMiB: 512
 
 # Environment variables and secrets.
-# env:
-  # Configure environment variables.
-  # See https://firebase.google.com/docs/app-hosting/configure#user-defined-environment
-  # - variable: MESSAGE
-  #   value: Hello world!
-  #   availability:
-  #     - BUILD
-  #     - RUNTIME
-
-  # Grant access to secrets in Cloud Secret Manager.
-  # You can create secrets with the CLI command `firebase apphosting:secrets:set <secretName>`.
-  # See https://firebase.google.com/docs/app-hosting/configure#secret-parameters
-  # - variable: MY_SECRET
-  #   secret: mySecretRef
+env:
+  # Vercel team ID used to authenticate the Sandbox SDK with an access
+  # token (this server doesn't run on Vercel, so VERCEL_OIDC_TOKEN is never
+  # available). Not secret, just an identifier; same team for every
+  # environment. VERCEL_PROJECT_ID and VERCEL_TOKEN are project-scoped and
+  # set per environment in apphosting.local.yaml / apphosting.dev.yaml /
+  # apphosting.prod.yaml instead.
+  - variable: VERCEL_TEAM_ID
+    value: team_0M3MOKT5ntF9hBTAuhcJCd0g
+    availability:
+      - RUNTIME
