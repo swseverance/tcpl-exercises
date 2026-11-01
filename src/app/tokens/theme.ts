@@ -2,18 +2,18 @@ import { isPlatformBrowser } from '@angular/common';
 import { inject, InjectionToken, PLATFORM_ID } from '@angular/core';
 import { WINDOW } from './window';
 
-type ThemeService = {
-  theme: 'light' | 'dark';
-  toggle(): void;
-};
+export type ThemeName = 'light' | 'dark';
 
 declare global {
   interface Window {
-    themeService: ThemeService;
+    themeService: {
+      theme: ThemeName;
+      toggle(): void;
+    };
   }
 }
 
-export const THEME = new InjectionToken<ThemeService | null>('THEME', {
+export const THEME = new InjectionToken<Window['themeService'] | null>('THEME', {
   providedIn: 'root',
   factory: () => (isPlatformBrowser(inject(PLATFORM_ID)) ? inject(WINDOW).themeService : null)
 });

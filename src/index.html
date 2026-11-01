@@ -20,8 +20,8 @@
       const darkStyle = document.querySelector('link[href^="dark-theme"]');
 
       const THEMES = [
-        { name: LIGHT, style: lightStyle },
-        { name: DARK, style: darkStyle }
+        { name: LIGHT, class: 'tcpl-exercises-light-theme', style: lightStyle },
+        { name: DARK, class: 'tcpl-exercises-dark-theme', style: darkStyle }
       ];
 
       var themeService = {
@@ -31,9 +31,21 @@
 
           this.theme = theme;
 
-          for (const { name, style } of THEMES) {
-            style.disabled = name !== theme;
+          for (const t of THEMES) {
+            if (t.name === theme) {
+              t.style.disabled = false;
+              document.body.classList.add(t.class);
+            }
           }
+
+          for (const t of THEMES) {
+            if (t.name !== theme) {
+              t.style.disabled = true;
+              document.body.classList.remove(t.class);
+            }
+          }
+
+          window.dispatchEvent(new CustomEvent('themechange', { detail: theme }));
         },
         toggle: function () {
           this.applyTheme(this.theme === LIGHT ? DARK : LIGHT);

@@ -9,18 +9,6 @@ nz-header {
   justify-content: space-between;
   padding: 0 16px;
 
-  &.tcpl-exercises-light-theme {
-    background: #fff;
-    color: rgba(0, 0, 0, 0.85);
-    border-bottom: 1px solid #1890ff;
-  }
-
-  &.tcpl-exercises-dark-theme {
-    background: rgb(20, 20, 20);
-    color: rgba(255, 255, 255, 0.85);
-    border-bottom: 1px solid #177ddc;
-  }
-
   .icons {
     margin-left: auto;
     display: flex;
@@ -38,16 +26,6 @@ nz-content {
   flex-direction: column;
   padding: 16px;
   overflow-y: auto;
-
-  &.tcpl-exercises-light-theme {
-    background: #fff;
-    color: rgba(0, 0, 0, 0.85);
-  }
-
-  &.tcpl-exercises-dark-theme {
-    background: rgb(20, 20, 20);
-    color: rgba(255, 255, 255, 0.85);
-  }
 }
 
 .code-runner {

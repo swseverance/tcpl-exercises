@@ -1,5 +1,5 @@
 <nz-layout>
-  <nz-header appThemeClass>
+  <nz-header>
     <strong>The C Programming Language Exercises</strong>
 
     <span class="icons">
@@ -8,11 +8,11 @@
         nzType="text"
         type="button"
         aria-label="Toggle light and dark theme"
-        (click)="themeService?.toggle()"
+        (click)="theme.toggle()"
       >
         <span
           nz-icon
-          [nzType]="themeService?.theme === 'light' ? 'moon' : 'sun'"
+          [nzType]="theme.theme() === 'light' ? 'moon' : 'sun'"
           nzTheme="outline"
         ></span>
       </button>
@@ -30,7 +30,7 @@
     </span>
   </nz-header>
 
-  <nz-content appThemeClass>
+  <nz-content>
     <p>env: {{ environment.name }}</p>
 
     @if (user()) {
