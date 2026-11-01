@@ -9,6 +9,10 @@ nz-header {
   justify-content: space-between;
   padding: 0 16px;
 
+  a {
+    color: unset;
+  }
+
   .icons {
     margin-left: auto;
     display: flex;
@@ -24,31 +28,5 @@ nz-content {
   flex: 1 1 auto;
   display: flex;
   flex-direction: column;
-  padding: 16px;
   overflow-y: auto;
-}
-
-.code-runner {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  max-width: 640px;
-
-  &__editor {
-    font-family: monospace;
-    font-size: 0.875rem;
-    min-height: 240px;
-    resize: vertical;
-  }
-
-  &__error {
-    color: #c00;
-  }
-
-  &__output pre {
-    background: #f5f5f5;
-    padding: 0.75rem;
-    overflow-x: auto;
-    white-space: pre-wrap;
-  }
 }

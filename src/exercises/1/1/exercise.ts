@@ -1,0 +1,11 @@
+import { Exercise } from '../../../models/exercise';
+import solution from './main.c' with { type: 'text' };
+
+export const exercise1_1: Exercise = {
+  id: '1-1',
+  number: 1,
+  description:
+    'Run the "hello, world" program on your system. Experiment with leaving out parts of the program, to see what error messages you get.',
+  solution,
+  tests: [{ expectedStdout: 'hello, world\n' }]
+};

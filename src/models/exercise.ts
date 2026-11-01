@@ -5,6 +5,7 @@ export type ExerciseTestCase = {
 
 export type Exercise = {
   id: string;
+  number: number;
   description: string;
   solution: string;
   tests: ExerciseTestCase[];
