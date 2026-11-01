@@ -6,10 +6,14 @@ import {
   signOut,
   User
 } from 'firebase/auth';
+import { NzButtonModule } from 'ng-zorro-antd/button';
+import { NzIconModule } from 'ng-zorro-antd/icon';
+import { NzLayoutModule } from 'ng-zorro-antd/layout';
 import { RunCResponse } from '../models/run-c';
 import { CodeRunner } from './services/code-runner';
 import { ENVIRONMENT } from './tokens/environment';
 import { AUTH } from './tokens/firebase';
+import { THEME } from './tokens/theme';
 
 const DEFAULT_CODE = `#include <stdio.h>
 
@@ -21,6 +25,7 @@ int main(void) {
 
 @Component({
   selector: 'app-root',
+  imports: [NzLayoutModule, NzButtonModule, NzIconModule],
   styleUrl: './app.scss',
   templateUrl: './app.html'
 })
@@ -29,6 +34,7 @@ export class App {
   private readonly codeRunner = inject(CodeRunner);
 
   protected readonly environment = inject(ENVIRONMENT);
+  protected readonly themeService = inject(THEME);
 
   protected readonly user = signal<User | null>(null);
   protected readonly code = signal(DEFAULT_CODE);

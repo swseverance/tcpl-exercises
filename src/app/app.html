@@ -1,45 +1,80 @@
-<p>env: {{ environment.name }}</p>
+<nz-layout>
+  <nz-header>
+    <strong>The C Programming Language Exercises</strong>
 
-@if (user()) {
-  <p>{{ user()?.displayName }}</p>
-  <button type="button" (click)="logout()">Log out</button>
-} @else {
-  <button type="button" (click)="login()">Log in with Google</button>
-}
+    <span class="icons">
+      <button
+        nz-button
+        nzType="text"
+        type="button"
+        aria-label="Toggle light and dark theme"
+        (click)="themeService?.toggle()"
+      >
+        <span
+          nz-icon
+          [nzType]="themeService?.theme === 'tcpl-exercises-light-theme' ? 'moon' : 'sun'"
+          nzTheme="outline"
+        ></span>
+      </button>
 
-<section class="code-runner">
-  <h2>Run a C program</h2>
+      <a
+        nz-button
+        nzType="text"
+        href="https://github.com/swseverance/tcpl-exercises"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="GitHub repository"
+      >
+        <span nz-icon nzType="github" nzTheme="outline"></span>
+      </a>
+    </span>
+  </nz-header>
 
-  <label for="c-source">C source</label>
-  <textarea
-    id="c-source"
-    class="code-runner__editor"
-    spellcheck="false"
-    [value]="code()"
-    (input)="onCodeInput($event)"
-  ></textarea>
+  <nz-content>
+    <p>env: {{ environment.name }}</p>
 
-  <button type="button" [disabled]="running()" (click)="run()">
-    {{ running() ? 'Running…' : 'Run' }}
-  </button>
+    @if (user()) {
+      <p>{{ user()?.displayName }}</p>
+      <button type="button" (click)="logout()">Log out</button>
+    } @else {
+      <button type="button" (click)="login()">Log in with Google</button>
+    }
 
-  @if (error()) {
-    <p class="code-runner__error" role="alert">{{ error() }}</p>
-  }
+    <section class="code-runner">
+      <h2>Run a C program</h2>
 
-  @if (result()) {
-    <div class="code-runner__output">
-      <p>Exit code: {{ result()?.exitCode }}{{ result()?.timedOut ? ' (timed out)' : '' }}</p>
+      <label for="c-source">C source</label>
+      <textarea
+        id="c-source"
+        class="code-runner__editor"
+        spellcheck="false"
+        [value]="code()"
+        (input)="onCodeInput($event)"
+      ></textarea>
 
-      @if (result()?.stdout) {
-        <h3>stdout</h3>
-        <pre>{{ result()?.stdout }}</pre>
+      <button type="button" [disabled]="running()" (click)="run()">
+        {{ running() ? 'Running…' : 'Run' }}
+      </button>
+
+      @if (error()) {
+        <p class="code-runner__error" role="alert">{{ error() }}</p>
       }
 
-      @if (result()?.stderr) {
-        <h3>stderr</h3>
-        <pre>{{ result()?.stderr }}</pre>
+      @if (result()) {
+        <div class="code-runner__output">
+          <p>Exit code: {{ result()?.exitCode }}{{ result()?.timedOut ? ' (timed out)' : '' }}</p>
+
+          @if (result()?.stdout) {
+            <h3>stdout</h3>
+            <pre>{{ result()?.stdout }}</pre>
+          }
+
+          @if (result()?.stderr) {
+            <h3>stderr</h3>
+            <pre>{{ result()?.stderr }}</pre>
+          }
+        </div>
       }
-    </div>
-  }
-</section>
+    </section>
+  </nz-content>
+</nz-layout>
