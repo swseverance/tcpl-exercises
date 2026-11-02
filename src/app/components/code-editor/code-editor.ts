@@ -88,6 +88,10 @@ export class CodeEditor implements AfterViewInit, OnChanges, OnDestroy {
     this.view?.destroy();
   }
 
+  getCode(): string {
+    return this.view?.state.doc.toString() ?? this.code;
+  }
+
   private darkTheme(): boolean {
     return this.theme === 'dark';
   }

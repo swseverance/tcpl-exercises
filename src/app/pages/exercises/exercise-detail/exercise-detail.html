@@ -1,6 +1,23 @@
 @let theme = theme$ | async;
 @let draft = draft$ | async;
+@let submissions = submissions$ | async;
+@let exercise = exercise$ | async;
 
-@if (draft && theme) {
-  <app-code-editor [code]="draft.code" [theme]="theme" (codeChange)="onCodeChange($event)" />
-}
+<div class="exercise-layout">
+  <div class="editor-section">
+    @if (draft && theme) {
+      <app-code-editor [code]="draft.code" [theme]="theme" (codeChange)="onCodeChange($event)" />
+      <button nz-button nzType="primary" type="button" (click)="onSubmit()">Submit</button>
+    }
+  </div>
+
+  <div nz-row [nzGutter]="16" class="results-section">
+    <div nz-col [nzSpan]="12">
+      <app-test-cases [tests]="exercise?.tests ?? []" />
+    </div>
+
+    <div nz-col [nzSpan]="12">
+      <app-submissions [submissions]="submissions ?? []" />
+    </div>
+  </div>
+</div>

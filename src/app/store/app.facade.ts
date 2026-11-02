@@ -6,9 +6,10 @@ import {
   selectExercise,
   setTheme,
   signOutWithGoogle,
+  submitExercise,
   updateExerciseDraftCode
 } from './app.actions';
-import { selectDraft, selectTheme } from './app.selectors';
+import { selectDraft, selectSubmissions, selectTheme } from './app.selectors';
 import { AppState } from './app.state';
 
 @Injectable({ providedIn: 'root' })
@@ -17,6 +18,7 @@ export class AppFacade {
 
   readonly theme$ = this.store.select(selectTheme);
   readonly draft$ = this.store.select(selectDraft);
+  readonly submissions$ = this.store.select(selectSubmissions);
 
   openSignInModal(): void {
     this.store.dispatch(openSignInModal());
@@ -36,5 +38,9 @@ export class AppFacade {
 
   updateExerciseDraftCode(code: string): void {
     this.store.dispatch(updateExerciseDraftCode({ code }));
+  }
+
+  submitExercise(code: string): void {
+    this.store.dispatch(submitExercise({ code }));
   }
 }

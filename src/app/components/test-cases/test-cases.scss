@@ -1,0 +1,18 @@
+.test-case {
+  width: 100%;
+  margin: 0;
+
+  dt {
+    font-weight: 600;
+  }
+
+  dd {
+    margin: 0 0 0.5rem;
+
+    pre {
+      margin: 0;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+  }
+}

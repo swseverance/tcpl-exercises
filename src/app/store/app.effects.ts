@@ -26,8 +26,12 @@ import {
   closeSignInModal,
   exerciseDraftLoaded,
   exerciseDraftSaved,
+  exerciseSubmissionsLoaded,
+  exerciseSubmitted,
   loadExerciseDraft,
   loadExerciseDraftFailure,
+  loadExerciseSubmissions,
+  loadExerciseSubmissionsFailure,
   openSignInModal,
   saveExerciseDraft,
   saveExerciseDraftFailure,
@@ -35,7 +39,9 @@ import {
   signInWithGoogle,
   signOutFailure,
   signOutSuccess,
-  signOutWithGoogle
+  signOutWithGoogle,
+  submitExercise,
+  submitExerciseFailure
 } from './app.actions';
 import { selectId, selectPendingChanges } from './app.selectors';
 import { AppState } from './app.state';
@@ -129,7 +135,7 @@ export class AppEffects {
   selectExercise$ = createEffect(() =>
     combineLatest([this.store.select(selectId), this.user$]).pipe(
       filter((value): value is [string, User | null] => !!value[0] && !!value[1]),
-      map(([id]) => loadExerciseDraft({ id }))
+      mergeMap(([id]) => of(loadExerciseDraft({ id }), loadExerciseSubmissions({ id })))
     )
   );
 
@@ -159,6 +165,30 @@ export class AppEffects {
         tap(({ error }) => {
           console.error('[exercise-draft] load failed:', error);
           this.message.error('Failed to Load Exercise Draft');
+        })
+      ),
+    { dispatch: false }
+  );
+
+  loadExerciseSubmissions$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(loadExerciseSubmissions),
+      switchMap(({ id }) =>
+        this.exerciseService.listSubmissions(id).pipe(
+          map((submissions) => exerciseSubmissionsLoaded({ id, submissions })),
+          catchError((error) => of(loadExerciseSubmissionsFailure({ id, error })))
+        )
+      )
+    )
+  );
+
+  loadExerciseSubmissionsFailure$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(loadExerciseSubmissionsFailure),
+        tap(({ error }) => {
+          console.error('[exercise-submissions] load failed:', error);
+          this.message.error('Failed to Load Exercise Submissions');
         })
       ),
     { dispatch: false }
@@ -199,6 +229,31 @@ export class AppEffects {
             console.error(`[exercise-draft] save failed for ${id}, will retry:`, error);
             this.message.error('Failed to Save Exercise Draft');
           }
+        })
+      ),
+    { dispatch: false }
+  );
+
+  submitExercise$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(submitExercise),
+      withLatestFrom(this.store.select(selectId)),
+      mergeMap(([{ code }, id]) =>
+        this.exerciseService.submit(id!, code).pipe(
+          map((submission) => exerciseSubmitted({ submission })),
+          catchError((error) => of(submitExerciseFailure({ id: id!, error })))
+        )
+      )
+    )
+  );
+
+  submitExerciseFailure$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(submitExerciseFailure),
+        tap(({ id, error }) => {
+          console.error(`[exercise-submission] submit failed for ${id}:`, error);
+          this.message.error('Failed to Submit Exercise');
         })
       ),
     { dispatch: false }

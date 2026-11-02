@@ -10,5 +10,6 @@ fi
 
 trap 'firebase use dev' EXIT
 
+npm test -- --watch=false
 firebase use "$ENV"
 firebase deploy --only apphosting,functions,firestore

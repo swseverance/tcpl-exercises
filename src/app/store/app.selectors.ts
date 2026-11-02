@@ -14,3 +14,5 @@ export const selectDrafts = createSelector(selectAppState, (state) => state.draf
 export const selectDraft = createSelector(selectId, selectDrafts, (id, drafts) =>
   id ? drafts[id] : undefined
 );
+
+export const selectSubmissions = createSelector(selectAppState, (state) => state.submissions);

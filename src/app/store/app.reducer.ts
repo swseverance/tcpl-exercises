@@ -3,6 +3,8 @@ import { createReducer, on } from '@ngrx/store';
 import {
   exerciseDraftLoaded,
   exerciseDraftSaved,
+  exerciseSubmissionsLoaded,
+  exerciseSubmitted,
   saveExerciseDraftFailure,
   selectExercise,
   setTheme,
@@ -20,7 +22,8 @@ export const appReducer = createReducer(
 
   on(selectExercise, (state, { id }) => ({
     ...state,
-    id
+    id,
+    submissions: []
   })),
 
   on(exerciseDraftLoaded, (state, { draft }) => ({
@@ -59,5 +62,15 @@ export const appReducer = createReducer(
     }
 
     return state;
-  })
+  }),
+
+  on(exerciseSubmissionsLoaded, (state, { id, submissions }) =>
+    id === state.id ? { ...state, submissions } : state
+  ),
+
+  on(exerciseSubmitted, (state, { submission }) =>
+    submission.exerciseId === state.id
+      ? { ...state, submissions: [submission, ...state.submissions] }
+      : state
+  )
 );

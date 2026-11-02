@@ -1,5 +1,6 @@
 import { createAction, props } from '@ngrx/store';
 import { ExerciseDraft } from '../../models/exercise-draft';
+import { ExerciseSubmission } from '../../models/exercise-submission';
 import { ThemeName } from '../services/theme';
 
 export const openSignInModal = createAction('Open Sign In Modal');
@@ -47,5 +48,32 @@ export const exerciseDraftSaved = createAction(
 
 export const saveExerciseDraftFailure = createAction(
   'Save Exercise Draft Failure',
+  props<{ id: string; error: unknown }>()
+);
+
+export const submitExercise = createAction('Submit Exercise', props<{ code: string }>());
+
+export const exerciseSubmitted = createAction(
+  'Exercise Submitted',
+  props<{ submission: ExerciseSubmission }>()
+);
+
+export const submitExerciseFailure = createAction(
+  'Submit Exercise Failure',
+  props<{ id: string; error: unknown }>()
+);
+
+export const loadExerciseSubmissions = createAction(
+  'Load Exercise Submissions',
+  props<{ id: string }>()
+);
+
+export const exerciseSubmissionsLoaded = createAction(
+  'Exercise Submissions Loaded',
+  props<{ id: string; submissions: ExerciseSubmission[] }>()
+);
+
+export const loadExerciseSubmissionsFailure = createAction(
+  'Load Exercise Submissions Failure',
   props<{ id: string; error: unknown }>()
 );

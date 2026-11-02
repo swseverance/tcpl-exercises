@@ -1,0 +1,25 @@
+:host {
+  display: block;
+}
+
+.exercise-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.editor-section {
+  height: 50vh;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  app-code-editor {
+    flex: 1;
+    min-height: 0;
+  }
+
+  button {
+    align-self: flex-start;
+  }
+}
