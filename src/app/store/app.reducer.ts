@@ -6,6 +6,7 @@ import {
   loadExerciseDraftFailure,
   saveExerciseDraft,
   saveExerciseDraftFailure,
+  selectExercise,
   setTheme,
   updateExerciseDraftCode
 } from './app.actions';
@@ -17,6 +18,11 @@ export const appReducer = createReducer(
   on(setTheme, (state, { name: theme }) => ({
     ...state,
     theme
+  })),
+
+  on(selectExercise, (state, { id }) => ({
+    ...state,
+    id
   })),
 
   on(loadExerciseDraft, (state, { id }) => ({

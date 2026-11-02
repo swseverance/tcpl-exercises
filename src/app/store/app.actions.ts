@@ -16,6 +16,8 @@ export const signOutFailure = createAction('Sign Out Failure', props<{ error: an
 
 export const setTheme = createAction('Set Theme', props<{ name: ThemeName }>());
 
+export const selectExercise = createAction('Select Exercise', props<{ id: string }>());
+
 export const loadExerciseDraft = createAction('Load Exercise Draft', props<{ id: string }>());
 
 export const exerciseDraftLoaded = createAction(

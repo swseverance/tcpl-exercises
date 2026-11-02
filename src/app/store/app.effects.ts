@@ -1,13 +1,13 @@
 import { inject, Injectable } from '@angular/core';
 import { Actions, createEffect, ofType, ROOT_EFFECTS_INIT } from '@ngrx/effects';
 import { Action, Store } from '@ngrx/store';
-import { GoogleAuthProvider, signInWithRedirect, signOut } from 'firebase/auth';
+import { GoogleAuthProvider, signInWithRedirect, signOut, User } from 'firebase/auth';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzModalService } from 'ng-zorro-antd/modal';
-import { catchError, map, Observable, of, switchMap, tap } from 'rxjs';
+import { catchError, combineLatest, filter, map, Observable, of, switchMap, tap } from 'rxjs';
 import { ExerciseService } from '../services/exercise-service';
 import { Theme } from '../services/theme';
-import { AUTH } from '../tokens/firebase';
+import { AUTH, USER$ } from '../tokens/firebase';
 import {
   closeSignInModal,
   exerciseDraftLoaded,
@@ -23,6 +23,7 @@ import {
   signOutSuccess,
   signOutWithGoogle
 } from './app.actions';
+import { selectId } from './app.selectors';
 import { AppState } from './app.state';
 
 @Injectable()
@@ -34,6 +35,23 @@ export class AppEffects {
   private readonly auth = inject(AUTH);
   private readonly theme = inject(Theme);
   private readonly exerciseService = inject(ExerciseService);
+  private readonly user$ = inject(USER$);
+
+  setInitialTheme$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(ROOT_EFFECTS_INIT),
+      map(() => setTheme({ name: this.theme.getTheme() }))
+    )
+  );
+
+  setTheme$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(setTheme),
+        tap(({ name }) => this.theme.applyTheme(name))
+      ),
+    { dispatch: false }
+  );
 
   openSignInModal$ = createEffect(() =>
     this.actions$.pipe(
@@ -92,6 +110,13 @@ export class AppEffects {
     { dispatch: false }
   );
 
+  selectExercise$ = createEffect(() =>
+    combineLatest([this.store.select(selectId), this.user$]).pipe(
+      filter((value): value is [string, User | null] => !!value[0] && !!value[1]),
+      map(([id]) => loadExerciseDraft({ id }))
+    )
+  );
+
   loadExerciseDraft$ = createEffect(() =>
     this.actions$.pipe(
       ofType(loadExerciseDraft),
@@ -136,22 +161,6 @@ export class AppEffects {
           console.error('[exercise-draft] save failed:', error);
           this.message.error('Failed to Save Exercise Draft');
         })
-      ),
-    { dispatch: false }
-  );
-
-  setInitialTheme$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(ROOT_EFFECTS_INIT),
-      map(() => setTheme({ name: this.theme.getTheme() }))
-    )
-  );
-
-  setTheme$ = createEffect(
-    () =>
-      this.actions$.pipe(
-        ofType(setTheme),
-        tap(({ name }) => this.theme.applyTheme(name))
       ),
     { dispatch: false }
   );

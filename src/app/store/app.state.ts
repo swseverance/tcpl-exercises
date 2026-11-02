@@ -21,12 +21,18 @@ export type ExerciseSubmissionsState = {
 
 export type AppState = {
   theme: ThemeName | null;
+
+  id: string | null;
+
   draft: ExerciseDraftState;
   submissions: ExerciseSubmissionsState;
 };
 
 export const initialAppState: AppState = {
   theme: null,
+
+  id: null,
+
   draft: { exerciseId: null, code: '', status: 'idle', error: null },
   submissions: { exerciseId: null, current: null, status: 'idle', error: null }
 };
