@@ -8,5 +8,5 @@ export const exercise1_1: Exercise = {
   description:
     'Run the "hello, world" program on your system. Experiment with leaving out parts of the program, to see what error messages you get.',
   solution,
-  tests: [{ expectedStdout: 'hello, world\n' }]
+  tests: [{ id: '3ee816ef', expectedStdout: 'hello, world\n' }]
 };

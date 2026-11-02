@@ -1,4 +1,5 @@
 export type ExerciseTestCase = {
+  id: string;
   stdin?: string;
   expectedStdout: string;
 };

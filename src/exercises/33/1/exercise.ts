@@ -8,8 +8,8 @@ export const exercise33_1: Exercise = {
   description: 'Dummy exercise: read an integer and print double its value.',
   solution,
   tests: [
-    { stdin: '5', expectedStdout: '10\n' },
-    { stdin: '0', expectedStdout: '0\n' },
-    { stdin: '-3', expectedStdout: '-6\n' }
+    { id: '0fb3ce5e', stdin: '5', expectedStdout: '10\n' },
+    { id: '4594e95f', stdin: '0', expectedStdout: '0\n' },
+    { id: '516c14ff', stdin: '-3', expectedStdout: '-6\n' }
   ]
 };

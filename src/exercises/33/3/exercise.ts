@@ -7,5 +7,5 @@ export const exercise33_3: Exercise = {
   number: 3,
   description: 'Dummy exercise: print a fixed greeting with no input.',
   solution,
-  tests: [{ expectedStdout: 'Hello, dummy!\n' }]
+  tests: [{ id: '56472e15', expectedStdout: 'Hello, dummy!\n' }]
 };

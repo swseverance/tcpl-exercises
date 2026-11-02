@@ -8,8 +8,8 @@ export const exercise33_2: Exercise = {
   description: 'Dummy exercise: read two integers and print their sum.',
   solution,
   tests: [
-    { stdin: '1 2', expectedStdout: '3\n' },
-    { stdin: '0 0', expectedStdout: '0\n' },
-    { stdin: '-5 5', expectedStdout: '0\n' }
+    { id: 'ff73f465', stdin: '1 2', expectedStdout: '3\n' },
+    { id: '06ef80a8', stdin: '0 0', expectedStdout: '0\n' },
+    { id: 'd9dcff6b', stdin: '-5 5', expectedStdout: '0\n' }
   ]
 };
