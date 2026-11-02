@@ -24,6 +24,6 @@ export const exerciseDraftLoaded = createAction(
 );
 
 export const loadExerciseDraftFailure = createAction(
-  'Load Exercise Draft Failur',
+  'Load Exercise Draft Failure',
   props<{ error: any }>()
 );

@@ -4,11 +4,15 @@ import { Action, Store } from '@ngrx/store';
 import { GoogleAuthProvider, signInWithRedirect, signOut } from 'firebase/auth';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzModalService } from 'ng-zorro-antd/modal';
-import { map, Observable, switchMap, tap } from 'rxjs';
+import { catchError, map, Observable, of, switchMap, tap } from 'rxjs';
+import { ExerciseService } from '../services/exercise-service';
 import { Theme } from '../services/theme';
 import { AUTH } from '../tokens/firebase';
 import {
   closeSignInModal,
+  exerciseDraftLoaded,
+  loadExerciseDraft,
+  loadExerciseDraftFailure,
   openSignInModal,
   setTheme,
   signInWithGoogle,
@@ -26,6 +30,7 @@ export class AppEffects {
   private readonly message = inject(NzMessageService);
   private readonly auth = inject(AUTH);
   private readonly theme = inject(Theme);
+  private readonly exerciseService = inject(ExerciseService);
 
   openSignInModal$ = createEffect(() =>
     this.actions$.pipe(
@@ -80,6 +85,30 @@ export class AppEffects {
       this.actions$.pipe(
         ofType(signOutFailure),
         tap(() => this.message.error('Failed to Sign Out'))
+      ),
+    { dispatch: false }
+  );
+
+  loadExerciseDraft$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(loadExerciseDraft),
+      switchMap(({ id }) =>
+        this.exerciseService.getDraft(id).pipe(
+          map((draft) => exerciseDraftLoaded({ draft })),
+          catchError((error) => of(loadExerciseDraftFailure({ error })))
+        )
+      )
+    )
+  );
+
+  loadExerciseDraftFailure$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(loadExerciseDraftFailure),
+        tap(({ error }) => {
+          console.error('[exercise-draft] load failed:', error);
+          this.message.error('Failed to Load Exercise Draft');
+        })
       ),
     { dispatch: false }
   );

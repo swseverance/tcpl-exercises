@@ -1,4 +1,5 @@
 import { FieldValue, getFirestore, Timestamp } from 'firebase-admin/firestore';
+import { STARTER_CODE } from '../../models/exercise';
 import { ExerciseDraft } from '../../models/exercise-draft';
 
 type SaveExerciseDraftArgs = {
@@ -36,14 +37,11 @@ function toExerciseDraft(exerciseId: string, data: ReadExerciseDraft): ExerciseD
   };
 }
 
-export async function getExerciseDraft(
-  uid: string,
-  exerciseId: string
-): Promise<ExerciseDraft | null> {
+export async function getExerciseDraft(uid: string, exerciseId: string): Promise<ExerciseDraft> {
   const snapshot = await draftRef(uid, exerciseId).get();
 
   if (!snapshot.exists) {
-    return null;
+    return saveExerciseDraft(uid, { exerciseId, code: STARTER_CODE });
   }
 
   return toExerciseDraft(exerciseId, snapshot.data() as ReadExerciseDraft);
