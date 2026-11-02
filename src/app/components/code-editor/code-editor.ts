@@ -1,55 +1,64 @@
-import { Component } from '@angular/core';
-import { Annotation } from '@codemirror/state';
-
-// Tags a transaction as a programmatic sync (e.g. loading a draft) rather than a
-// real keystroke, so the update listener below doesn't echo it back out as an edit.
-const externalUpdate = Annotation.define<boolean>();
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  Input,
+  OnChanges,
+  OnDestroy,
+  SimpleChanges,
+  ViewChild
+} from '@angular/core';
+import { cpp } from '@codemirror/lang-cpp';
+import { Compartment } from '@codemirror/state';
+import { oneDark } from '@codemirror/theme-one-dark';
+import { basicSetup, EditorView } from 'codemirror';
+import { ThemeName } from '../../services/theme';
 
 @Component({
   selector: 'app-code-editor',
   template: '<div #host></div>',
   styleUrl: './code-editor.scss'
 })
-export class CodeEditor {
-  // readonly code = model.required<string>();
-  // private readonly theme = toSignal(inject(AppFacade).theme$, { initialValue: 'light' });
-  // private readonly host = viewChild.required<ElementRef<HTMLDivElement>>('host');
-  // private readonly themeCompartment = new Compartment();
-  // private view?: EditorView;
-  // constructor() {
-  //   afterNextRender(() => {
-  //     this.view = new EditorView({
-  //       doc: this.code(),
-  //       extensions: [
-  //         basicSetup,
-  //         cpp(),
-  //         EditorView.updateListener.of((update) => {
-  //           const isExternal = update.transactions.some((tr) => tr.annotation(externalUpdate));
-  //           if (update.docChanged && !isExternal) {
-  //             this.code.set(update.state.doc.toString());
-  //           }
-  //         }),
-  //         this.themeCompartment.of(this.theme() === 'dark' ? oneDark : [])
-  //       ],
-  //       parent: this.host().nativeElement
-  //     });
-  //   });
-  //   effect(() => {
-  //     const isDark = this.theme() === 'dark';
-  //     this.view?.dispatch({
-  //       effects: this.themeCompartment.reconfigure(isDark ? oneDark : [])
-  //     });
-  //   });
-  //   effect(() => {
-  //     const code = this.code();
-  //     const view = this.view;
-  //     if (view && code !== view.state.doc.toString()) {
-  //       view.dispatch({
-  //         changes: { from: 0, to: view.state.doc.length, insert: code },
-  //         annotations: externalUpdate.of(true)
-  //       });
-  //     }
-  //   });
-  //   inject(DestroyRef).onDestroy(() => this.view?.destroy());
-  // }
+export class CodeEditor implements AfterViewInit, OnChanges, OnDestroy {
+  @Input({ required: true }) code!: string;
+  @Input({ required: true }) theme!: ThemeName;
+
+  @ViewChild('host', { static: true }) private host!: ElementRef<HTMLDivElement>;
+
+  private readonly themeCompartment = new Compartment();
+  private view?: EditorView;
+
+  ngAfterViewInit(): void {
+    this.view = new EditorView({
+      doc: this.code,
+      extensions: [basicSetup, cpp(), this.themeCompartment.of(this.darkTheme() ? oneDark : [])],
+      parent: this.host.nativeElement
+    });
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (!this.view) {
+      return;
+    }
+
+    if (changes['theme']) {
+      this.view.dispatch({
+        effects: this.themeCompartment.reconfigure(this.darkTheme() ? oneDark : [])
+      });
+    }
+
+    if (changes['code'] && this.code !== this.view.state.doc.toString()) {
+      this.view.dispatch({
+        changes: { from: 0, to: this.view.state.doc.length, insert: this.code }
+      });
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.view?.destroy();
+  }
+
+  private darkTheme(): boolean {
+    return this.theme === 'dark';
+  }
 }

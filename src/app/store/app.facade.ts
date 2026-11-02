@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { ThemeName } from '../services/theme';
 import { loadExerciseDraft, openSignInModal, setTheme, signOutWithGoogle } from './app.actions';
-import { selectTheme } from './app.selectors';
+import { selectDraft, selectTheme } from './app.selectors';
 import { AppState } from './app.state';
 
 @Injectable({ providedIn: 'root' })
@@ -10,6 +10,7 @@ export class AppFacade {
   private readonly store = inject(Store<AppState>);
 
   readonly theme$ = this.store.select(selectTheme);
+  readonly draft$ = this.store.select(selectDraft);
 
   openSignInModal(): void {
     this.store.dispatch(openSignInModal());

@@ -1,0 +1,6 @@
+@let theme = theme$ | async;
+@let draft = draft$ | async;
+
+@if (draft && theme) {
+  <app-code-editor [code]="draft.code" [theme]="theme" />
+}
