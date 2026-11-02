@@ -13,56 +13,37 @@
   </head>
   <body>
     <script>
-      const LIGHT = 'light';
-      const DARK = 'dark';
-
+      const lightName = 'light';
+      const lightClass = 'tcpl-exercises-light-theme';
       const lightStyle = document.querySelector('link[href^="light-theme"]');
+
+      const darkName = 'dark';
+      const darkClass = 'tcpl-exercises-dark-theme';
       const darkStyle = document.querySelector('link[href^="dark-theme"]');
 
-      const THEMES = [
-        { name: LIGHT, class: 'tcpl-exercises-light-theme', style: lightStyle },
-        { name: DARK, class: 'tcpl-exercises-dark-theme', style: darkStyle }
-      ];
-
-      var themeService = {
-        theme: null,
-        applyTheme: function (theme) {
-          localStorage.setItem('theme', theme);
-
-          this.theme = theme;
-
-          for (const t of THEMES) {
-            if (t.name === theme) {
-              t.style.disabled = false;
-              document.body.classList.add(t.class);
-            }
-          }
-
-          for (const t of THEMES) {
-            if (t.name !== theme) {
-              t.style.disabled = true;
-              document.body.classList.remove(t.class);
-            }
-          }
-
-          window.dispatchEvent(new CustomEvent('themechange', { detail: theme }));
-        },
-        toggle: function () {
-          this.applyTheme(this.theme === LIGHT ? DARK : LIGHT);
-        }
-      };
-
-      let theme = LIGHT;
+      let theme = lightName;
 
       if (
-        localStorage.getItem('theme') === DARK ||
+        localStorage.getItem('theme') === darkName ||
         (!localStorage.getItem('theme') &&
           window.matchMedia('(prefers-color-scheme: dark)').matches)
       ) {
-        theme = DARK;
+        theme = darkName;
       }
 
-      themeService.applyTheme(theme);
+      if (theme == lightName) {
+        lightStyle.disabled = false;
+        document.body.classList.add(lightClass);
+
+        darkStyle.disabled = true;
+        document.body.classList.remove(darkClass);
+      } else {
+        darkStyle.disabled = false;
+        document.body.classList.add(darkClass);
+
+        lightStyle.disabled = true;
+        document.body.classList.remove(lightClass);
+      }
     </script>
     <app-root></app-root>
   </body>

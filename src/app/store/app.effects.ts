@@ -5,10 +5,12 @@ import { GoogleAuthProvider, signInWithRedirect, signOut } from 'firebase/auth';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzModalService } from 'ng-zorro-antd/modal';
 import { Observable, switchMap, tap } from 'rxjs';
+import { Theme } from '../services/theme';
 import { AUTH } from '../tokens/firebase';
 import {
   closeSignInModal,
   openSignInModal,
+  setTheme,
   signInWithGoogle,
   signOutFailure,
   signOutSuccess,
@@ -23,6 +25,7 @@ export class AppEffects {
   private readonly modal = inject(NzModalService);
   private readonly message = inject(NzMessageService);
   private readonly auth = inject(AUTH);
+  private readonly theme = inject(Theme);
 
   openSignInModal$ = createEffect(() =>
     this.actions$.pipe(
@@ -77,6 +80,15 @@ export class AppEffects {
       this.actions$.pipe(
         ofType(signOutFailure),
         tap(() => this.message.error('Failed to Sign Out'))
+      ),
+    { dispatch: false }
+  );
+
+  setTheme$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(setTheme),
+        tap(({ name }) => this.theme.applyTheme(name))
       ),
     { dispatch: false }
   );

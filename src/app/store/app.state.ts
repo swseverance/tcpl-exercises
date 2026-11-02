@@ -1,15 +1,12 @@
 import { ExerciseSubmission } from '../../models/exercise-submission';
+import { THEME_STORAGE_KEY, ThemeName } from '../services/theme';
 
-export type AuthUser = {
-  uid: string;
-  email: string | null;
-  displayName: string | null;
-};
-
-export type AuthState = {
-  status: 'loading' | 'resolved';
-  user: AuthUser | null;
-};
+// Read directly off localStorage so the store's initial state matches the theme the
+// inline script in index.html already persisted and applied before Angular bootstraps.
+const initialTheme: ThemeName =
+  typeof localStorage !== 'undefined' && localStorage.getItem(THEME_STORAGE_KEY) === 'dark'
+    ? 'dark'
+    : 'light';
 
 export type DraftStatus = 'idle' | 'loading' | 'dirty' | 'saving' | 'saved' | 'error';
 
@@ -30,13 +27,13 @@ export type ExerciseSubmissionsState = {
 };
 
 export type AppState = {
-  auth: AuthState;
+  theme: ThemeName;
   draft: ExerciseDraftState;
   submissions: ExerciseSubmissionsState;
 };
 
 export const initialAppState: AppState = {
-  auth: { status: 'loading', user: null },
+  theme: initialTheme,
   draft: { exerciseId: null, code: '', status: 'idle', error: null },
   submissions: { exerciseId: null, current: null, status: 'idle', error: null }
 };

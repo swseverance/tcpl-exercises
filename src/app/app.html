@@ -29,22 +29,19 @@
         </button>
       }
 
+      @let currentTheme = theme$ | async;
       <button
         nz-button
         nzType="text"
         type="button"
         aria-label="Toggle light and dark theme"
         [nzTooltipTitle]="
-          theme.theme() === 'light' ? 'Switch to dark theme' : 'Switch to light theme'
+          currentTheme === 'light' ? 'Switch to dark theme' : 'Switch to light theme'
         "
         nz-tooltip
-        (click)="theme.toggle()"
+        (click)="facade.setTheme(currentTheme === 'light' ? 'dark' : 'light')"
       >
-        <span
-          nz-icon
-          [nzType]="theme.theme() === 'light' ? 'moon' : 'sun'"
-          nzTheme="outline"
-        ></span>
+        <span nz-icon [nzType]="currentTheme === 'light' ? 'moon' : 'sun'" nzTheme="outline"></span>
       </button>
 
       <a
