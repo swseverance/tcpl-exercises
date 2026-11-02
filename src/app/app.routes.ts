@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { exerciseExistsGuard } from './pages/exercises/exercise-exists.guard';
+import { exerciseExistsGuard } from './guards/exercise-exists.guard';
 
 export const routes: Routes = [
   {

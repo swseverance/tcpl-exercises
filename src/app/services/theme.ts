@@ -14,6 +14,10 @@ const THEMES: { name: ThemeName; class: string }[] = [
 export class Theme {
   private readonly window = inject(WINDOW);
 
+  getTheme(): ThemeName {
+    return (this.window.localStorage.getItem(THEME_STORAGE_KEY) as ThemeName) ?? 'light';
+  }
+
   applyTheme(themeName: ThemeName): void {
     const { document, localStorage } = this.window;
 

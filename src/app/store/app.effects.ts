@@ -1,10 +1,10 @@
 import { inject, Injectable } from '@angular/core';
-import { Actions, createEffect, ofType } from '@ngrx/effects';
+import { Actions, createEffect, ofType, ROOT_EFFECTS_INIT } from '@ngrx/effects';
 import { Action, Store } from '@ngrx/store';
 import { GoogleAuthProvider, signInWithRedirect, signOut } from 'firebase/auth';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzModalService } from 'ng-zorro-antd/modal';
-import { Observable, switchMap, tap } from 'rxjs';
+import { map, Observable, switchMap, tap } from 'rxjs';
 import { Theme } from '../services/theme';
 import { AUTH } from '../tokens/firebase';
 import {
@@ -82,6 +82,13 @@ export class AppEffects {
         tap(() => this.message.error('Failed to Sign Out'))
       ),
     { dispatch: false }
+  );
+
+  setInitialTheme$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(ROOT_EFFECTS_INIT),
+      map(() => setTheme({ name: this.theme.getTheme() }))
+    )
   );
 
   setTheme$ = createEffect(
