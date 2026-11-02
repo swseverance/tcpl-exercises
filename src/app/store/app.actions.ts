@@ -27,7 +27,7 @@ export const exerciseDraftLoaded = createAction(
 
 export const loadExerciseDraftFailure = createAction(
   'Load Exercise Draft Failure',
-  props<{ error: any }>()
+  props<{ id: string; error: any }>()
 );
 
 export const updateExerciseDraftCode = createAction(
@@ -35,17 +35,21 @@ export const updateExerciseDraftCode = createAction(
   props<{ code: string }>()
 );
 
-export const saveExerciseDraft = createAction(
-  'Save Exercise Draft',
-  props<{ id: string; code: string }>()
+export const saveExerciseDrafts = createAction(
+  'Save Exercise Drafts',
+  props<{ drafts: ExerciseDraft[] }>()
 );
 
-export const exerciseDraftSaved = createAction(
-  'Exercise Draft Saved',
-  props<{ draft: ExerciseDraft }>()
+export const exerciseDraftsSaved = createAction(
+  'Exercise Drafts Saved',
+  props<{
+    saved: ExerciseDraft[];
+    failed: { id: string; message: string }[];
+    invalid: { id: string; message: string }[];
+  }>()
 );
 
-export const saveExerciseDraftFailure = createAction(
-  'Save Exercise Draft Failure',
+export const saveExerciseDraftsError = createAction(
+  'Save Exercise Drafts Error',
   props<{ error: any }>()
 );

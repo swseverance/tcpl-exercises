@@ -4,27 +4,41 @@ import { Action, Store } from '@ngrx/store';
 import { GoogleAuthProvider, signInWithRedirect, signOut, User } from 'firebase/auth';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzModalService } from 'ng-zorro-antd/modal';
-import { catchError, combineLatest, filter, map, Observable, of, switchMap, tap } from 'rxjs';
+import {
+  catchError,
+  combineLatest,
+  filter,
+  interval,
+  map,
+  mergeMap,
+  Observable,
+  of,
+  switchMap,
+  tap,
+  withLatestFrom
+} from 'rxjs';
 import { ExerciseService } from '../services/exercise-service';
 import { Theme } from '../services/theme';
 import { AUTH, USER$ } from '../tokens/firebase';
 import {
   closeSignInModal,
   exerciseDraftLoaded,
-  exerciseDraftSaved,
+  exerciseDraftsSaved,
   loadExerciseDraft,
   loadExerciseDraftFailure,
   openSignInModal,
-  saveExerciseDraft,
-  saveExerciseDraftFailure,
+  saveExerciseDrafts,
+  saveExerciseDraftsError,
   setTheme,
   signInWithGoogle,
   signOutFailure,
   signOutSuccess,
   signOutWithGoogle
 } from './app.actions';
-import { selectId } from './app.selectors';
+import { selectId, selectPendingChanges } from './app.selectors';
 import { AppState } from './app.state';
+
+const SAVE_INTERVAL_MS = 5_000;
 
 @Injectable()
 export class AppEffects {
@@ -120,12 +134,19 @@ export class AppEffects {
   loadExerciseDraft$ = createEffect(() =>
     this.actions$.pipe(
       ofType(loadExerciseDraft),
-      switchMap(({ id }) =>
-        this.exerciseService.getDraft(id).pipe(
+      withLatestFrom(this.store.select(selectPendingChanges)),
+      switchMap(([{ id }, pendingChanges]) => {
+        const pending = pendingChanges[id];
+
+        if (pending) {
+          return of(exerciseDraftLoaded({ draft: pending }));
+        }
+
+        return this.exerciseService.getDraft(id).pipe(
           map((draft) => exerciseDraftLoaded({ draft })),
-          catchError((error) => of(loadExerciseDraftFailure({ error })))
-        )
-      )
+          catchError((error) => of(loadExerciseDraftFailure({ id, error })))
+        );
+      })
     )
   );
 
@@ -141,24 +162,59 @@ export class AppEffects {
     { dispatch: false }
   );
 
-  saveExerciseDraft$ = createEffect(() =>
+  savePendingChanges$ = createEffect(() =>
+    interval(SAVE_INTERVAL_MS).pipe(
+      withLatestFrom(this.store.select(selectPendingChanges), this.user$),
+      filter(([, , user]) => !!user),
+      map(([, pendingChanges]) => Object.values(pendingChanges)),
+      filter((drafts) => drafts.length > 0),
+      map((drafts) => saveExerciseDrafts({ drafts }))
+    )
+  );
+
+  saveExerciseDrafts$ = createEffect(() =>
     this.actions$.pipe(
-      ofType(saveExerciseDraft),
-      switchMap(({ id, code }) =>
-        this.exerciseService.saveDraft(id, code).pipe(
-          map((draft) => exerciseDraftSaved({ draft })),
-          catchError((error) => of(saveExerciseDraftFailure({ error })))
+      ofType(saveExerciseDrafts),
+      mergeMap(({ drafts }) =>
+        this.exerciseService.saveDrafts(drafts).pipe(
+          map(({ saved, failed, invalid }) => exerciseDraftsSaved({ saved, failed, invalid })),
+          catchError((error) => of(saveExerciseDraftsError({ error })))
         )
       )
     )
   );
 
-  saveExerciseDraftFailure$ = createEffect(
+  exerciseDraftsSaveFailures$ = createEffect(
     () =>
       this.actions$.pipe(
-        ofType(saveExerciseDraftFailure),
+        ofType(exerciseDraftsSaved),
+        filter(({ failed, invalid }) => failed.length > 0 || invalid.length > 0),
+        tap(({ failed, invalid }) => {
+          failed.forEach(({ id, message }) =>
+            console.error(`[exercise-draft] save failed for ${id}, will retry:`, message)
+          );
+          invalid.forEach(({ id, message }) =>
+            console.error(`[exercise-draft] draft ${id} invalid, dropped:`, message)
+          );
+
+          if (failed.length > 0) {
+            this.message.error('Failed to Save Exercise Draft');
+          }
+
+          if (invalid.length > 0) {
+            this.message.error('Exercise Draft Could Not Be Saved');
+          }
+        })
+      ),
+    { dispatch: false }
+  );
+
+  saveExerciseDraftsError$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(saveExerciseDraftsError),
         tap(({ error }) => {
-          console.error('[exercise-draft] save failed:', error);
+          console.error('[exercise-draft] save request failed:', error);
           this.message.error('Failed to Save Exercise Draft');
         })
       ),

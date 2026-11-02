@@ -4,3 +4,9 @@ export type ExerciseDraft = {
   created: string;
   lastUpdated: string;
 };
+
+export type SaveExerciseDraftsResult = {
+  saved: ExerciseDraft[];
+  failed: { id: string; message: string }[];
+  invalid: { id: string; message: string }[];
+};

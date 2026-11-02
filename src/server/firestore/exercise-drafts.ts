@@ -2,7 +2,7 @@ import { FieldValue, getFirestore, Timestamp } from 'firebase-admin/firestore';
 import { STARTER_CODE } from '../../models/exercise';
 import { ExerciseDraft } from '../../models/exercise-draft';
 
-type SaveExerciseDraftArgs = {
+export type SaveExerciseDraftArgs = {
   exerciseId: string;
   code: string;
 };
@@ -70,4 +70,35 @@ export async function saveExerciseDraft(
   }
 
   return toExerciseDraft(args.exerciseId, (await ref.get()).data() as ReadExerciseDraft);
+}
+
+export async function saveExerciseDrafts(
+  uid: string,
+  entries: SaveExerciseDraftArgs[]
+): Promise<ExerciseDraft[]> {
+  const refs = entries.map((entry) => draftRef(uid, entry.exerciseId));
+
+  await getFirestore().runTransaction(async (transaction) => {
+    const snapshots = await Promise.all(refs.map((ref) => transaction.get(ref)));
+    const now = FieldValue.serverTimestamp();
+
+    snapshots.forEach((snapshot, index) => {
+      const ref = refs[index];
+      const { code } = entries[index];
+
+      if (!snapshot.exists) {
+        const write: WriteExerciseDraft = { code, created: now, lastUpdated: now };
+        transaction.set(ref, write);
+      } else {
+        const update: UpdateExerciseDraft = { code, lastUpdated: now };
+        transaction.update(ref, update);
+      }
+    });
+  });
+
+  const saved = await Promise.all(refs.map((ref) => ref.get()));
+
+  return saved.map((snapshot, index) =>
+    toExerciseDraft(entries[index].exerciseId, snapshot.data() as ReadExerciseDraft)
+  );
 }

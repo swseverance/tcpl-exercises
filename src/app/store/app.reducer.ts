@@ -1,11 +1,7 @@
 import { createReducer, on } from '@ngrx/store';
 import {
   exerciseDraftLoaded,
-  exerciseDraftSaved,
-  loadExerciseDraft,
-  loadExerciseDraftFailure,
-  saveExerciseDraft,
-  saveExerciseDraftFailure,
+  exerciseDraftsSaved,
   selectExercise,
   setTheme,
   updateExerciseDraftCode
@@ -25,46 +21,36 @@ export const appReducer = createReducer(
     id
   })),
 
-  on(loadExerciseDraft, (state, { id }) => ({
+  on(exerciseDraftLoaded, (state, { draft }) => ({
     ...state,
-    draft: { exerciseId: id, code: '', status: 'loading' as const, error: null }
+    draft: { ...state.draft, [draft.exerciseId]: draft }
   })),
 
-  on(exerciseDraftLoaded, (state, { draft: { exerciseId, code } }) => ({
-    ...state,
-    draft: { exerciseId, code, status: 'saved' as const, error: null }
-  })),
+  on(updateExerciseDraftCode, (state, { code }) => {
+    const id = state.id!;
 
-  on(loadExerciseDraftFailure, (state, { error }) => ({
-    ...state,
-    draft: {
-      ...state.draft,
-      status: 'error' as const,
-      error: error instanceof Error ? error.message : String(error)
+    return {
+      ...state,
+      pendingChanges: {
+        ...state.pendingChanges,
+        [id]: { ...(state.pendingChanges[id] ?? state.draft[id])!, code }
+      }
+    };
+  }),
+
+  on(exerciseDraftsSaved, (state, { saved, invalid }) => {
+    const pendingChanges = { ...state.pendingChanges };
+
+    for (const { exerciseId, code } of saved) {
+      if (pendingChanges[exerciseId]?.code === code) {
+        delete pendingChanges[exerciseId];
+      }
     }
-  })),
 
-  on(updateExerciseDraftCode, (state, { code }) => ({
-    ...state,
-    draft: { ...state.draft, code, status: 'dirty' as const }
-  })),
-
-  on(saveExerciseDraft, (state) => ({
-    ...state,
-    draft: { ...state.draft, status: 'saving' as const, error: null }
-  })),
-
-  on(exerciseDraftSaved, (state) => ({
-    ...state,
-    draft: { ...state.draft, status: 'saved' as const, error: null }
-  })),
-
-  on(saveExerciseDraftFailure, (state, { error }) => ({
-    ...state,
-    draft: {
-      ...state.draft,
-      status: 'error' as const,
-      error: error instanceof Error ? error.message : String(error)
+    for (const { id } of invalid) {
+      delete pendingChanges[id];
     }
-  }))
+
+    return { ...state, pendingChanges };
+  })
 );

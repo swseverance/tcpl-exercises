@@ -1,12 +1,15 @@
+import { isPlatformBrowser } from '@angular/common';
 import {
   AfterViewInit,
   Component,
   ElementRef,
   EventEmitter,
+  inject,
   Input,
   OnChanges,
   OnDestroy,
   Output,
+  PLATFORM_ID,
   SimpleChanges,
   ViewChild
 } from '@angular/core';
@@ -29,10 +32,15 @@ export class CodeEditor implements AfterViewInit, OnChanges, OnDestroy {
 
   @ViewChild('host', { static: true }) private host!: ElementRef<HTMLDivElement>;
 
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   private readonly themeCompartment = new Compartment();
   private view?: EditorView;
 
   ngAfterViewInit(): void {
+    if (!this.isBrowser) {
+      return;
+    }
+
     this.view = new EditorView({
       doc: this.code,
       extensions: [

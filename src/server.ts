@@ -11,7 +11,7 @@ import { join } from 'node:path';
 import { environment } from './environments/environment';
 import {
   getExerciseDraftHandler,
-  saveExerciseDraftHandler
+  saveExerciseDraftsHandler
 } from './server/api/exercise-draft.handler';
 import {
   listExerciseSubmissionsHandler,
@@ -48,7 +48,7 @@ app.use('/api/', appCheckMiddleware);
 app.use('/api/', authMiddleware);
 
 app.get('/api/exercises/:id/draft', getExerciseDraftHandler);
-app.put('/api/exercises/:id/draft', saveExerciseDraftHandler);
+app.put('/api/exercises/drafts', saveExerciseDraftsHandler);
 app.post('/api/exercises/:id/submit', submitExerciseHandler);
 app.get('/api/exercises/:id/submissions', listExerciseSubmissionsHandler);
 

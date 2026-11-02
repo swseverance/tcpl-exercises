@@ -1,14 +1,6 @@
+import { ExerciseDraft } from '../../models/exercise-draft';
 import { ExerciseSubmission } from '../../models/exercise-submission';
 import { ThemeName } from '../services/theme';
-
-export type DraftStatus = 'idle' | 'loading' | 'dirty' | 'saving' | 'saved' | 'error';
-
-export type ExerciseDraftState = {
-  exerciseId: string | null;
-  code: string;
-  status: DraftStatus;
-  error: string | null;
-};
 
 export type SubmissionStatus = 'idle' | 'submitting' | 'error';
 
@@ -24,7 +16,10 @@ export type AppState = {
 
   id: string | null;
 
-  draft: ExerciseDraftState;
+  pendingChanges: Record<string, ExerciseDraft>;
+
+  draft: Record<string, ExerciseDraft>;
+
   submissions: ExerciseSubmissionsState;
 };
 
@@ -33,6 +28,9 @@ export const initialAppState: AppState = {
 
   id: null,
 
-  draft: { exerciseId: null, code: '', status: 'idle', error: null },
+  pendingChanges: {},
+
+  draft: {},
+
   submissions: { exerciseId: null, current: null, status: 'idle', error: null }
 };

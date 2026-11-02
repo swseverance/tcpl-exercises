@@ -1,8 +1,17 @@
 import { RequestHandler } from 'express';
 import { EXERCISES_BY_ID } from '../../exercises';
-import { getExerciseDraft, saveExerciseDraft } from '../firestore/exercise-drafts';
+import { SaveExerciseDraftsResult } from '../../models/exercise-draft';
+import {
+  getExerciseDraft,
+  SaveExerciseDraftArgs,
+  saveExerciseDrafts
+} from '../firestore/exercise-drafts';
 
 const MAX_CODE_LENGTH = 20_000;
+
+type SaveExerciseDraftsRequestBody = {
+  drafts: SaveExerciseDraftArgs[];
+};
 
 export const getExerciseDraftHandler: RequestHandler<{ id: string }> = async (req, res) => {
   const exerciseId = req.params.id;
@@ -21,31 +30,61 @@ export const getExerciseDraftHandler: RequestHandler<{ id: string }> = async (re
   }
 };
 
-export const saveExerciseDraftHandler: RequestHandler<{ id: string }> = async (req, res) => {
-  const exerciseId = req.params.id;
+function validateExerciseDraft(
+  entry: SaveExerciseDraftArgs
+): { valid: true } | { valid: false; message: string } {
+  const { exerciseId, code } = entry;
 
-  if (!EXERCISES_BY_ID[exerciseId]) {
-    res.status(404).json({ message: 'Exercise not found' });
-    return;
+  if (typeof exerciseId !== 'string' || !EXERCISES_BY_ID[exerciseId]) {
+    return { valid: false, message: 'Exercise not found' };
   }
 
-  const code = (req.body as { code?: unknown })?.code;
-
-  if (typeof code !== 'string' || code.length === 0) {
-    res.status(400).json({ message: 'code is required' });
-    return;
+  if (typeof code !== 'string') {
+    return { valid: false, message: 'code must be a string' };
   }
 
   if (code.length > MAX_CODE_LENGTH) {
-    res.status(400).json({ message: `code must be at most ${MAX_CODE_LENGTH} characters` });
+    return { valid: false, message: `code must be at most ${MAX_CODE_LENGTH} characters` };
+  }
+
+  return { valid: true };
+}
+
+export const saveExerciseDraftsHandler: RequestHandler = async (req, res) => {
+  const { drafts } = req.body as SaveExerciseDraftsRequestBody;
+
+  if (!Array.isArray(drafts)) {
+    res.status(400).json({ message: 'drafts is required' });
     return;
   }
 
-  try {
-    const draft = await saveExerciseDraft(req.uid, { exerciseId, code });
-    res.json(draft);
-  } catch (err) {
-    console.error('[exercise-draft] save failed:', err);
-    res.status(500).json({ message: 'Failed to save draft' });
+  const valid: SaveExerciseDraftArgs[] = [];
+  const invalid: SaveExerciseDraftsResult['invalid'] = [];
+
+  drafts.forEach((entry) => {
+    const result = validateExerciseDraft(entry);
+
+    if (result.valid) {
+      valid.push(entry);
+    } else {
+      invalid.push({ id: entry.exerciseId, message: result.message });
+    }
+  });
+
+  let saved: SaveExerciseDraftsResult['saved'] = [];
+  const failed: SaveExerciseDraftsResult['failed'] = [];
+
+  if (valid.length > 0) {
+    try {
+      saved = await saveExerciseDrafts(req.uid, valid);
+    } catch (err) {
+      console.error('[exercise-draft] save failed:', err);
+      valid.forEach(({ exerciseId }) =>
+        failed.push({ id: exerciseId, message: 'Failed to save draft' })
+      );
+    }
   }
+
+  const response: SaveExerciseDraftsResult = { saved, failed, invalid };
+  res.json(response);
 };

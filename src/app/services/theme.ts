@@ -15,22 +15,22 @@ export class Theme {
   private readonly window = inject(WINDOW);
 
   getTheme(): ThemeName {
-    return (this.window.localStorage.getItem(THEME_STORAGE_KEY) as ThemeName) ?? 'light';
+    return (this.window.localStorage?.getItem(THEME_STORAGE_KEY) as ThemeName) ?? 'light';
   }
 
   applyTheme(themeName: ThemeName): void {
-    const { document, localStorage } = this.window;
-
-    localStorage.setItem(THEME_STORAGE_KEY, themeName);
+    this.window.localStorage?.setItem(THEME_STORAGE_KEY, themeName);
 
     for (const theme of THEMES) {
-      const style = document.querySelector<HTMLLinkElement>(`link[href^="${theme.name}-theme"]`);
+      const style = this.window.document?.querySelector<HTMLLinkElement>(
+        `link[href^="${theme.name}-theme"]`
+      );
 
       if (style) {
         style.disabled = theme.name !== themeName;
       }
 
-      document.body.classList.toggle(theme.class, theme.name === themeName);
+      this.window.document?.body.classList.toggle(theme.class, theme.name === themeName);
     }
   }
 }
