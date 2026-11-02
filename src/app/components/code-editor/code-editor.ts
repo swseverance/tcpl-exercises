@@ -13,9 +13,12 @@ import {
   SimpleChanges,
   ViewChild
 } from '@angular/core';
+import { indentWithTab } from '@codemirror/commands';
 import { cpp } from '@codemirror/lang-cpp';
+import { indentUnit } from '@codemirror/language';
 import { Compartment, Transaction } from '@codemirror/state';
 import { oneDark } from '@codemirror/theme-one-dark';
+import { keymap } from '@codemirror/view';
 import { basicSetup, EditorView } from 'codemirror';
 import { ThemeName } from '../../services/theme';
 
@@ -45,6 +48,8 @@ export class CodeEditor implements AfterViewInit, OnChanges, OnDestroy {
       doc: this.code,
       extensions: [
         basicSetup,
+        keymap.of([indentWithTab]),
+        indentUnit.of('  '),
         cpp(),
         EditorView.updateListener.of((update) => {
           const isUserInput = update.transactions.some(
