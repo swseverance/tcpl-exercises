@@ -9,10 +9,22 @@ import { initializeApp } from 'firebase-admin/app';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import { join } from 'node:path';
 import { environment } from './environments/environment';
-import { runCHandler } from './server/api/run-c.handler';
+import {
+  getExerciseDraftHandler,
+  saveExerciseDraftHandler
+} from './server/api/exercise-draft.handler';
+import {
+  listExerciseSubmissionsHandler,
+  submitExerciseHandler
+} from './server/api/exercise-submissions.handler';
 import { appCheckMiddleware } from './server/middleware/appcheck';
+import { authMiddleware } from './server/middleware/auth';
 
 const browserDistFolder = join(import.meta.dirname, '../browser');
+
+if (environment.name === 'local') {
+  process.env['FIRESTORE_EMULATOR_HOST'] = 'localhost:8080';
+}
 
 initializeApp({ projectId: environment.firebaseConfig.projectId });
 
@@ -33,8 +45,12 @@ app.use('/api/', (_req, res, next) => {
 });
 app.use('/api/', express.json({ limit: '64kb' }));
 app.use('/api/', appCheckMiddleware);
+app.use('/api/', authMiddleware);
 
-app.post('/api/run-c', runCHandler);
+app.get('/api/exercises/:id/draft', getExerciseDraftHandler);
+app.put('/api/exercises/:id/draft', saveExerciseDraftHandler);
+app.post('/api/exercises/:id/submit', submitExerciseHandler);
+app.get('/api/exercises/:id/submissions', listExerciseSubmissionsHandler);
 
 /**
  * Serve static files from /browser

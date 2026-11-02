@@ -3,7 +3,7 @@
     <a routerLink="/"><strong>The C Programming Language Exercises</strong></a>
 
     <span class="icons">
-      @if (currentUser.user()) {
+      @if (user$ | async) {
         <button
           nz-button
           nzType="text"
@@ -11,7 +11,7 @@
           aria-label="Sign out"
           nzTooltipTitle="Sign out"
           nz-tooltip
-          (click)="signOut()"
+          (click)="facade.signOut()"
         >
           <span nz-icon nzType="logout" nzTheme="outline"></span>
         </button>
@@ -23,7 +23,7 @@
           aria-label="Sign in with Google"
           nzTooltipTitle="Sign in with Google"
           nz-tooltip
-          (click)="signInPrompt.open()"
+          (click)="facade.openSignInModal()"
         >
           <span nz-icon nzType="login" nzTheme="outline"></span>
         </button>

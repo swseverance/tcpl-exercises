@@ -9,10 +9,14 @@ import {
   viewChild
 } from '@angular/core';
 import { cpp } from '@codemirror/lang-cpp';
-import { Compartment } from '@codemirror/state';
+import { Annotation, Compartment } from '@codemirror/state';
 import { oneDark } from '@codemirror/theme-one-dark';
 import { basicSetup, EditorView } from 'codemirror';
 import { Theme } from '../../services/theme';
+
+// Tags a transaction as a programmatic sync (e.g. loading a draft) rather than a
+// real keystroke, so the update listener below doesn't echo it back out as an edit.
+const externalUpdate = Annotation.define<boolean>();
 
 @Component({
   selector: 'app-code-editor',
@@ -35,7 +39,9 @@ export class CodeEditor {
           basicSetup,
           cpp(),
           EditorView.updateListener.of((update) => {
-            if (update.docChanged) {
+            const isExternal = update.transactions.some((tr) => tr.annotation(externalUpdate));
+
+            if (update.docChanged && !isExternal) {
               this.code.set(update.state.doc.toString());
             }
           }),
@@ -59,7 +65,8 @@ export class CodeEditor {
 
       if (view && code !== view.state.doc.toString()) {
         view.dispatch({
-          changes: { from: 0, to: view.state.doc.length, insert: code }
+          changes: { from: 0, to: view.state.doc.length, insert: code },
+          annotations: externalUpdate.of(true)
         });
       }
     });

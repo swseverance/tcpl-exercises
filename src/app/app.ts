@@ -1,17 +1,18 @@
+import { AsyncPipe } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { RouterLink, RouterOutlet } from '@angular/router';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzLayoutModule } from 'ng-zorro-antd/layout';
-import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzTooltipModule } from 'ng-zorro-antd/tooltip';
-import { CurrentUser } from './services/current-user';
-import { SignInPrompt } from './services/sign-in-prompt';
 import { Theme } from './services/theme';
+import { AppFacade } from './store/app.facade';
+import { USER$ } from './tokens/firebase';
 
 @Component({
   selector: 'app-root',
   imports: [
+    AsyncPipe,
     NzLayoutModule,
     NzButtonModule,
     NzIconModule,
@@ -24,16 +25,6 @@ import { Theme } from './services/theme';
 })
 export class App {
   protected readonly theme = inject(Theme);
-  protected readonly currentUser = inject(CurrentUser);
-  protected readonly signInPrompt = inject(SignInPrompt);
-  private readonly message = inject(NzMessageService);
-
-  protected async signOut(): Promise<void> {
-    try {
-      await this.currentUser.signOut();
-      this.message.success('Signed out');
-    } catch {
-      this.message.error('Failed to sign out');
-    }
-  }
+  protected readonly facade = inject(AppFacade);
+  protected readonly user$ = inject(USER$);
 }

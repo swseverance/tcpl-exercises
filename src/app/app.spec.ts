@@ -7,9 +7,11 @@ import {
   MoonOutline,
   SunOutline
 } from '@ant-design/icons-angular/icons';
+import { provideStore } from '@ngrx/store';
 import { provideNzIcons } from 'ng-zorro-antd/icon';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { App } from './app';
+import { appReducer } from './store/app.reducer';
 
 describe('App', () => {
   beforeEach(async () => {
@@ -17,7 +19,8 @@ describe('App', () => {
       imports: [App, NzModalModule],
       providers: [
         provideRouter([]),
-        provideNzIcons([GithubOutline, LoginOutline, LogoutOutline, MoonOutline, SunOutline])
+        provideNzIcons([GithubOutline, LoginOutline, LogoutOutline, MoonOutline, SunOutline]),
+        provideStore({ app: appReducer })
       ]
     }).compileComponents();
   });

@@ -46,6 +46,15 @@
   //     ]
   //   },
   // ]
-  "indexes": [],
+  "indexes": [
+    {
+      "collectionGroup": "submissions",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "exerciseId", "order": "ASCENDING" },
+        { "fieldPath": "created", "order": "DESCENDING" }
+      ]
+    }
+  ],
   "fieldOverrides": []
 }
