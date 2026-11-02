@@ -1,7 +1,9 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { createReducer, on } from '@ngrx/store';
 import {
   exerciseDraftLoaded,
-  exerciseDraftsSaved,
+  exerciseDraftSaved,
+  saveExerciseDraftFailure,
   selectExercise,
   setTheme,
   updateExerciseDraftCode
@@ -38,19 +40,24 @@ export const appReducer = createReducer(
     };
   }),
 
-  on(exerciseDraftsSaved, (state, { saved, invalid }) => {
+  on(exerciseDraftSaved, (state, { draft }) => {
     const pendingChanges = { ...state.pendingChanges };
 
-    for (const { exerciseId, code } of saved) {
-      if (pendingChanges[exerciseId]?.code === code) {
-        delete pendingChanges[exerciseId];
-      }
-    }
-
-    for (const { id } of invalid) {
-      delete pendingChanges[id];
+    if (pendingChanges[draft.exerciseId]?.code === draft.code) {
+      delete pendingChanges[draft.exerciseId];
     }
 
     return { ...state, pendingChanges };
+  }),
+
+  on(saveExerciseDraftFailure, (state, { id, error }) => {
+    if (error instanceof HttpErrorResponse && error.status === 400) {
+      const pendingChanges = { ...state.pendingChanges };
+      delete pendingChanges[id];
+
+      return { ...state, pendingChanges };
+    }
+
+    return state;
   })
 );

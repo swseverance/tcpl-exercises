@@ -8,7 +8,15 @@ import { runCInSandbox } from '../sandbox/run-c';
 
 const MAX_CODE_LENGTH = 20_000;
 
-export const submitExerciseHandler: RequestHandler<{ id: string }> = async (req, res) => {
+type SubmitExerciseRequestBody = {
+  code: unknown;
+};
+
+export const submitExerciseHandler: RequestHandler<
+  { id: string },
+  unknown,
+  SubmitExerciseRequestBody
+> = async (req, res) => {
   const exerciseId = req.params.id;
 
   if (!EXERCISES_BY_ID[exerciseId]) {
@@ -16,7 +24,7 @@ export const submitExerciseHandler: RequestHandler<{ id: string }> = async (req,
     return;
   }
 
-  const code = (req.body as { code?: unknown })?.code;
+  const { code } = req.body;
 
   if (typeof code !== 'string' || code.length === 0) {
     res.status(400).json({ message: 'code is required' });
