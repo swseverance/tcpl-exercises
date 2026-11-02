@@ -3,6 +3,7 @@ import { inject, Service } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ExerciseDraft } from '../../models/exercise-draft';
 import { ExerciseSubmission } from '../../models/exercise-submission';
+import { ExerciseTestResultsResponse } from '../../models/exercise-test-results';
 
 @Service()
 export class ExerciseService {
@@ -22,5 +23,9 @@ export class ExerciseService {
 
   listSubmissions(exerciseId: string): Observable<ExerciseSubmission[]> {
     return this.http.get<ExerciseSubmission[]>(`/api/exercises/${exerciseId}/submissions`);
+  }
+
+  getTestResults(exerciseId: string): Observable<ExerciseTestResultsResponse> {
+    return this.http.get<ExerciseTestResultsResponse>(`/api/exercises/${exerciseId}/test-results`);
   }
 }

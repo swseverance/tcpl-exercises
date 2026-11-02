@@ -1,6 +1,7 @@
 @let theme = theme$ | async;
 @let draft = draft$ | async;
 @let submissions = submissions$ | async;
+@let testResults = testResults$ | async;
 @let exercise = exercise$ | async;
 
 <div class="exercise-layout">
@@ -11,13 +12,7 @@
     }
   </div>
 
-  <div nz-row [nzGutter]="16" class="results-section">
-    <div nz-col [nzSpan]="12">
-      <app-test-cases [tests]="exercise?.tests ?? []" ngSkipHydration />
-    </div>
+  <app-test-cases [tests]="exercise?.tests ?? []" [results]="testResults ?? {}" ngSkipHydration />
 
-    <div nz-col [nzSpan]="12">
-      <app-submissions [submissions]="submissions ?? []" ngSkipHydration />
-    </div>
-  </div>
+  <app-submissions [submissions]="submissions ?? []" ngSkipHydration />
 </div>

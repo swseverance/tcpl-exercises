@@ -9,7 +9,7 @@ import {
   submitExercise,
   updateExerciseDraftCode
 } from './app.actions';
-import { selectDraft, selectSubmissions, selectTheme } from './app.selectors';
+import { selectDraft, selectSubmissions, selectTestResults, selectTheme } from './app.selectors';
 import { AppState } from './app.state';
 
 @Injectable({ providedIn: 'root' })
@@ -19,6 +19,7 @@ export class AppFacade {
   readonly theme$ = this.store.select(selectTheme);
   readonly draft$ = this.store.select(selectDraft);
   readonly submissions$ = this.store.select(selectSubmissions);
+  readonly testResults$ = this.store.select(selectTestResults);
 
   openSignInModal(): void {
     this.store.dispatch(openSignInModal());

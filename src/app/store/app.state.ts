@@ -12,6 +12,13 @@ export type AppState = {
   draft: Record<string, ExerciseDraft>;
 
   submissions: ExerciseSubmission[];
+
+  testResults: Record<string, TestResult>;
+};
+
+export type TestResult = {
+  passed: boolean | null;
+  stdout: string | null;
 };
 
 export const initialAppState: AppState = {
@@ -23,5 +30,7 @@ export const initialAppState: AppState = {
 
   draft: {},
 
-  submissions: []
+  submissions: [],
+
+  testResults: {}
 };

@@ -16,3 +16,5 @@ export const selectDraft = createSelector(selectId, selectDrafts, (id, drafts) =
 );
 
 export const selectSubmissions = createSelector(selectAppState, (state) => state.submissions);
+
+export const selectTestResults = createSelector(selectAppState, (state) => state.testResults);

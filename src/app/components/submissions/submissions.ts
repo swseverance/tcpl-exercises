@@ -3,7 +3,6 @@ import { Component, input } from '@angular/core';
 import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 import { ExerciseSubmission } from '../../../models/exercise-submission';
-import { RunCResponse } from '../../../models/run-c';
 
 @Component({
   selector: 'app-submissions',
@@ -19,7 +18,7 @@ import { RunCResponse } from '../../../models/run-c';
       <thead>
         <tr>
           <th>Submitted</th>
-          <th>Stage</th>
+          <th>Tests Passed</th>
           <th>Status</th>
         </tr>
       </thead>
@@ -27,10 +26,10 @@ import { RunCResponse } from '../../../models/run-c';
         @for (submission of submissions(); track submission.id) {
           <tr>
             <td>{{ submission.created | date: 'medium' }}</td>
-            <td>{{ submission.result.stage }}</td>
+            <td>{{ testsPassedLabel(submission) }}</td>
             <td>
-              <nz-tag [nzColor]="statusColor(submission.result)">
-                {{ statusLabel(submission.result) }}
+              <nz-tag [nzColor]="statusColor(submission)">
+                {{ statusLabel(submission) }}
               </nz-tag>
             </td>
           </tr>
@@ -42,21 +41,28 @@ import { RunCResponse } from '../../../models/run-c';
 export class Submissions {
   submissions = input.required<ExerciseSubmission[]>();
 
-  protected statusLabel(result: RunCResponse): string {
-    if (result.timedOut) {
-      return 'Timed Out';
+  protected testsPassedLabel(submission: ExerciseSubmission): string {
+    if (submission.results.length === 0) {
+      return '—';
     }
 
-    if (result.stage === 'compile') {
+    const passed = submission.results.filter((result) => result.passed).length;
+    return `${passed}/${submission.results.length}`;
+  }
+
+  protected statusLabel(submission: ExerciseSubmission): string {
+    if (submission.compile.timedOut) {
+      return 'Compile Timed Out';
+    }
+
+    if (submission.compile.exitCode !== 0) {
       return 'Compile Error';
     }
 
-    return result.exitCode === 0 ? 'Ran Successfully' : 'Runtime Error';
+    return submission.overallPassed ? 'Passed' : 'Failed';
   }
 
-  protected statusColor(result: RunCResponse): string {
-    return !result.timedOut && result.stage === 'run' && result.exitCode === 0
-      ? 'success'
-      : 'error';
+  protected statusColor(submission: ExerciseSubmission): string {
+    return submission.overallPassed ? 'success' : 'error';
   }
 }

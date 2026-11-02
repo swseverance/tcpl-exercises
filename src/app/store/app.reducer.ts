@@ -1,10 +1,12 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { createReducer, on } from '@ngrx/store';
+import { EXERCISES_BY_ID } from '../../exercises';
 import {
   exerciseDraftLoaded,
   exerciseDraftSaved,
   exerciseSubmissionsLoaded,
   exerciseSubmitted,
+  exerciseTestResultsLoaded,
   saveExerciseDraftFailure,
   selectExercise,
   setTheme,
@@ -23,7 +25,8 @@ export const appReducer = createReducer(
   on(selectExercise, (state, { id }) => ({
     ...state,
     id,
-    submissions: []
+    submissions: [],
+    testResults: {}
   })),
 
   on(exerciseDraftLoaded, (state, { draft }) => ({
@@ -68,9 +71,38 @@ export const appReducer = createReducer(
     id === state.id ? { ...state, submissions } : state
   ),
 
-  on(exerciseSubmitted, (state, { submission }) =>
-    submission.exerciseId === state.id
-      ? { ...state, submissions: [submission, ...state.submissions] }
-      : state
-  )
+  on(exerciseSubmitted, (state, { submission }) => {
+    if (submission.exerciseId !== state.id) {
+      return state;
+    }
+
+    const tests = EXERCISES_BY_ID[submission.exerciseId]?.tests ?? [];
+    const testResults =
+      submission.results.length > 0
+        ? Object.fromEntries(
+            submission.results.map((result) => [
+              result.id,
+              { passed: result.passed, stdout: result.stdout }
+            ])
+          )
+        : Object.fromEntries(tests.map((test) => [test.id, { passed: false, stdout: null }]));
+
+    return {
+      ...state,
+      submissions: [submission, ...state.submissions],
+      testResults
+    };
+  }),
+
+  on(exerciseTestResultsLoaded, (state, { id, response }) => {
+    if (id !== state.id) {
+      return state;
+    }
+
+    const testResults = Object.fromEntries(
+      response.tests.map((test) => [test.id, { passed: test.passed, stdout: test.stdout }])
+    );
+
+    return { ...state, testResults };
+  })
 );

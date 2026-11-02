@@ -14,6 +14,7 @@ import {
   saveExerciseDraftHandler
 } from './server/api/exercise-draft.handler';
 import {
+  getExerciseTestResultsHandler,
   listExerciseSubmissionsHandler,
   submitExerciseHandler
 } from './server/api/exercise-submissions.handler';
@@ -51,6 +52,7 @@ app.get('/api/exercises/:id/draft', getExerciseDraftHandler);
 app.put('/api/exercises/:id/draft', saveExerciseDraftHandler);
 app.post('/api/exercises/:id/submit', submitExerciseHandler);
 app.get('/api/exercises/:id/submissions', listExerciseSubmissionsHandler);
+app.get('/api/exercises/:id/test-results', getExerciseTestResultsHandler);
 
 /**
  * Serve static files from /browser

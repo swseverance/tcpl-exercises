@@ -1,4 +1,7 @@
 import { Command, CommandFinished, Sandbox } from '@vercel/sandbox';
+import { Readable } from 'node:stream';
+import { ExerciseTestCase } from '../../models/exercise';
+import { ExerciseTestResult } from '../../models/exercise-submission';
 import { RunCResponse } from '../../models/run-c';
 
 const SANDBOX_DIR = '/vercel/sandbox';
@@ -14,13 +17,16 @@ type CommandResult = {
 
 async function runWithTimeout(
   sandbox: Sandbox,
-  params: { cmd: string; args?: string[] },
+  params: { cmd: string; args?: string[]; input?: string },
   timeoutMs: number
 ): Promise<CommandResult> {
+  const { input, ...rest } = params;
+
   const command: Command = await sandbox.runCommand({
-    ...params,
+    ...rest,
     cwd: SANDBOX_DIR,
-    detached: true
+    detached: true,
+    stdin: input !== undefined ? Readable.from(input) : undefined
   });
 
   let timedOut = false;
@@ -53,11 +59,20 @@ function getCredentials(): { teamId: string; projectId: string; token: string } 
   return teamId && projectId && token ? { teamId, projectId, token } : {};
 }
 
+function compareOutput(actual: string, expected: string): boolean {
+  return actual.trimEnd() === expected.trimEnd();
+}
+
 /**
- * Compiles and runs untrusted C source inside an isolated, network-less
- * Vercel Sandbox microVM, then tears the sandbox down.
+ * Compiles untrusted C source inside an isolated, network-less Vercel Sandbox
+ * microVM, then runs it once per test case (feeding that test's stdin and
+ * comparing stdout against its expected output), before tearing the sandbox
+ * down.
  */
-export async function runCInSandbox(code: string): Promise<RunCResponse> {
+export async function gradeSubmission(
+  code: string,
+  tests: ExerciseTestCase[]
+): Promise<{ compile: RunCResponse; results: ExerciseTestResult[] }> {
   const sandbox = await Sandbox.create({
     ...getCredentials(),
     image: 'vercel/sandbox/arch', // ships gcc preinstalled (base-devel), no apt/install step needed
@@ -75,12 +90,29 @@ export async function runCInSandbox(code: string): Promise<RunCResponse> {
       { cmd: 'gcc', args: ['-Wall', '-o', 'main', 'main.c'] },
       COMPILE_TIMEOUT_MS
     );
+
     if (compile.timedOut || compile.exitCode !== 0) {
-      return { stage: 'compile', ...compile };
+      return { compile: { stage: 'compile', ...compile }, results: [] };
     }
 
-    const run = await runWithTimeout(sandbox, { cmd: './main' }, RUN_TIMEOUT_MS);
-    return { stage: 'run', ...run };
+    const results: ExerciseTestResult[] = [];
+
+    for (const test of tests) {
+      const run = await runWithTimeout(
+        sandbox,
+        { cmd: './main', input: test.stdin ?? '' },
+        RUN_TIMEOUT_MS
+      );
+
+      results.push({
+        id: test.id,
+        passed:
+          !run.timedOut && run.exitCode === 0 && compareOutput(run.stdout, test.expectedStdout),
+        stdout: run.stdout
+      });
+    }
+
+    return { compile: { stage: 'compile', ...compile }, results };
   } finally {
     await sandbox.stop();
   }

@@ -1,6 +1,7 @@
 import { createAction, props } from '@ngrx/store';
 import { ExerciseDraft } from '../../models/exercise-draft';
 import { ExerciseSubmission } from '../../models/exercise-submission';
+import { ExerciseTestResultsResponse } from '../../models/exercise-test-results';
 import { ThemeName } from '../services/theme';
 
 export const openSignInModal = createAction('Open Sign In Modal');
@@ -75,5 +76,20 @@ export const exerciseSubmissionsLoaded = createAction(
 
 export const loadExerciseSubmissionsFailure = createAction(
   'Load Exercise Submissions Failure',
+  props<{ id: string; error: unknown }>()
+);
+
+export const loadExerciseTestResults = createAction(
+  'Load Exercise Test Results',
+  props<{ id: string }>()
+);
+
+export const exerciseTestResultsLoaded = createAction(
+  'Exercise Test Results Loaded',
+  props<{ id: string; response: ExerciseTestResultsResponse }>()
+);
+
+export const loadExerciseTestResultsFailure = createAction(
+  'Load Exercise Test Results Failure',
   props<{ id: string; error: unknown }>()
 );

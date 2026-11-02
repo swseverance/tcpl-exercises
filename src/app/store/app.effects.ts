@@ -28,10 +28,13 @@ import {
   exerciseDraftSaved,
   exerciseSubmissionsLoaded,
   exerciseSubmitted,
+  exerciseTestResultsLoaded,
   loadExerciseDraft,
   loadExerciseDraftFailure,
   loadExerciseSubmissions,
   loadExerciseSubmissionsFailure,
+  loadExerciseTestResults,
+  loadExerciseTestResultsFailure,
   openSignInModal,
   saveExerciseDraft,
   saveExerciseDraftFailure,
@@ -135,7 +138,13 @@ export class AppEffects {
   selectExercise$ = createEffect(() =>
     combineLatest([this.store.select(selectId), this.user$]).pipe(
       filter((value): value is [string, User | null] => !!value[0] && !!value[1]),
-      mergeMap(([id]) => of(loadExerciseDraft({ id }), loadExerciseSubmissions({ id })))
+      mergeMap(([id]) =>
+        of(
+          loadExerciseDraft({ id }),
+          loadExerciseSubmissions({ id }),
+          loadExerciseTestResults({ id })
+        )
+      )
     )
   );
 
@@ -189,6 +198,30 @@ export class AppEffects {
         tap(({ error }) => {
           console.error('[exercise-submissions] load failed:', error);
           this.message.error('Failed to Load Exercise Submissions');
+        })
+      ),
+    { dispatch: false }
+  );
+
+  loadExerciseTestResults$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(loadExerciseTestResults),
+      switchMap(({ id }) =>
+        this.exerciseService.getTestResults(id).pipe(
+          map((response) => exerciseTestResultsLoaded({ id, response })),
+          catchError((error) => of(loadExerciseTestResultsFailure({ id, error })))
+        )
+      )
+    )
+  );
+
+  loadExerciseTestResultsFailure$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(loadExerciseTestResultsFailure),
+        tap(({ error }) => {
+          console.error('[exercise-test-results] load failed:', error);
+          this.message.error('Failed to Load Test Results');
         })
       ),
     { dispatch: false }
