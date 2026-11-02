@@ -11,9 +11,12 @@ import { AUTH } from '../tokens/firebase';
 import {
   closeSignInModal,
   exerciseDraftLoaded,
+  exerciseDraftSaved,
   loadExerciseDraft,
   loadExerciseDraftFailure,
   openSignInModal,
+  saveExerciseDraft,
+  saveExerciseDraftFailure,
   setTheme,
   signInWithGoogle,
   signOutFailure,
@@ -108,6 +111,30 @@ export class AppEffects {
         tap(({ error }) => {
           console.error('[exercise-draft] load failed:', error);
           this.message.error('Failed to Load Exercise Draft');
+        })
+      ),
+    { dispatch: false }
+  );
+
+  saveExerciseDraft$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(saveExerciseDraft),
+      switchMap(({ id, code }) =>
+        this.exerciseService.saveDraft(id, code).pipe(
+          map((draft) => exerciseDraftSaved({ draft })),
+          catchError((error) => of(saveExerciseDraftFailure({ error })))
+        )
+      )
+    )
+  );
+
+  saveExerciseDraftFailure$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(saveExerciseDraftFailure),
+        tap(({ error }) => {
+          console.error('[exercise-draft] save failed:', error);
+          this.message.error('Failed to Save Exercise Draft');
         })
       ),
     { dispatch: false }

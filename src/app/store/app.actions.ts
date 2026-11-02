@@ -27,3 +27,23 @@ export const loadExerciseDraftFailure = createAction(
   'Load Exercise Draft Failure',
   props<{ error: any }>()
 );
+
+export const updateExerciseDraftCode = createAction(
+  'Update Exercise Draft Code',
+  props<{ code: string }>()
+);
+
+export const saveExerciseDraft = createAction(
+  'Save Exercise Draft',
+  props<{ id: string; code: string }>()
+);
+
+export const exerciseDraftSaved = createAction(
+  'Exercise Draft Saved',
+  props<{ draft: ExerciseDraft }>()
+);
+
+export const saveExerciseDraftFailure = createAction(
+  'Save Exercise Draft Failure',
+  props<{ error: any }>()
+);

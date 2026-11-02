@@ -1,7 +1,14 @@
 import { inject, Injectable } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { ThemeName } from '../services/theme';
-import { loadExerciseDraft, openSignInModal, setTheme, signOutWithGoogle } from './app.actions';
+import {
+  loadExerciseDraft,
+  openSignInModal,
+  saveExerciseDraft,
+  setTheme,
+  signOutWithGoogle,
+  updateExerciseDraftCode
+} from './app.actions';
 import { selectDraft, selectTheme } from './app.selectors';
 import { AppState } from './app.state';
 
@@ -26,5 +33,13 @@ export class AppFacade {
 
   loadExerciseDraft(id: string): void {
     this.store.dispatch(loadExerciseDraft({ id }));
+  }
+
+  saveExerciseDraft(id: string, code: string): void {
+    this.store.dispatch(saveExerciseDraft({ id, code }));
+  }
+
+  updateExerciseDraftCode(code: string): void {
+    this.store.dispatch(updateExerciseDraftCode({ code }));
   }
 }

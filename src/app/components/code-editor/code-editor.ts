@@ -2,14 +2,16 @@ import {
   AfterViewInit,
   Component,
   ElementRef,
+  EventEmitter,
   Input,
   OnChanges,
   OnDestroy,
+  Output,
   SimpleChanges,
   ViewChild
 } from '@angular/core';
 import { cpp } from '@codemirror/lang-cpp';
-import { Compartment } from '@codemirror/state';
+import { Compartment, Transaction } from '@codemirror/state';
 import { oneDark } from '@codemirror/theme-one-dark';
 import { basicSetup, EditorView } from 'codemirror';
 import { ThemeName } from '../../services/theme';
@@ -23,6 +25,8 @@ export class CodeEditor implements AfterViewInit, OnChanges, OnDestroy {
   @Input({ required: true }) code!: string;
   @Input({ required: true }) theme!: ThemeName;
 
+  @Output() codeChange = new EventEmitter<string>();
+
   @ViewChild('host', { static: true }) private host!: ElementRef<HTMLDivElement>;
 
   private readonly themeCompartment = new Compartment();
@@ -31,7 +35,20 @@ export class CodeEditor implements AfterViewInit, OnChanges, OnDestroy {
   ngAfterViewInit(): void {
     this.view = new EditorView({
       doc: this.code,
-      extensions: [basicSetup, cpp(), this.themeCompartment.of(this.darkTheme() ? oneDark : [])],
+      extensions: [
+        basicSetup,
+        cpp(),
+        EditorView.updateListener.of((update) => {
+          const isUserInput = update.transactions.some(
+            (tr) => tr.annotation(Transaction.userEvent) !== undefined
+          );
+
+          if (update.docChanged && isUserInput) {
+            this.codeChange.emit(update.state.doc.toString());
+          }
+        }),
+        this.themeCompartment.of(this.darkTheme() ? oneDark : [])
+      ],
       parent: this.host.nativeElement
     });
   }
