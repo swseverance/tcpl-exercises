@@ -1,32 +1,37 @@
 import { Component, input } from '@angular/core';
-import { NzEmptyModule } from 'ng-zorro-antd/empty';
-import { NzListModule } from 'ng-zorro-antd/list';
+import { NzTableModule } from 'ng-zorro-antd/table';
 import { ExerciseTestCase } from '../../../models/exercise';
 
 @Component({
   selector: 'app-test-cases',
-  imports: [NzListModule, NzEmptyModule],
+  imports: [NzTableModule],
   template: `
-    @if (tests().length > 0) {
-      <nz-list>
+    <nz-table
+      [nzData]="tests()"
+      [nzShowPagination]="false"
+      nzSize="small"
+      nzTitle="Test Cases"
+      nzNoResult="No test cases"
+    >
+      <thead>
+        <tr>
+          <th>stdin</th>
+          <th>expected stdout</th>
+        </tr>
+      </thead>
+      <tbody>
         @for (test of tests(); track test.id) {
-          <nz-list-item>
-            <dl class="test-case">
-              <dt>stdin</dt>
-              <dd>
-                <pre>{{ test.stdin || '(none)' }}</pre>
-              </dd>
-              <dt>expected stdout</dt>
-              <dd>
-                <pre>{{ test.expectedStdout }}</pre>
-              </dd>
-            </dl>
-          </nz-list-item>
+          <tr>
+            <td>
+              <pre>{{ test.stdin || '(none)' }}</pre>
+            </td>
+            <td>
+              <pre>{{ test.expectedStdout }}</pre>
+            </td>
+          </tr>
         }
-      </nz-list>
-    } @else {
-      <nz-empty nzNotFoundContent="No test cases" />
-    }
+      </tbody>
+    </nz-table>
   `,
   styleUrl: './test-cases.scss'
 })

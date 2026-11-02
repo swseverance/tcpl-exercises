@@ -1,32 +1,42 @@
 import { DatePipe } from '@angular/common';
 import { Component, input } from '@angular/core';
-import { NzEmptyModule } from 'ng-zorro-antd/empty';
-import { NzListModule } from 'ng-zorro-antd/list';
+import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 import { ExerciseSubmission } from '../../../models/exercise-submission';
 import { RunCResponse } from '../../../models/run-c';
 
 @Component({
   selector: 'app-submissions',
-  imports: [DatePipe, NzListModule, NzEmptyModule, NzTagModule],
+  imports: [DatePipe, NzTableModule, NzTagModule],
   template: `
-    @if (submissions().length > 0) {
-      <nz-list>
+    <nz-table
+      [nzData]="submissions()"
+      [nzShowPagination]="false"
+      nzSize="small"
+      nzTitle="Submission History"
+      nzNoResult="No submissions yet"
+    >
+      <thead>
+        <tr>
+          <th>Submitted</th>
+          <th>Stage</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
         @for (submission of submissions(); track submission.id) {
-          <nz-list-item>
-            <nz-list-item-meta
-              [nzTitle]="(submission.created | date: 'medium') ?? ''"
-              [nzDescription]="submission.result.stage"
-            />
-            <nz-tag [nzColor]="statusColor(submission.result)">
-              {{ statusLabel(submission.result) }}
-            </nz-tag>
-          </nz-list-item>
+          <tr>
+            <td>{{ submission.created | date: 'medium' }}</td>
+            <td>{{ submission.result.stage }}</td>
+            <td>
+              <nz-tag [nzColor]="statusColor(submission.result)">
+                {{ statusLabel(submission.result) }}
+              </nz-tag>
+            </td>
+          </tr>
         }
-      </nz-list>
-    } @else {
-      <nz-empty nzNotFoundContent="No submissions yet" />
-    }
+      </tbody>
+    </nz-table>
   `
 })
 export class Submissions {
