@@ -1,11 +1,10 @@
 import { Component, computed, input } from '@angular/core';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { EXERCISES_BY_ID } from '../../../../exercises';
-import { CodeEditor } from '../../../components/code-editor/code-editor';
 
 @Component({
   selector: 'app-exercise-detail',
-  imports: [CodeEditor, NzButtonModule],
+  imports: [NzButtonModule],
   templateUrl: './exercise-detail.html'
 })
 export class ExerciseDetail {

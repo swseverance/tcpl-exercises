@@ -1,6 +1,6 @@
 import { Environment } from '../models/environment';
 
-export const environment = {
+export const environment: Environment = {
   name: 'prod',
   firebaseConfig: {
     apiKey: 'AIzaSyD5ufzwDAEktLVKjhS_BYdk4xQ7Uwf3Mt4',
@@ -12,4 +12,4 @@ export const environment = {
     measurementId: 'G-K5TM1C8VTD'
   },
   reCAPTCHA: '6Le5GAouAAAAAMD8-2SLNSHVQ3ySA1hzPl1_8Ge8'
-} satisfies Environment;
+};
