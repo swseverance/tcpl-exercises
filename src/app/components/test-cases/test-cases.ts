@@ -39,7 +39,9 @@ import { Whitespace } from '../whitespace/whitespace';
               @if (submissionPending()) {
                 <nz-tag nzColor="processing">Pending...</nz-tag>
               } @else {
-                <nz-tag [nzColor]="statusColor(test.status)">{{ statusLabel(test.status) }}</nz-tag>
+                <nz-tag [nzColor]="statusColors[test.status]">{{
+                  statusLabels[test.status]
+                }}</nz-tag>
               }
             </td>
           </tr>
@@ -53,25 +55,15 @@ export class TestCases {
 
   submissionPending = input.required<boolean>();
 
-  protected statusLabel(status: ExerciseTestCase['status']): string {
-    switch (status) {
-      case 'passed':
-        return 'Passed';
-      case 'failed':
-        return 'Failed';
-      default:
-        return '—';
-    }
-  }
+  protected readonly statusLabels: Record<ExerciseTestCase['status'], string> = {
+    passed: 'Passed',
+    failed: 'Failed',
+    indeterminate: '—'
+  };
 
-  protected statusColor(status: ExerciseTestCase['status']): string | undefined {
-    switch (status) {
-      case 'passed':
-        return 'success';
-      case 'failed':
-        return 'error';
-      default:
-        return undefined;
-    }
-  }
+  protected readonly statusColors: Record<ExerciseTestCase['status'], string | undefined> = {
+    passed: 'success',
+    failed: 'error',
+    indeterminate: undefined
+  };
 }

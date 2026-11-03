@@ -22,27 +22,17 @@ export class Exercises {
 
   private destroyRef = inject(DestroyRef);
 
-  protected statusLabel(status: ExerciseStatus): string {
-    switch (status) {
-      case 'passed':
-        return 'P';
-      case 'failed':
-        return 'F';
-      default:
-        return '—';
-    }
-  }
+  protected readonly statusLabels: Record<ExerciseStatus, string> = {
+    passed: 'P',
+    failed: 'F',
+    indeterminate: '—'
+  };
 
-  protected statusColor(status: ExerciseStatus): string | undefined {
-    switch (status) {
-      case 'passed':
-        return 'success';
-      case 'failed':
-        return 'error';
-      default:
-        return undefined;
-    }
-  }
+  protected readonly statusColors: Record<ExerciseStatus, string | undefined> = {
+    passed: 'success',
+    failed: 'error',
+    indeterminate: undefined
+  };
 
   ngOnInit(): void {
     this.facade.authenticated$

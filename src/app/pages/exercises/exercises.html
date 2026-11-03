@@ -11,8 +11,8 @@
                 <span>Exercise {{ exercise.number }}{{ exercise.suffix ?? '' }}</span>
 
                 @if (exercise.status !== 'indeterminate') {
-                  <nz-tag [nzColor]="statusColor(exercise.status)">{{
-                    statusLabel(exercise.status)
+                  <nz-tag [nzColor]="statusColors[exercise.status]">{{
+                    statusLabels[exercise.status]
                   }}</nz-tag>
                 }
               </a>
