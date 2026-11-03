@@ -12,6 +12,9 @@ import { provideNzIcons } from 'ng-zorro-antd/icon';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { App } from './app';
 import { appReducer } from './store/app.reducer';
+import { authReducer } from './store/auth/auth.reducer';
+import { exerciseReducer } from './store/exercise/exercise.reducer';
+import { settingsReducer } from './store/settings/settings.reducer';
 
 describe('App', () => {
   beforeEach(async () => {
@@ -20,7 +23,12 @@ describe('App', () => {
       providers: [
         provideRouter([]),
         provideNzIcons([GithubOutline, LoginOutline, LogoutOutline, MoonOutline, SunOutline]),
-        provideStore({ app: appReducer })
+        provideStore({
+          app: appReducer,
+          exercise: exerciseReducer,
+          auth: authReducer,
+          settings: settingsReducer
+        })
       ]
     }).compileComponents();
   });

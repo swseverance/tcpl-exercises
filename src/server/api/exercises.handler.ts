@@ -1,6 +1,6 @@
 import { RequestHandler } from 'express';
-import { CHAPTERS } from '../../exercises';
 import { Chapter, ExercisesResponseBody } from '../../shared/models';
+import { CHAPTERS } from '../exercises';
 
 function toChapters(): Chapter[] {
   return CHAPTERS.map((chapter) => ({

@@ -2,7 +2,17 @@ import { execFileSync, spawnSync } from 'node:child_process';
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { EXERCISE_IDS } from '../../shared/exercise-ids';
 import { EXERCISES } from './index';
+
+describe('EXERCISE_IDS', () => {
+  it('stays in sync with the actual exercise registry', () => {
+    const actualIds = EXERCISES.map((exercise) => exercise.id).sort();
+    const declaredIds = [...EXERCISE_IDS].sort();
+
+    expect(declaredIds).toEqual(actualIds);
+  });
+});
 
 describe('exercise test ids', () => {
   for (const exercise of EXERCISES) {

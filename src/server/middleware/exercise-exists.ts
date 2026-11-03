@@ -1,5 +1,5 @@
 import { RequestHandler } from 'express';
-import { EXERCISES_BY_ID } from '../../exercises';
+import { EXERCISES_BY_ID } from '../exercises';
 
 export const exerciseExistsMiddleware: RequestHandler<{ id: string }> = (req, res, next) => {
   const exercise = EXERCISES_BY_ID[req.params.id];

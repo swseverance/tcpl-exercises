@@ -1,4 +1,4 @@
-import { ExerciseSource } from '../../../models/exercise';
+import { ExerciseSource } from '../../../../models/exercise';
 import solution from './main.c' with { type: 'text' };
 
 export const exercise33_2: ExerciseSource = {

@@ -1,4 +1,4 @@
-import { ChapterSource, ExerciseSource } from '../models/exercise';
+import { ChapterSource, ExerciseSource } from '../../models/exercise';
 import { exercise1_1 } from './1/1/exercise';
 import { exercise1_8 } from './1/8/exercise';
 import { exercise33_1 } from './33/1/exercise';
