@@ -1,10 +1,12 @@
 import { inject, Injectable } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { ThemeName } from '../services/theme';
-import { loadExercise, setTheme, submitExercise, updateExerciseDraftCode } from './app.actions';
-import { selectDraft, selectSubmissions, selectTestResults, selectTheme } from './app.selectors';
+import { loadExercise, submitExercise, updateExerciseDraftCode } from './app.actions';
+import { selectDraft, selectSubmissions, selectTestResults } from './app.selectors';
 import { AppState } from './app.state';
 import { openSignInModal, signOutWithGoogle } from './auth/auth.actions';
+import { setTheme } from './settings/settings.actions';
+import { selectTheme } from './settings/settings.selectors';
 
 @Injectable({ providedIn: 'root' })
 export class AppFacade {

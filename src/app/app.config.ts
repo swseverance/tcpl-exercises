@@ -30,6 +30,8 @@ import { appReducer } from './store/app.reducer';
 import { AuthEffects } from './store/auth/auth.effects';
 import { authReducer } from './store/auth/auth.reducer';
 import { logMetaReducer } from './store/log.meta-reducer';
+import { SettingsEffects } from './store/settings/settings.effects';
+import { settingsReducer } from './store/settings/settings.reducer';
 
 registerLocaleData(en);
 
@@ -44,9 +46,9 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withFetch(), withInterceptors([recaptchaInterceptor, authInterceptor])),
     importProvidersFrom(NzModalModule),
     provideStore(
-      { app: appReducer, auth: authReducer },
+      { app: appReducer, auth: authReducer, settings: settingsReducer },
       { metaReducers: environment.name === 'prod' ? [] : [logMetaReducer] }
     ),
-    provideEffects(AuthEffects, AppEffects)
+    provideEffects(AuthEffects, AppEffects, SettingsEffects)
   ]
 };

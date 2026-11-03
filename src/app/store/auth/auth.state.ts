@@ -1,7 +1,7 @@
 export type AuthState = {
-  authenticated: boolean;
+  authenticated: boolean | undefined;
 };
 
 export const initialAuthState: AuthState = {
-  authenticated: false
+  authenticated: undefined
 };

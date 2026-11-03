@@ -3,9 +3,6 @@ import { ExerciseFinal } from '../../models/exercise';
 import { ExerciseDraft } from '../../models/exercise-draft';
 import { ExerciseSubmission } from '../../models/exercise-submission';
 import { ExerciseTestResultsResponse } from '../../models/exercise-test-results';
-import { ThemeName } from '../services/theme';
-
-export const setTheme = createAction('Set Theme', props<{ name: ThemeName }>());
 
 export const selectExercise = createAction('Select Exercise', props<{ id: string }>());
 

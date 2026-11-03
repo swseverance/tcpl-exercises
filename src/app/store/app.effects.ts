@@ -1,6 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { Actions, createEffect, ofType, ROOT_EFFECTS_INIT } from '@ngrx/effects';
+import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzModalService } from 'ng-zorro-antd/modal';
@@ -13,11 +13,11 @@ import {
   mergeMap,
   of,
   switchMap,
+  take,
   tap,
   withLatestFrom
 } from 'rxjs';
 import { ExerciseService } from '../services/exercise-service';
-import { Theme } from '../services/theme';
 import { AUTH, USER$ } from '../tokens/firebase';
 import {
   exerciseDraftLoaded,
@@ -36,7 +36,6 @@ import {
   loadExerciseTestResultsFailure,
   saveExerciseDraft,
   saveExerciseDraftFailure,
-  setTheme,
   submitExercise,
   submitExerciseFailure
 } from './app.actions';
@@ -53,25 +52,8 @@ export class AppEffects {
   private readonly modal = inject(NzModalService);
   private readonly message = inject(NzMessageService);
   private readonly auth = inject(AUTH);
-  private readonly theme = inject(Theme);
   private readonly exerciseService = inject(ExerciseService);
   private readonly user$ = inject(USER$);
-
-  setInitialTheme$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(ROOT_EFFECTS_INIT),
-      map(() => setTheme({ name: this.theme.getTheme() }))
-    )
-  );
-
-  setTheme$ = createEffect(
-    () =>
-      this.actions$.pipe(
-        ofType(setTheme),
-        tap(({ name }) => this.theme.applyTheme(name))
-      ),
-    { dispatch: false }
-  );
 
   loadExerciseDraft$ = createEffect(() =>
     this.actions$.pipe(
@@ -221,11 +203,16 @@ export class AppEffects {
   loadExercise$ = createEffect(() =>
     this.actions$.pipe(
       ofType(loadExercise),
-      withLatestFrom(this.store.select(selectAuthenticated)),
-      switchMap(([{ id }, authenticated]) =>
-        this.exerciseService.getExercsise(id, authenticated).pipe(
-          map((exercise) => exerciseLoaded({ exercise })),
-          catchError((error) => of(loadExerciseFailure({ error })))
+      switchMap(({ id }) =>
+        this.store.select(selectAuthenticated).pipe(
+          filter((authenticated) => authenticated !== undefined),
+          take(1),
+          switchMap((authenticated) =>
+            this.exerciseService.getExercsise(id, authenticated).pipe(
+              map((exercise) => exerciseLoaded({ exercise })),
+              catchError((error) => of(loadExerciseFailure({ error })))
+            )
+          )
         )
       )
     )
