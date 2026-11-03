@@ -1,5 +1,5 @@
 import { isPlatformServer } from '@angular/common';
-import { inject, Injectable, PLATFORM_ID, TransferState } from '@angular/core';
+import { inject, Injectable, makeStateKey, PLATFORM_ID, TransferState } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { NzMessageService } from 'ng-zorro-antd/message';
@@ -16,12 +16,12 @@ import {
   tap,
   withLatestFrom
 } from 'rxjs';
+import { Chapter } from '../../../shared/models';
 import { ExerciseService } from '../../services/exercise-service';
 import { Logger } from '../../services/logger';
 import { AppState } from '../app.state';
 import { openSignInModal } from '../auth/auth.actions';
 import { selectAuthenticated } from '../auth/auth.selectors';
-import { CHAPTERS_TRANSFER_KEY } from './exercise-chapters.transfer-key';
 import {
   attemptToSubmitExercise,
   chaptersTransferred,
@@ -39,6 +39,8 @@ import {
   submitExerciseFailed
 } from './exercise.actions';
 import { selectId, selectPendingChanges } from './exercise.selectors';
+
+const CHAPTERS_TRANSFER_KEY = makeStateKey<Chapter[]>('chapters');
 
 const SAVE_INTERVAL_MS = 10_000;
 
