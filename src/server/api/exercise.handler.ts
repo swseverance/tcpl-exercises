@@ -1,6 +1,6 @@
 import { RequestHandler } from 'express';
-import { Exercise, ExerciseFinal } from '../../models/exercise';
-import { saveExerciseRecordCode } from '../firestore/exercise-records';
+import { Exercise, ExerciseFinal, STARTER_CODE } from '../../models/exercise';
+import { getExerciseRecordCode, saveExerciseRecordCode } from '../firestore/exercise-records';
 
 type SaveExerciseCodeRequestBody = {
   code: string;
@@ -61,5 +61,6 @@ export const saveExerciseCodeHandler: RequestHandler<
 };
 
 export const getExercisePrivateHandler: RequestHandler<{ id: string }> = async (req, res) => {
-  res.json(toExerciseFinal(req.exercise, 'there will be code here'));
+  const code = await getExerciseRecordCode(req.uid!, req.params.id);
+  res.json(toExerciseFinal(req.exercise, code ?? STARTER_CODE));
 };

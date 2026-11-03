@@ -20,11 +20,15 @@ export const exerciseReducer = createReducer(
     exerciseLoading: true
   })),
 
-  on(exerciseLoaded, (state, { exercise }) => ({
-    ...state,
-    exercise,
-    exerciseLoading: false
-  })),
+  on(exerciseLoaded, (state, { exercise }) => {
+    const pending = state.pendingChanges[exercise.id];
+
+    return {
+      ...state,
+      exercise: pending ? { ...exercise, code: pending.code } : exercise,
+      exerciseLoading: false
+    };
+  }),
 
   on(loadExerciseFailure, (state) => ({
     ...state,

@@ -19,13 +19,7 @@ export type Chapter = {
   exercises: Exercise[];
 };
 
-export const STARTER_CODE = `#include <stdio.h>
-
-int main() {
-
-    return 0;
-}
-`;
+export const STARTER_CODE = `#include <stdio.h>\n\nint main() {\n  return 0;\n}\n`;
 
 export function hashExerciseTests(tests: ExerciseTestCase[]): string {
   const json = JSON.stringify(tests);

@@ -56,6 +56,44 @@ describe('exerciseReducer', () => {
         exerciseLoading: false
       });
     });
+
+    it('merges in the pending code for that exercise when one exists, so an unsaved edit survives navigating away and back', () => {
+      const previousState = {
+        ...initialAuthState,
+        id: '1-1',
+        exerciseLoading: true,
+        pendingChanges: {
+          '1-1': { code: 'unsaved edit', saving: false }
+        }
+      };
+
+      const state = exerciseReducer(previousState, exerciseLoaded({ exercise: EXERCISE_FINAL }));
+
+      expect(state).toEqual({
+        ...previousState,
+        exercise: { ...EXERCISE_FINAL, code: 'unsaved edit' },
+        exerciseLoading: false
+      });
+    });
+
+    it('uses the loaded code as-is when there is no pending change for that exercise', () => {
+      const previousState = {
+        ...initialAuthState,
+        id: '1-1',
+        exerciseLoading: true,
+        pendingChanges: {
+          '2-1': { code: 'untouched', saving: false }
+        }
+      };
+
+      const state = exerciseReducer(previousState, exerciseLoaded({ exercise: EXERCISE_FINAL }));
+
+      expect(state).toEqual({
+        ...previousState,
+        exercise: EXERCISE_FINAL,
+        exerciseLoading: false
+      });
+    });
   });
 
   describe('loadExerciseFailure', () => {
