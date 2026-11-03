@@ -20,7 +20,7 @@ export const getExercisePublicHandler: RequestHandler<{ id: string }> = async (r
     number,
     suffix,
     description,
-    code: `#includ <stdio.h>\n\nint main() {\n}\n`,
+    code: `#include <stdio.h>\n\nint main() {\n\n}\n`,
     solution,
     tests: tests.map(({ id, stdin, expectedStdout }) => ({
       id,

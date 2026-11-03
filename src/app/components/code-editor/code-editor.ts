@@ -28,8 +28,25 @@ import { ThemeName } from '../../services/theme';
   styleUrl: './code-editor.scss'
 })
 export class CodeEditor implements AfterViewInit, OnChanges, OnDestroy {
-  @Input({ required: true }) code!: string;
-  @Input({ required: true }) theme!: ThemeName;
+  private _code = '';
+
+  @Input() set code(code: string) {
+    this._code = code ?? '';
+  }
+
+  get code() {
+    return this._code;
+  }
+
+  private _theme: ThemeName = 'light';
+
+  @Input() set theme(theme: ThemeName) {
+    this._theme = theme ?? 'light';
+  }
+
+  get theme() {
+    return this._theme;
+  }
 
   @Output() codeChange = new EventEmitter<string>();
 

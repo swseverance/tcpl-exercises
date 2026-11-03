@@ -1,9 +1,9 @@
 import { ThemeName } from '../../services/theme';
 
 export type SettingsState = {
-  theme: ThemeName | null;
+  theme: ThemeName;
 };
 
 export const initialSettingsState: SettingsState = {
-  theme: null
+  theme: 'light'
 };
