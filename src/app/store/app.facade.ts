@@ -4,7 +4,12 @@ import { ThemeName } from '../services/theme';
 import { AppState } from './app.state';
 import { openSignInModal, signOutWithGoogle } from './auth/auth.actions';
 import { selectAuthenticated } from './auth/auth.selectors';
-import { codeEdited, selectExercise, submitExercise } from './exercise/exercise.actions';
+import {
+  codeEdited,
+  loadExercises,
+  selectExercise,
+  submitExercise
+} from './exercise/exercise.actions';
 import {
   selectChapters,
   selectExercise as selectExerciseSelector,
@@ -47,5 +52,9 @@ export class AppFacade {
 
   submitExercise(code: string): void {
     this.store.dispatch(submitExercise({ code }));
+  }
+
+  loadExercises(authenticated: boolean): void {
+    this.store.dispatch(loadExercises({ authenticated }));
   }
 }

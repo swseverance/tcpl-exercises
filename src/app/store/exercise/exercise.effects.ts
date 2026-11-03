@@ -156,13 +156,6 @@ export class ExerciseEffects {
     { dispatch: false }
   );
 
-  shouldLoadExercises$ = createEffect(() =>
-    this.store.select(selectAuthenticated).pipe(
-      filter((authenticated) => authenticated !== undefined),
-      map((authenticated) => loadExercises({ authenticated }))
-    )
-  );
-
   loadExercises$ = createEffect(() =>
     this.actions$.pipe(
       ofType(loadExercises),
