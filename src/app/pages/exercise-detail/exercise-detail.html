@@ -1,10 +1,19 @@
 @let exercise = exercise$ | async;
 @let theme = theme$ | async;
+@let submissionPending = submissionPending$ | async;
 
 <div class="exercise-layout">
   <div class="editor-section">
     <app-code-editor [code]="exercise!.code" [theme]="theme!" (codeChange)="onCodeChange($event)" />
-    <button nz-button nzType="primary" type="button" (click)="onSubmit()">Submit</button>
+    <button
+      nz-button
+      nzType="primary"
+      type="button"
+      [disabled]="submissionPending"
+      (click)="onSubmit()"
+    >
+      Submit
+    </button>
   </div>
 
   <app-test-cases [tests]="exercise!.tests" ngSkipHydration />

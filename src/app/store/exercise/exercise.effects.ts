@@ -21,11 +21,14 @@ import { AppState } from '../app.state';
 import { selectAuthenticated } from '../auth/auth.selectors';
 import {
   exerciseLoaded,
+  exerciseSubmitted,
   loadExercise,
   loadExerciseFailure,
   pendingChangesSaved,
   savePendingChanges,
-  savePendingChangesFailure
+  savePendingChangesFailure,
+  submitExercise,
+  submitExerciseFailed
 } from './exercise.actions';
 import { selectId, selectPendingChanges } from './exercise.selectors';
 
@@ -111,6 +114,40 @@ export class ExerciseEffects {
         tap(({ error }) => {
           this.logger.error('[exercise] save pending changes failed:', error);
           this.message.error('Failed to Save Changes');
+        })
+      ),
+    { dispatch: false }
+  );
+
+  submitExercise$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(submitExercise),
+      withLatestFrom(this.store.select(selectId)),
+      switchMap(([{ code }, id]) =>
+        this.exercise.submitExercise(id, code).pipe(
+          map((exercise) => exerciseSubmitted({ exercise })),
+          catchError((error) => of(submitExerciseFailed({ error })))
+        )
+      )
+    )
+  );
+
+  exerciseSubmitted$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(exerciseSubmitted),
+        tap(() => this.message.success('Exercise Submitted'))
+      ),
+    { dispatch: false }
+  );
+
+  submitExerciseFailed$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(submitExerciseFailed),
+        tap(({ error }) => {
+          this.logger.error('[exercise] submit failed:', error);
+          this.message.error('Failed to Submit Exercise');
         })
       ),
     { dispatch: false }

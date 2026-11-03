@@ -3,11 +3,14 @@ import { createReducer, on } from '@ngrx/store';
 import {
   codeEdited,
   exerciseLoaded,
+  exerciseSubmitted,
   loadExerciseFailure,
   pendingChangesSaved,
   savePendingChanges,
   savePendingChangesFailure,
-  selectExercise
+  selectExercise,
+  submitExercise,
+  submitExerciseFailed
 } from './exercise.actions';
 import { initialAuthState } from './exercise.state';
 
@@ -99,5 +102,15 @@ export const exerciseReducer = createReducer(
         [id]: { ...pending, saving: false }
       }
     };
+  }),
+
+  on(submitExercise, (state) => ({ ...state, submissionPending: true })),
+
+  on(exerciseSubmitted, (state) => {
+    return { ...state, submissionPending: false };
+  }),
+
+  on(submitExerciseFailed, (state) => {
+    return { ...state, submissionPending: false };
   })
 );

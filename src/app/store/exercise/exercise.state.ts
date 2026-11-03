@@ -14,6 +14,8 @@ export type ExerciseState = {
   exerciseLoading: boolean;
 
   exercise: ExerciseFinal;
+
+  submissionPending: boolean;
 };
 
 export const initialAuthState: ExerciseState = {
@@ -32,5 +34,7 @@ export const initialAuthState: ExerciseState = {
     solution: '',
     tests: [],
     state: 'indeterminate'
-  }
+  },
+
+  submissionPending: false
 };

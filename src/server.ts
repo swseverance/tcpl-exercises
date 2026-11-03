@@ -10,18 +10,10 @@ import { createProxyMiddleware } from 'http-proxy-middleware';
 import { join } from 'node:path';
 import { environment } from './environments/environment';
 import {
-  getExerciseDraftHandler,
-  saveExerciseDraftHandler
-} from './server/api/exercise-draft.handler';
-import {
-  getExerciseTestResultsHandler,
-  listExerciseSubmissionsHandler,
-  submitExerciseHandler
-} from './server/api/exercise-submissions.handler';
-import {
   getExercisePrivateHandler,
   getExercisePublicHandler,
-  saveExerciseCodeHandler
+  saveExerciseCodeHandler,
+  submitExerciseHandler
 } from './server/api/exercise.handler';
 import { logHandler } from './server/api/log.handler';
 import { appCheckMiddleware } from './server/middleware/appcheck';
@@ -56,20 +48,12 @@ app.use('/api', express.json({ limit: '64kb' }));
 // Public API
 app.get('/api/public/exercises/:id', exerciseExistsMiddleware, getExercisePublicHandler);
 
-// Requires authentication
+// Private API
 app.use('/api/private', appCheckMiddleware);
 app.use('/api/private', authMiddleware);
 app.get('/api/private/exercises/:id', exerciseExistsMiddleware, getExercisePrivateHandler);
 app.put('/api/private/exercises/:id/code', exerciseExistsMiddleware, saveExerciseCodeHandler);
-
-// REFACTOR/REMOVE BEGIN
-app.get('/api/private/exercises/:id/draft', getExerciseDraftHandler);
-app.put('/api/private/exercises/:id/draft', saveExerciseDraftHandler);
-app.post('/api/private/exercises/:id/submit', submitExerciseHandler);
-app.get('/api/private/exercises/:id/submissions', listExerciseSubmissionsHandler);
-app.get('/api/private/exercises/:id/test-results', getExerciseTestResultsHandler);
-// REFACTOR/REMOVE END
-
+app.post('/api/private/exercises/:id/submit', exerciseExistsMiddleware, submitExerciseHandler);
 app.post('/api/private/logs', logHandler);
 
 /**

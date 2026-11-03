@@ -33,3 +33,13 @@ export const savePendingChangesFailure = createAction(
 );
 
 export const submitExercise = createAction('Submit Exercise', props<{ code: string }>());
+
+export const exerciseSubmitted = createAction(
+  'Exercise Submitted',
+  props<{ exercise: ExerciseFinal }>()
+);
+
+export const submitExerciseFailed = createAction(
+  'Submit Exercise Failed',
+  props<{ error: unknown }>()
+);

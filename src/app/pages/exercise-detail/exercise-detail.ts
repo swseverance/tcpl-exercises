@@ -22,6 +22,7 @@ export class ExerciseDetail implements OnInit {
   protected readonly facade = inject(AppFacade);
   protected readonly theme$ = this.facade.theme$;
   protected readonly exercise$ = this.facade.exercise$;
+  protected readonly submissionPending$ = this.facade.submissionPending$;
 
   ngOnInit(): void {
     this.route.paramMap

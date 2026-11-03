@@ -16,3 +16,8 @@ export const selectPendingChanges = createSelector(
   selectExerciseState,
   (state) => state.pendingChanges
 );
+
+export const selectSubmissionPending = createSelector(
+  selectExerciseState,
+  (state) => state.submissionPending
+);

@@ -99,3 +99,7 @@ export const getExercisePrivateHandler: RequestHandler<{ id: string }> = async (
   const record = await getExerciseRecord(req.uid!, req.params.id);
   res.json(toExerciseFinal(req.exercise, record?.code ?? STARTER_CODE, record?.tests ?? {}));
 };
+
+export const submitExerciseHandler: RequestHandler<{ id: string }> = async (req, res) => {
+  res.status(204).end();
+};
