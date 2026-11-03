@@ -29,6 +29,8 @@ import { AppEffects } from './store/app.effects';
 import { appReducer } from './store/app.reducer';
 import { AuthEffects } from './store/auth/auth.effects';
 import { authReducer } from './store/auth/auth.reducer';
+import { ExerciseEffects } from './store/exercise/exercise.effects';
+import { exerciseReducer } from './store/exercise/exercise.reducer';
 import { logMetaReducer } from './store/log.meta-reducer';
 import { SettingsEffects } from './store/settings/settings.effects';
 import { settingsReducer } from './store/settings/settings.reducer';
@@ -46,9 +48,9 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withFetch(), withInterceptors([recaptchaInterceptor, authInterceptor])),
     importProvidersFrom(NzModalModule),
     provideStore(
-      { app: appReducer, auth: authReducer, settings: settingsReducer },
+      { app: appReducer, exercise: exerciseReducer, auth: authReducer, settings: settingsReducer },
       { metaReducers: environment.name === 'prod' ? [] : [logMetaReducer] }
     ),
-    provideEffects(AuthEffects, AppEffects, SettingsEffects)
+    provideEffects(AppEffects, AuthEffects, ExerciseEffects, SettingsEffects)
   ]
 };

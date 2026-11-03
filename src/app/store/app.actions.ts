@@ -1,5 +1,4 @@
 import { createAction, props } from '@ngrx/store';
-import { ExerciseFinal } from '../../models/exercise';
 import { ExerciseDraft } from '../../models/exercise-draft';
 import { ExerciseSubmission } from '../../models/exercise-submission';
 import { ExerciseTestResultsResponse } from '../../models/exercise-test-results';
@@ -79,11 +78,3 @@ export const loadExerciseTestResultsFailure = createAction(
   'Load Exercise Test Results Failure',
   props<{ id: string; error: unknown }>()
 );
-
-// FINAL ACTIONS
-
-export const loadExercise = createAction('Load Exercise', props<{ id: string }>());
-
-export const exerciseLoaded = createAction('Exercise Loaded', props<{ exercise: ExerciseFinal }>());
-
-export const loadExerciseFailure = createAction('Load Exercise Failure', props<{ error: any }>());

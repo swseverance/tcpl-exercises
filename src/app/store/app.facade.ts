@@ -1,10 +1,11 @@
 import { inject, Injectable } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { ThemeName } from '../services/theme';
-import { loadExercise, submitExercise, updateExerciseDraftCode } from './app.actions';
+import { submitExercise, updateExerciseDraftCode } from './app.actions';
 import { selectDraft, selectSubmissions, selectTestResults } from './app.selectors';
 import { AppState } from './app.state';
 import { openSignInModal, signOutWithGoogle } from './auth/auth.actions';
+import { selectExercise } from './exercise/exercise.actions';
 import { setTheme } from './settings/settings.actions';
 import { selectTheme } from './settings/settings.selectors';
 
@@ -29,8 +30,8 @@ export class AppFacade {
     this.store.dispatch(setTheme({ name }));
   }
 
-  loadExercise(id: string): void {
-    this.store.dispatch(loadExercise({ id }));
+  selectExercise(id: string): void {
+    this.store.dispatch(selectExercise({ id }));
   }
 
   updateExerciseDraftCode(code: string): void {

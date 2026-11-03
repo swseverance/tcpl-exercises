@@ -41,11 +41,11 @@ app.use(
   })
 );
 
-app.use('/api/private', (_req, res, next) => {
+app.use('/api', (_req, res, next) => {
   res.setHeader('Cache-Control', 'no-store');
   next();
 });
-app.use('/api/private', express.json({ limit: '64kb' }));
+app.use('/api', express.json({ limit: '64kb' }));
 
 // Public API
 app.get('/api/public/exercises/:id', getExerciseHandler);

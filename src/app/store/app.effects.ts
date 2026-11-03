@@ -13,7 +13,6 @@ import {
   mergeMap,
   of,
   switchMap,
-  take,
   tap,
   withLatestFrom
 } from 'rxjs';
@@ -22,14 +21,11 @@ import { AUTH, USER$ } from '../tokens/firebase';
 import {
   exerciseDraftLoaded,
   exerciseDraftSaved,
-  exerciseLoaded,
   exerciseSubmissionsLoaded,
   exerciseSubmitted,
   exerciseTestResultsLoaded,
-  loadExercise,
   loadExerciseDraft,
   loadExerciseDraftFailure,
-  loadExerciseFailure,
   loadExerciseSubmissions,
   loadExerciseSubmissionsFailure,
   loadExerciseTestResults,
@@ -41,7 +37,6 @@ import {
 } from './app.actions';
 import { selectId, selectPendingChanges } from './app.selectors';
 import { AppState } from './app.state';
-import { selectAuthenticated } from './auth/auth.selectors';
 
 const SAVE_INTERVAL_MS = 5_000;
 
@@ -194,38 +189,6 @@ export class AppEffects {
         tap(({ id, error }) => {
           console.error(`[exercise-submission] submit failed for ${id}:`, error);
           this.message.error('Failed to Submit Exercise');
-        })
-      ),
-    { dispatch: false }
-  );
-
-  // FINAL ACTIONS
-  loadExercise$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(loadExercise),
-      switchMap(({ id }) =>
-        this.store.select(selectAuthenticated).pipe(
-          filter((authenticated) => authenticated !== undefined),
-          take(1),
-          switchMap((authenticated) =>
-            this.exerciseService.getExercsise(id, authenticated).pipe(
-              map((exercise) => exerciseLoaded({ exercise })),
-              catchError((error) => of(loadExerciseFailure({ error })))
-            )
-          )
-        )
-      )
-    )
-  );
-
-  loadExerciseFailure$ = createEffect(
-    () =>
-      this.actions$.pipe(
-        ofType(loadExerciseFailure),
-        tap(({ error }) => {
-          // todo: for claude to fix error message
-          console.error(error);
-          this.message.error('Failed to Load Exercise');
         })
       ),
     { dispatch: false }
