@@ -13,6 +13,12 @@ type UpdateExerciseRecord = {
   lastUpdated: FieldValue;
 };
 
+type UpdateExerciseRecordWithTests = {
+  code: string;
+  tests: Record<string, ExerciseRecordTestResult>;
+  lastUpdated: FieldValue;
+};
+
 type ReadExerciseRecord = {
   code: string;
   tests: Record<string, ExerciseRecordTestResult>;
@@ -51,6 +57,35 @@ export async function saveExerciseRecordCode(
   await ref.update(update);
 
   const tests = (snapshot.data() as ReadExerciseRecord).tests;
+
+  return { id: exerciseId, code, tests };
+}
+
+export async function saveExerciseRecordSubmission(
+  uid: string,
+  exerciseId: string,
+  code: string,
+  tests: Record<string, ExerciseRecordTestResult>
+): Promise<ExerciseRecord> {
+  const ref = exerciseRecordRef(uid, exerciseId);
+  const snapshot = await ref.get();
+
+  if (!snapshot.exists) {
+    const write: WriteExerciseRecord = {
+      code,
+      tests,
+      created: FieldValue.serverTimestamp(),
+      lastUpdated: FieldValue.serverTimestamp()
+    };
+    await ref.set(write);
+  } else {
+    const update: UpdateExerciseRecordWithTests = {
+      code,
+      tests,
+      lastUpdated: FieldValue.serverTimestamp()
+    };
+    await ref.update(update);
+  }
 
   return { id: exerciseId, code, tests };
 }

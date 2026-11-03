@@ -7,9 +7,14 @@ import {
   STARTER_CODE
 } from '../../models/exercise';
 import { ExerciseRecordTestResult } from '../../models/exercise-record';
-import { getExerciseRecord, saveExerciseRecordCode } from '../firestore/exercise-records';
+import {
+  getExerciseRecord,
+  saveExerciseRecordCode,
+  saveExerciseRecordSubmission
+} from '../firestore/exercise-records';
+import { gradeSubmission } from '../sandbox/run-c';
 
-type SaveExerciseCodeRequestBody = {
+type ExerciseCodeRequestBody = {
   code: string;
 };
 
@@ -72,7 +77,7 @@ const MAX_CODE_LENGTH = 20_000;
 export const saveExerciseCodeHandler: RequestHandler<
   { id: string },
   unknown,
-  SaveExerciseCodeRequestBody
+  ExerciseCodeRequestBody
 > = async (req, res) => {
   const code = req.body.code === null ? '' : req.body.code;
 
@@ -100,6 +105,42 @@ export const getExercisePrivateHandler: RequestHandler<{ id: string }> = async (
   res.json(toExerciseFinal(req.exercise, record?.code ?? STARTER_CODE, record?.tests ?? {}));
 };
 
-export const submitExerciseHandler: RequestHandler<{ id: string }> = async (req, res) => {
-  res.status(204).end();
+export const submitExerciseHandler: RequestHandler<
+  { id: string },
+  unknown,
+  ExerciseCodeRequestBody
+> = async (req, res) => {
+  const code = req.body.code === null ? '' : req.body.code;
+
+  if (typeof code !== 'string') {
+    res.status(400).json({ message: 'code is required' });
+    return;
+  }
+
+  if (code.length > MAX_CODE_LENGTH) {
+    res.status(400).json({ message: `code must be at most ${MAX_CODE_LENGTH} characters` });
+    return;
+  }
+
+  try {
+    const { compile, results } = await gradeSubmission(code, req.exercise.tests);
+    const compileFailed = compile.timedOut || compile.exitCode !== 0;
+
+    const tests: Record<string, ExerciseRecordTestResult> = compileFailed
+      ? Object.fromEntries(
+          req.exercise.tests.map((test) => [test.id, { status: 'failed', actualStdout: '' }])
+        )
+      : Object.fromEntries(
+          results.map((result) => [
+            result.id,
+            { status: result.passed ? 'passed' : 'failed', actualStdout: result.stdout }
+          ])
+        );
+
+    const record = await saveExerciseRecordSubmission(req.uid!, req.params.id, code, tests);
+    res.json(toExerciseFinal(req.exercise, record.code, record.tests));
+  } catch (err) {
+    console.error('[exercise] submit failed:', err);
+    res.status(500).json({ message: 'Failed to submit exercise' });
+  }
 };

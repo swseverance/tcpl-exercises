@@ -16,7 +16,11 @@
     </button>
   </div>
 
-  <app-test-cases [tests]="exercise!.tests" ngSkipHydration />
+  <app-test-cases
+    [tests]="exercise!.tests"
+    [submissionPending]="submissionPending ?? false"
+    ngSkipHydration
+  />
 
   <!-- <app-submissions [submissions]="submissions ?? []" ngSkipHydration /> -->
 </div>

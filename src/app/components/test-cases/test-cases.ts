@@ -36,7 +36,11 @@ import { Whitespace } from '../whitespace/whitespace';
               }
             </td>
             <td>
-              <nz-tag [nzColor]="statusColor(test.status)">{{ statusLabel(test.status) }}</nz-tag>
+              @if (submissionPending()) {
+                <nz-tag nzColor="processing">Pending...</nz-tag>
+              } @else {
+                <nz-tag [nzColor]="statusColor(test.status)">{{ statusLabel(test.status) }}</nz-tag>
+              }
             </td>
           </tr>
         }
@@ -46,6 +50,8 @@ import { Whitespace } from '../whitespace/whitespace';
 })
 export class TestCases {
   tests = input.required<ExerciseTestCaseFinal[]>();
+
+  submissionPending = input.required<boolean>();
 
   protected statusLabel(status: ExerciseTestCaseFinal['status']): string {
     switch (status) {

@@ -3,11 +3,14 @@ import { ExerciseFinal } from '../../../models/exercise';
 import {
   codeEdited,
   exerciseLoaded,
+  exerciseSubmitted,
   loadExerciseFailure,
   pendingChangesSaved,
   savePendingChanges,
   savePendingChangesFailure,
-  selectExercise
+  selectExercise,
+  submitExercise,
+  submitExerciseFailed
 } from './exercise.actions';
 import { exerciseReducer } from './exercise.reducer';
 import { initialAuthState } from './exercise.state';
@@ -290,6 +293,91 @@ describe('exerciseReducer', () => {
           '1-1': { code: 'some code', saving: false },
           '2-1': { code: 'untouched', saving: false }
         }
+      });
+    });
+  });
+
+  describe('submitExercise', () => {
+    it('sets submissionPending to true, leaving everything else unchanged', () => {
+      const previousState = { ...initialAuthState, id: '1-1' };
+
+      const state = exerciseReducer(previousState, submitExercise({ code: 'submitted code' }));
+
+      expect(state).toEqual({
+        ...previousState,
+        submissionPending: true
+      });
+    });
+  });
+
+  describe('exerciseSubmitted', () => {
+    it('keeps the current exercise code instead of the submitted one, so a live edit made while the submission was in flight is never clobbered, and removes a pending change that matches what was submitted', () => {
+      const submittedExercise: ExerciseFinal = {
+        ...EXERCISE_FINAL,
+        code: 'submitted code',
+        state: 'passed',
+        tests: [{ ...EXERCISE_FINAL.tests[0], status: 'passed' }]
+      };
+
+      const previousState = {
+        ...initialAuthState,
+        exercise: { ...EXERCISE_FINAL, code: 'typed after submit' },
+        pendingChanges: {
+          '1-1': { code: 'submitted code', saving: false },
+          '2-1': { code: 'untouched', saving: false }
+        },
+        submissionPending: true
+      };
+
+      const state = exerciseReducer(
+        previousState,
+        exerciseSubmitted({ exercise: submittedExercise })
+      );
+
+      expect(state).toEqual({
+        ...previousState,
+        exercise: { ...submittedExercise, code: 'typed after submit' },
+        pendingChanges: {
+          '2-1': { code: 'untouched', saving: false }
+        },
+        submissionPending: false
+      });
+    });
+
+    it('leaves the pending change in place when it no longer matches what was submitted', () => {
+      const submittedExercise: ExerciseFinal = { ...EXERCISE_FINAL, code: 'submitted code' };
+
+      const previousState = {
+        ...initialAuthState,
+        exercise: { ...EXERCISE_FINAL, code: 'typed after submit' },
+        pendingChanges: {
+          '1-1': { code: 'even newer code', saving: false }
+        },
+        submissionPending: true
+      };
+
+      const state = exerciseReducer(
+        previousState,
+        exerciseSubmitted({ exercise: submittedExercise })
+      );
+
+      expect(state).toEqual({
+        ...previousState,
+        exercise: { ...submittedExercise, code: 'typed after submit' },
+        submissionPending: false
+      });
+    });
+  });
+
+  describe('submitExerciseFailed', () => {
+    it('clears submissionPending, leaving everything else unchanged', () => {
+      const previousState = { ...initialAuthState, submissionPending: true };
+
+      const state = exerciseReducer(previousState, submitExerciseFailed({ error: 'boom' }));
+
+      expect(state).toEqual({
+        ...previousState,
+        submissionPending: false
       });
     });
   });

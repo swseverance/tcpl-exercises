@@ -106,8 +106,26 @@ export const exerciseReducer = createReducer(
 
   on(submitExercise, (state) => ({ ...state, submissionPending: true })),
 
-  on(exerciseSubmitted, (state) => {
-    return { ...state, submissionPending: false };
+  on(exerciseSubmitted, (state, { exercise }) => {
+    const code = state.exercise.code;
+    const pending = state.pendingChanges[exercise.id];
+
+    if (pending && pending.code === exercise.code) {
+      const { [exercise.id]: _removed, ...pendingChanges } = state.pendingChanges;
+
+      return {
+        ...state,
+        exercise: { ...exercise, code },
+        pendingChanges,
+        submissionPending: false
+      };
+    }
+
+    return {
+      ...state,
+      exercise: { ...exercise, code },
+      submissionPending: false
+    };
   }),
 
   on(submitExerciseFailed, (state) => {
