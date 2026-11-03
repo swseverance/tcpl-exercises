@@ -3,8 +3,11 @@ import { createReducer, on } from '@ngrx/store';
 import {
   codeEdited,
   exerciseLoaded,
+  exercisesLoaded,
   exerciseSubmitted,
   loadExerciseFailure,
+  loadExercises,
+  loadExercisesFailed,
   pendingChangesSaved,
   savePendingChanges,
   savePendingChangesFailure,
@@ -130,5 +133,21 @@ export const exerciseReducer = createReducer(
 
   on(submitExerciseFailed, (state) => {
     return { ...state, submissionPending: false };
-  })
+  }),
+
+  on(loadExercises, (state) => ({
+    ...state,
+    exercisesLoading: true
+  })),
+
+  on(exercisesLoaded, (state, { chapters }) => ({
+    ...state,
+    chapters,
+    exercisesLoading: false
+  })),
+
+  on(loadExercisesFailed, (state) => ({
+    ...state,
+    exercisesLoading: false
+  }))
 );

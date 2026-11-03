@@ -21,3 +21,10 @@ export const selectSubmissionPending = createSelector(
   selectExerciseState,
   (state) => state.submissionPending
 );
+
+export const selectChapters = createSelector(selectExerciseState, (state) => state.chapters);
+
+export const selectExercisesLoading = createSelector(
+  selectExerciseState,
+  (state) => state.exercisesLoading
+);

@@ -1,11 +1,17 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Service } from '@angular/core';
 import { Observable } from 'rxjs';
-import { Exercise } from '../../shared/models';
+import { Exercise, ExercisesResponseBody } from '../../shared/models';
 
 @Service()
 export class ExerciseService {
   private readonly http = inject(HttpClient);
+
+  getExercises(authenticated: boolean): Observable<ExercisesResponseBody> {
+    return this.http.get<ExercisesResponseBody>(
+      `/api/${authenticated ? 'private' : 'public'}/exercises`
+    );
+  }
 
   getExercsise(exerciseId: string, authenticated: boolean): Observable<Exercise> {
     return this.http.get<Exercise>(

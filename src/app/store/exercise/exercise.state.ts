@@ -1,4 +1,4 @@
-import { Exercise } from '../../../shared/models';
+import { Chapter, Exercise } from '../../../shared/models';
 
 export type ExerciseState = {
   id: string;
@@ -16,6 +16,10 @@ export type ExerciseState = {
   exercise: Exercise;
 
   submissionPending: boolean;
+
+  chapters: Chapter[];
+
+  exercisesLoading: boolean;
 };
 
 export const initialAuthState: ExerciseState = {
@@ -36,5 +40,9 @@ export const initialAuthState: ExerciseState = {
     state: 'indeterminate'
   },
 
-  submissionPending: false
+  submissionPending: false,
+
+  chapters: [],
+
+  exercisesLoading: false
 };

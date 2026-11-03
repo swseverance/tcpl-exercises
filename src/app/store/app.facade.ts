@@ -6,7 +6,9 @@ import { openSignInModal, signOutWithGoogle } from './auth/auth.actions';
 import { selectAuthenticated } from './auth/auth.selectors';
 import { codeEdited, selectExercise, submitExercise } from './exercise/exercise.actions';
 import {
+  selectChapters,
   selectExercise as selectExerciseSelector,
+  selectExercisesLoading,
   selectSubmissionPending
 } from './exercise/exercise.selectors';
 import { setTheme } from './settings/settings.actions';
@@ -20,6 +22,8 @@ export class AppFacade {
   readonly theme$ = this.store.select(selectTheme);
   readonly exercise$ = this.store.select(selectExerciseSelector);
   readonly submissionPending$ = this.store.select(selectSubmissionPending);
+  readonly chapters$ = this.store.select(selectChapters);
+  readonly exercisesLoading$ = this.store.select(selectExercisesLoading);
 
   openSignInModal(): void {
     this.store.dispatch(openSignInModal());

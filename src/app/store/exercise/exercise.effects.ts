@@ -21,9 +21,12 @@ import { AppState } from '../app.state';
 import { selectAuthenticated } from '../auth/auth.selectors';
 import {
   exerciseLoaded,
+  exercisesLoaded,
   exerciseSubmitted,
   loadExercise,
   loadExerciseFailure,
+  loadExercises,
+  loadExercisesFailed,
   pendingChangesSaved,
   savePendingChanges,
   savePendingChangesFailure,
@@ -148,6 +151,37 @@ export class ExerciseEffects {
         tap(({ error }) => {
           this.logger.error('[exercise] submit failed:', error);
           this.message.error('Failed to Submit Exercise');
+        })
+      ),
+    { dispatch: false }
+  );
+
+  shouldLoadExercises$ = createEffect(() =>
+    this.store.select(selectAuthenticated).pipe(
+      filter((authenticated) => authenticated !== undefined),
+      map((authenticated) => loadExercises({ authenticated }))
+    )
+  );
+
+  loadExercises$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(loadExercises),
+      switchMap(({ authenticated }) =>
+        this.exercise.getExercises(authenticated).pipe(
+          map(({ chapters }) => exercisesLoaded({ chapters })),
+          catchError((error) => of(loadExercisesFailed({ error })))
+        )
+      )
+    )
+  );
+
+  loadExercisesFailed$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(loadExercisesFailed),
+        tap(({ error }) => {
+          this.logger.error('[exercises] load failed:', error);
+          this.message.error('Failed to Load Exercises');
         })
       ),
     { dispatch: false }

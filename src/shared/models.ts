@@ -21,3 +21,18 @@ export type Exercise = {
   tests: ExerciseTestCase[];
   state: ExerciseStatus;
 };
+
+export type Chapter = {
+  number: number;
+  exercises: Array<{
+    id: string;
+    chapter: number;
+    number: number;
+    suffix?: string;
+    status: 'passed' | 'failed' | 'indeterminate';
+  }>;
+};
+
+export type ExercisesResponseBody = {
+  chapters: Chapter[];
+};

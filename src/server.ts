@@ -15,6 +15,10 @@ import {
   saveExerciseCodeHandler,
   submitExerciseHandler
 } from './server/api/exercise.handler';
+import {
+  getExercisesPrivateHandler,
+  getExercisesPublicHandler
+} from './server/api/exercises.handler';
 import { logHandler } from './server/api/log.handler';
 import { appCheckMiddleware } from './server/middleware/appcheck';
 import { authMiddleware } from './server/middleware/auth';
@@ -46,11 +50,13 @@ app.use('/api', (_req, res, next) => {
 app.use('/api', express.json({ limit: '64kb' }));
 
 // Public API
+app.get('/api/public/exercises', getExercisesPublicHandler);
 app.get('/api/public/exercises/:id', exerciseExistsMiddleware, getExercisePublicHandler);
 
 // Private API
 app.use('/api/private', appCheckMiddleware);
 app.use('/api/private', authMiddleware);
+app.get('/api/private/exercises', getExercisesPrivateHandler);
 app.get('/api/private/exercises/:id', exerciseExistsMiddleware, getExercisePrivateHandler);
 app.put('/api/private/exercises/:id/code', exerciseExistsMiddleware, saveExerciseCodeHandler);
 app.post('/api/private/exercises/:id/submit', exerciseExistsMiddleware, submitExerciseHandler);
