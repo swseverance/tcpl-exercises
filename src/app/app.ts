@@ -6,7 +6,6 @@ import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzLayoutModule } from 'ng-zorro-antd/layout';
 import { NzTooltipModule } from 'ng-zorro-antd/tooltip';
 import { AppFacade } from './store/app.facade';
-import { USER$ } from './tokens/firebase';
 
 @Component({
   selector: 'app-root',
@@ -24,6 +23,6 @@ import { USER$ } from './tokens/firebase';
 })
 export class App {
   protected readonly facade = inject(AppFacade);
-  protected readonly user$ = inject(USER$);
+  protected readonly authenticated$ = this.facade.authenticated$;
   protected readonly theme$ = this.facade.theme$;
 }

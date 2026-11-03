@@ -80,7 +80,10 @@ export class AuthEffects {
     () =>
       this.actions$.pipe(
         ofType(signOutFailure),
-        tap(() => this.message.error('Failed to Sign Out'))
+        tap(({ error }) => {
+          console.error('[auth] sign out failed:', error);
+          this.message.error('Failed to Sign Out');
+        })
       ),
     { dispatch: false }
   );

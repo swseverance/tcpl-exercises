@@ -1,9 +1,12 @@
+@let authenticated = authenticated$ | async;
+@let currentTheme = theme$ | async;
+
 <nz-layout>
   <nz-header>
     <a routerLink="/"><strong>The C Programming Language Exercises</strong></a>
 
     <span class="icons">
-      @if (user$ | async) {
+      @if (authenticated) {
         <button
           nz-button
           nzType="text"
@@ -29,7 +32,6 @@
         </button>
       }
 
-      @let currentTheme = theme$ | async;
       <button
         nz-button
         nzType="text"

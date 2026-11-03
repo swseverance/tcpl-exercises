@@ -59,6 +59,7 @@ export type ExerciseFinal = {
   number: number;
   suffix?: string;
   description: string;
+  code: string;
   solution: string;
   tests: ExerciseTestCaseFinal[];
   state: ExerciseFinalStatus;

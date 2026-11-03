@@ -18,6 +18,7 @@ export const initialAuthState: ExerciseState = {
     chapter: 0,
     number: 0,
     description: '',
+    code: '',
     solution: '',
     tests: [],
     state: 'indeterminate'

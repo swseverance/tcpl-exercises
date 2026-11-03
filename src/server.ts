@@ -18,7 +18,7 @@ import {
   listExerciseSubmissionsHandler,
   submitExerciseHandler
 } from './server/api/exercise-submissions.handler';
-import { getExerciseHandler } from './server/api/exercise.handler';
+import { getExercisePrivateHandler, getExercisePublicHandler } from './server/api/exercise.handler';
 import { appCheckMiddleware } from './server/middleware/appcheck';
 import { authMiddleware } from './server/middleware/auth';
 
@@ -48,11 +48,12 @@ app.use('/api', (_req, res, next) => {
 app.use('/api', express.json({ limit: '64kb' }));
 
 // Public API
-app.get('/api/public/exercises/:id', getExerciseHandler);
+app.get('/api/public/exercises/:id', getExercisePublicHandler);
 
 // Requires authentication
 app.use('/api/private', appCheckMiddleware);
 app.use('/api/private', authMiddleware);
+app.get('/api/private/exercises/:id', getExercisePrivateHandler);
 app.get('/api/private/exercises/:id/draft', getExerciseDraftHandler);
 app.put('/api/private/exercises/:id/draft', saveExerciseDraftHandler);
 app.post('/api/private/exercises/:id/submit', submitExerciseHandler);
