@@ -15,7 +15,7 @@ export const routes: Routes = [
         path: ':id',
         canActivate: [exerciseExistsGuard],
         loadComponent: () =>
-          import('./pages/exercises/exercise-detail/exercise-detail').then((m) => m.ExerciseDetail)
+          import('./pages/exercise-detail/exercise-detail').then((m) => m.ExerciseDetail)
       }
     ]
   },

@@ -3,8 +3,8 @@ import { Component, DestroyRef, inject, OnInit, ViewChild } from '@angular/core'
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { NzButtonModule } from 'ng-zorro-antd/button';
-import { CodeEditor } from '../../../components/code-editor/code-editor';
-import { AppFacade } from '../../../store/app.facade';
+import { CodeEditor } from '../../components/code-editor/code-editor';
+import { AppFacade } from '../../store/app.facade';
 
 @Component({
   selector: 'app-exercise-detail',
