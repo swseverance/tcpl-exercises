@@ -21,9 +21,6 @@ export class ExerciseDetail implements OnInit {
 
   protected readonly facade = inject(AppFacade);
   protected readonly theme$ = this.facade.theme$;
-  protected readonly draft$ = this.facade.draft$;
-  protected readonly submissions$ = this.facade.submissions$;
-  protected readonly testResults$ = this.facade.testResults$;
   protected readonly exercise$ = this.facade.exercise$;
 
   ngOnInit(): void {

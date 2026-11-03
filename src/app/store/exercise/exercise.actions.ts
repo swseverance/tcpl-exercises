@@ -31,3 +31,5 @@ export const savePendingChangesFailure = createAction(
   'Save Pending Changes Failure',
   props<{ id: string; error: unknown }>()
 );
+
+export const submitExercise = createAction('Submit Exercise', props<{ code: string }>());

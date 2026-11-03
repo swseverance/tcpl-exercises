@@ -1,12 +1,10 @@
 import { inject, Injectable } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { ThemeName } from '../services/theme';
-import { submitExercise } from './app.actions';
-import { selectDraft, selectSubmissions, selectTestResults } from './app.selectors';
 import { AppState } from './app.state';
 import { openSignInModal, signOutWithGoogle } from './auth/auth.actions';
 import { selectAuthenticated } from './auth/auth.selectors';
-import { codeEdited, selectExercise } from './exercise/exercise.actions';
+import { codeEdited, selectExercise, submitExercise } from './exercise/exercise.actions';
 import { selectExercise as selectExerciseSelector } from './exercise/exercise.selectors';
 import { setTheme } from './settings/settings.actions';
 import { selectTheme } from './settings/settings.selectors';
@@ -18,10 +16,6 @@ export class AppFacade {
   readonly authenticated$ = this.store.select(selectAuthenticated);
   readonly theme$ = this.store.select(selectTheme);
   readonly exercise$ = this.store.select(selectExerciseSelector);
-
-  readonly draft$ = this.store.select(selectDraft);
-  readonly submissions$ = this.store.select(selectSubmissions);
-  readonly testResults$ = this.store.select(selectTestResults);
 
   openSignInModal(): void {
     this.store.dispatch(openSignInModal());
