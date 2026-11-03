@@ -1,6 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { createReducer, on } from '@ngrx/store';
 import {
+  chaptersTransferred,
   codeEdited,
   exerciseLoaded,
   exercisesLoaded,
@@ -148,6 +149,12 @@ export const exerciseReducer = createReducer(
 
   on(loadExercisesFailed, (state) => ({
     ...state,
+    exercisesLoading: false
+  })),
+
+  on(chaptersTransferred, (state, { chapters }) => ({
+    ...state,
+    chapters,
     exercisesLoading: false
   }))
 );

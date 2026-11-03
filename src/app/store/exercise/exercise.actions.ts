@@ -57,3 +57,8 @@ export const loadExercisesFailed = createAction(
   'Load Exercises Failed',
   props<{ error: unknown }>()
 );
+
+export const chaptersTransferred = createAction(
+  'Chapters Transferred',
+  props<{ chapters: Chapter[] }>()
+);

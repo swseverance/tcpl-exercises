@@ -1,4 +1,5 @@
-import { inject, Injectable } from '@angular/core';
+import { isPlatformServer } from '@angular/common';
+import { inject, Injectable, PLATFORM_ID, TransferState } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { NzMessageService } from 'ng-zorro-antd/message';
@@ -20,8 +21,10 @@ import { Logger } from '../../services/logger';
 import { AppState } from '../app.state';
 import { openSignInModal } from '../auth/auth.actions';
 import { selectAuthenticated } from '../auth/auth.selectors';
+import { CHAPTERS_TRANSFER_KEY } from './exercise-chapters.transfer-key';
 import {
   attemptToSubmitExercise,
+  chaptersTransferred,
   exerciseLoaded,
   exercisesLoaded,
   exerciseSubmitted,
@@ -46,6 +49,8 @@ export class ExerciseEffects {
   private exercise = inject(ExerciseService);
   private message = inject(NzMessageService);
   private logger = inject(Logger);
+  private platformId = inject(PLATFORM_ID);
+  private transferState = inject(TransferState);
 
   shouldLoadExercise$ = createEffect(() =>
     combineLatest([
@@ -191,4 +196,28 @@ export class ExerciseEffects {
       ),
     { dispatch: false }
   );
+
+  transferChaptersToClient$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(exercisesLoaded),
+        tap(({ chapters }) => {
+          if (isPlatformServer(this.platformId)) {
+            this.transferState.set(CHAPTERS_TRANSFER_KEY, chapters);
+          }
+        })
+      ),
+    { dispatch: false }
+  );
+
+  readTransferredChapters$ = createEffect(() => {
+    if (!this.transferState.hasKey(CHAPTERS_TRANSFER_KEY)) {
+      return of();
+    }
+
+    const chapters = this.transferState.get(CHAPTERS_TRANSFER_KEY, []);
+    this.transferState.remove(CHAPTERS_TRANSFER_KEY);
+
+    return of(chaptersTransferred({ chapters }));
+  });
 }
