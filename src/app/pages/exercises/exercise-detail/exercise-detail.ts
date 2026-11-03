@@ -34,7 +34,7 @@ export class ExerciseDetail implements OnInit {
   ngOnInit(): void {
     this.route.paramMap
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((paramMap) => this.facade.selectExercise(paramMap.get('id') as string));
+      .subscribe((paramMap) => this.facade.loadExercise(paramMap.get('id') as string));
   }
 
   protected onCodeChange(code: string): void {

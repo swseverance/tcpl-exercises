@@ -1,16 +1,10 @@
 import { inject, Injectable } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { ThemeName } from '../services/theme';
-import {
-  openSignInModal,
-  selectExercise,
-  setTheme,
-  signOutWithGoogle,
-  submitExercise,
-  updateExerciseDraftCode
-} from './app.actions';
+import { loadExercise, setTheme, submitExercise, updateExerciseDraftCode } from './app.actions';
 import { selectDraft, selectSubmissions, selectTestResults, selectTheme } from './app.selectors';
 import { AppState } from './app.state';
+import { openSignInModal, signOutWithGoogle } from './auth/auth.actions';
 
 @Injectable({ providedIn: 'root' })
 export class AppFacade {
@@ -33,8 +27,8 @@ export class AppFacade {
     this.store.dispatch(setTheme({ name }));
   }
 
-  selectExercise(id: string): void {
-    this.store.dispatch(selectExercise({ id }));
+  loadExercise(id: string): void {
+    this.store.dispatch(loadExercise({ id }));
   }
 
   updateExerciseDraftCode(code: string): void {

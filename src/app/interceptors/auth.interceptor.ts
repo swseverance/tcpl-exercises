@@ -4,7 +4,7 @@ import { from, switchMap } from 'rxjs';
 import { AUTH } from '../tokens/firebase';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
-  if (!req.url.startsWith('/api/')) {
+  if (!req.url.startsWith('/api/private')) {
     return next(req);
   }
 

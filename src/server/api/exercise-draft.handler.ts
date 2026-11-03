@@ -2,6 +2,8 @@ import { RequestHandler } from 'express';
 import { EXERCISES_BY_ID } from '../../exercises';
 import { getExerciseDraft, saveExerciseDraft } from '../firestore/exercise-drafts';
 
+// req.uid! below is safe: these routes are mounted after requireAuthMiddleware in server.ts
+
 const MAX_CODE_LENGTH = 20_000;
 
 type SaveExerciseDraftRequestBody = {
@@ -17,7 +19,7 @@ export const getExerciseDraftHandler: RequestHandler<{ id: string }> = async (re
   }
 
   try {
-    const draft = await getExerciseDraft(req.uid, exerciseId);
+    const draft = await getExerciseDraft(req.uid!, exerciseId);
     res.json(draft);
   } catch (err) {
     console.error('[exercise-draft] get failed:', err);
@@ -50,7 +52,7 @@ export const saveExerciseDraftHandler: RequestHandler<
   }
 
   try {
-    const draft = await saveExerciseDraft(req.uid, { exerciseId, code });
+    const draft = await saveExerciseDraft(req.uid!, { exerciseId, code });
     res.json(draft);
   } catch (err) {
     console.error('[exercise-draft] save failed:', err);

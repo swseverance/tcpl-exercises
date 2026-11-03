@@ -18,6 +18,7 @@ import {
   listExerciseSubmissionsHandler,
   submitExerciseHandler
 } from './server/api/exercise-submissions.handler';
+import { getExerciseHandler } from './server/api/exercise.handler';
 import { appCheckMiddleware } from './server/middleware/appcheck';
 import { authMiddleware } from './server/middleware/auth';
 
@@ -40,19 +41,23 @@ app.use(
   })
 );
 
-app.use('/api/', (_req, res, next) => {
+app.use('/api/private', (_req, res, next) => {
   res.setHeader('Cache-Control', 'no-store');
   next();
 });
-app.use('/api/', express.json({ limit: '64kb' }));
-app.use('/api/', appCheckMiddleware);
-app.use('/api/', authMiddleware);
+app.use('/api/private', express.json({ limit: '64kb' }));
 
-app.get('/api/exercises/:id/draft', getExerciseDraftHandler);
-app.put('/api/exercises/:id/draft', saveExerciseDraftHandler);
-app.post('/api/exercises/:id/submit', submitExerciseHandler);
-app.get('/api/exercises/:id/submissions', listExerciseSubmissionsHandler);
-app.get('/api/exercises/:id/test-results', getExerciseTestResultsHandler);
+// Public API
+app.get('/api/public/exercises/:id', getExerciseHandler);
+
+// Requires authentication
+app.use('/api/private', appCheckMiddleware);
+app.use('/api/private', authMiddleware);
+app.get('/api/private/exercises/:id/draft', getExerciseDraftHandler);
+app.put('/api/private/exercises/:id/draft', saveExerciseDraftHandler);
+app.post('/api/private/exercises/:id/submit', submitExerciseHandler);
+app.get('/api/private/exercises/:id/submissions', listExerciseSubmissionsHandler);
+app.get('/api/private/exercises/:id/test-results', getExerciseTestResultsHandler);
 
 /**
  * Serve static files from /browser

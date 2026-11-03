@@ -1,19 +1,16 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Actions, createEffect, ofType, ROOT_EFFECTS_INIT } from '@ngrx/effects';
-import { Action, Store } from '@ngrx/store';
-import { GoogleAuthProvider, signInWithRedirect, signOut, User } from 'firebase/auth';
+import { Store } from '@ngrx/store';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzModalService } from 'ng-zorro-antd/modal';
 import {
   catchError,
-  combineLatest,
   filter,
   from,
   interval,
   map,
   mergeMap,
-  Observable,
   of,
   switchMap,
   tap,
@@ -23,31 +20,29 @@ import { ExerciseService } from '../services/exercise-service';
 import { Theme } from '../services/theme';
 import { AUTH, USER$ } from '../tokens/firebase';
 import {
-  closeSignInModal,
   exerciseDraftLoaded,
   exerciseDraftSaved,
+  exerciseLoaded,
   exerciseSubmissionsLoaded,
   exerciseSubmitted,
   exerciseTestResultsLoaded,
+  loadExercise,
   loadExerciseDraft,
   loadExerciseDraftFailure,
+  loadExerciseFailure,
   loadExerciseSubmissions,
   loadExerciseSubmissionsFailure,
   loadExerciseTestResults,
   loadExerciseTestResultsFailure,
-  openSignInModal,
   saveExerciseDraft,
   saveExerciseDraftFailure,
   setTheme,
-  signInWithGoogle,
-  signOutFailure,
-  signOutSuccess,
-  signOutWithGoogle,
   submitExercise,
   submitExerciseFailure
 } from './app.actions';
 import { selectId, selectPendingChanges } from './app.selectors';
 import { AppState } from './app.state';
+import { selectAuthenticated } from './auth/auth.selectors';
 
 const SAVE_INTERVAL_MS = 5_000;
 
@@ -76,76 +71,6 @@ export class AppEffects {
         tap(({ name }) => this.theme.applyTheme(name))
       ),
     { dispatch: false }
-  );
-
-  openSignInModal$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(openSignInModal),
-      switchMap(
-        () =>
-          new Observable<Action>((subscriber) => {
-            this.modal.confirm({
-              nzTitle: 'Sign in required',
-              nzContent: 'Sign in with your Google account to continue.',
-              nzOkText: 'Sign in with Google',
-              nzOnOk: () => subscriber.next(signInWithGoogle()),
-              nzOnCancel: () => subscriber.next(closeSignInModal()),
-              nzCancelText: 'Cancel'
-            });
-          })
-      )
-    )
-  );
-
-  signIn$ = createEffect(
-    () =>
-      this.actions$.pipe(
-        ofType(signInWithGoogle),
-        switchMap(() => signInWithRedirect(this.auth!, new GoogleAuthProvider()))
-      ),
-    { dispatch: false }
-  );
-
-  signOutWithGoogle$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(signOutWithGoogle),
-      switchMap(() =>
-        signOut(this.auth!)
-          .then(() => signOutSuccess())
-          .catch((error) => signOutFailure({ error }))
-      )
-    )
-  );
-
-  signOutSuccess$ = createEffect(
-    () =>
-      this.actions$.pipe(
-        ofType(signOutSuccess),
-        tap(() => this.message.success('Signed Out'))
-      ),
-    { dispatch: false }
-  );
-
-  signOutFailure$ = createEffect(
-    () =>
-      this.actions$.pipe(
-        ofType(signOutFailure),
-        tap(() => this.message.error('Failed to Sign Out'))
-      ),
-    { dispatch: false }
-  );
-
-  selectExercise$ = createEffect(() =>
-    combineLatest([this.store.select(selectId), this.user$]).pipe(
-      filter((value): value is [string, User | null] => !!value[0] && !!value[1]),
-      mergeMap(([id]) =>
-        of(
-          loadExerciseDraft({ id }),
-          loadExerciseSubmissions({ id }),
-          loadExerciseTestResults({ id })
-        )
-      )
-    )
   );
 
   loadExerciseDraft$ = createEffect(() =>
@@ -287,6 +212,33 @@ export class AppEffects {
         tap(({ id, error }) => {
           console.error(`[exercise-submission] submit failed for ${id}:`, error);
           this.message.error('Failed to Submit Exercise');
+        })
+      ),
+    { dispatch: false }
+  );
+
+  // FINAL ACTIONS
+  loadExercise$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(loadExercise),
+      withLatestFrom(this.store.select(selectAuthenticated)),
+      switchMap(([{ id }, authenticated]) =>
+        this.exerciseService.getExercsise(id, authenticated).pipe(
+          map((exercise) => exerciseLoaded({ exercise })),
+          catchError((error) => of(loadExerciseFailure({ error })))
+        )
+      )
+    )
+  );
+
+  loadExerciseFailure$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(loadExerciseFailure),
+        tap(({ error }) => {
+          // todo: for claude to fix error message
+          console.error(error);
+          this.message.error('Failed to Load Exercise');
         })
       ),
     { dispatch: false }

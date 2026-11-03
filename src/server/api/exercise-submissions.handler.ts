@@ -12,6 +12,8 @@ import {
 } from '../firestore/exercise-submissions';
 import { gradeSubmission } from '../sandbox/run-c';
 
+// req.uid! below is safe: these routes are mounted after requireAuthMiddleware in server.ts
+
 const MAX_CODE_LENGTH = 20_000;
 
 type SubmitExerciseRequestBody = {
@@ -48,7 +50,7 @@ export const submitExerciseHandler: RequestHandler<
     const overallPassed = results.length > 0 && results.every((result) => result.passed);
     const testsHash = hashExerciseTests(exercise.tests);
 
-    const submission = await createExerciseSubmission(req.uid, {
+    const submission = await createExerciseSubmission(req.uid!, {
       exerciseId,
       code,
       compile,
@@ -72,7 +74,7 @@ export const listExerciseSubmissionsHandler: RequestHandler<{ id: string }> = as
   }
 
   try {
-    const submissions = await listExerciseSubmissions(req.uid, exerciseId);
+    const submissions = await listExerciseSubmissions(req.uid!, exerciseId);
     res.json(submissions);
   } catch (err) {
     console.error('[exercise-submissions] list failed:', err);
@@ -90,7 +92,7 @@ export const getExerciseTestResultsHandler: RequestHandler<{ id: string }> = asy
   }
 
   try {
-    const submission = await getLatestExerciseSubmission(req.uid, exerciseId);
+    const submission = await getLatestExerciseSubmission(req.uid!, exerciseId);
     const currentHash = hashExerciseTests(exercise.tests);
     const stale = submission !== null && submission.testsHash !== currentHash;
 

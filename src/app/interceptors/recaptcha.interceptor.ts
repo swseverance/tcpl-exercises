@@ -5,7 +5,7 @@ import { from, switchMap } from 'rxjs';
 import { FIREBASE_APP_CHECK } from '../tokens/firebase';
 
 export const recaptchaInterceptor: HttpInterceptorFn = (req, next) => {
-  if (!req.url.startsWith('/api/')) {
+  if (!req.url.startsWith('/api/private')) {
     return next(req);
   }
 

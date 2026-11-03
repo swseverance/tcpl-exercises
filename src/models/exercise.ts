@@ -37,3 +37,29 @@ export function hashExerciseTests(tests: ExerciseTestCase[]): string {
 
   return (hash >>> 0).toString(16);
 }
+
+/**
+ * CORRECT MODELS...
+ */
+export type ExerciseTestCaseFinalStatus = 'passed' | 'failed' | 'indeterminate';
+
+export type ExerciseTestCaseFinal = {
+  id: string;
+  stdin: string;
+  expectedStdout: string;
+  actualStdout: string;
+  status: ExerciseTestCaseFinalStatus;
+};
+
+export type ExerciseFinalStatus = 'passed' | 'failed' | 'indeterminate';
+
+export type ExerciseFinal = {
+  id: string;
+  chapter: number;
+  number: number;
+  suffix?: string;
+  description: string;
+  solution: string;
+  tests: ExerciseTestCaseFinal[];
+  state: ExerciseFinalStatus;
+};
