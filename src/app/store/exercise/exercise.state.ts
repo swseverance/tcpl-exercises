@@ -1,4 +1,4 @@
-import { ExerciseFinal } from '../../../models/exercise';
+import { Exercise } from '../../../shared/models';
 
 export type ExerciseState = {
   id: string;
@@ -13,7 +13,7 @@ export type ExerciseState = {
 
   exerciseLoading: boolean;
 
-  exercise: ExerciseFinal;
+  exercise: Exercise;
 
   submissionPending: boolean;
 };

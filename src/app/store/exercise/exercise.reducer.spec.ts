@@ -1,5 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { ExerciseFinal } from '../../../models/exercise';
+import { Exercise } from '../../../shared/models';
 import {
   codeEdited,
   exerciseLoaded,
@@ -15,7 +15,7 @@ import {
 import { exerciseReducer } from './exercise.reducer';
 import { initialAuthState } from './exercise.state';
 
-const EXERCISE_FINAL: ExerciseFinal = {
+const EXERCISE: Exercise = {
   id: '1-1',
   chapter: 1,
   number: 1,
@@ -51,11 +51,11 @@ describe('exerciseReducer', () => {
     it('sets the exercise and clears exerciseLoading, leaving everything else unchanged', () => {
       const previousState = { ...initialAuthState, id: '1-1', exerciseLoading: true };
 
-      const state = exerciseReducer(previousState, exerciseLoaded({ exercise: EXERCISE_FINAL }));
+      const state = exerciseReducer(previousState, exerciseLoaded({ exercise: EXERCISE }));
 
       expect(state).toEqual({
         ...previousState,
-        exercise: EXERCISE_FINAL,
+        exercise: EXERCISE,
         exerciseLoading: false
       });
     });
@@ -70,11 +70,11 @@ describe('exerciseReducer', () => {
         }
       };
 
-      const state = exerciseReducer(previousState, exerciseLoaded({ exercise: EXERCISE_FINAL }));
+      const state = exerciseReducer(previousState, exerciseLoaded({ exercise: EXERCISE }));
 
       expect(state).toEqual({
         ...previousState,
-        exercise: { ...EXERCISE_FINAL, code: 'unsaved edit' },
+        exercise: { ...EXERCISE, code: 'unsaved edit' },
         exerciseLoading: false
       });
     });
@@ -89,11 +89,11 @@ describe('exerciseReducer', () => {
         }
       };
 
-      const state = exerciseReducer(previousState, exerciseLoaded({ exercise: EXERCISE_FINAL }));
+      const state = exerciseReducer(previousState, exerciseLoaded({ exercise: EXERCISE }));
 
       expect(state).toEqual({
         ...previousState,
-        exercise: EXERCISE_FINAL,
+        exercise: EXERCISE,
         exerciseLoading: false
       });
     });
@@ -312,16 +312,16 @@ describe('exerciseReducer', () => {
 
   describe('exerciseSubmitted', () => {
     it('keeps the current exercise code instead of the submitted one, so a live edit made while the submission was in flight is never clobbered, and removes a pending change that matches what was submitted', () => {
-      const submittedExercise: ExerciseFinal = {
-        ...EXERCISE_FINAL,
+      const submittedExercise: Exercise = {
+        ...EXERCISE,
         code: 'submitted code',
         state: 'passed',
-        tests: [{ ...EXERCISE_FINAL.tests[0], status: 'passed' }]
+        tests: [{ ...EXERCISE.tests[0], status: 'passed' }]
       };
 
       const previousState = {
         ...initialAuthState,
-        exercise: { ...EXERCISE_FINAL, code: 'typed after submit' },
+        exercise: { ...EXERCISE, code: 'typed after submit' },
         pendingChanges: {
           '1-1': { code: 'submitted code', saving: false },
           '2-1': { code: 'untouched', saving: false }
@@ -345,11 +345,11 @@ describe('exerciseReducer', () => {
     });
 
     it('leaves the pending change in place when it no longer matches what was submitted', () => {
-      const submittedExercise: ExerciseFinal = { ...EXERCISE_FINAL, code: 'submitted code' };
+      const submittedExercise: Exercise = { ...EXERCISE, code: 'submitted code' };
 
       const previousState = {
         ...initialAuthState,
-        exercise: { ...EXERCISE_FINAL, code: 'typed after submit' },
+        exercise: { ...EXERCISE, code: 'typed after submit' },
         pendingChanges: {
           '1-1': { code: 'even newer code', saving: false }
         },

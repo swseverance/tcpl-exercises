@@ -1,7 +1,7 @@
 import { Component, input } from '@angular/core';
 import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzTagModule } from 'ng-zorro-antd/tag';
-import { ExerciseTestCaseFinal } from '../../../models/exercise';
+import { ExerciseTestCase } from '../../../shared/models';
 import { Whitespace } from '../whitespace/whitespace';
 
 @Component({
@@ -49,11 +49,11 @@ import { Whitespace } from '../whitespace/whitespace';
   `
 })
 export class TestCases {
-  tests = input.required<ExerciseTestCaseFinal[]>();
+  tests = input.required<ExerciseTestCase[]>();
 
   submissionPending = input.required<boolean>();
 
-  protected statusLabel(status: ExerciseTestCaseFinal['status']): string {
+  protected statusLabel(status: ExerciseTestCase['status']): string {
     switch (status) {
       case 'passed':
         return 'Passed';
@@ -64,7 +64,7 @@ export class TestCases {
     }
   }
 
-  protected statusColor(status: ExerciseTestCaseFinal['status']): string | undefined {
+  protected statusColor(status: ExerciseTestCase['status']): string | undefined {
     switch (status) {
       case 'passed':
         return 'success';

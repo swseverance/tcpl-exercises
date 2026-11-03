@@ -1,60 +1,22 @@
-export type ExerciseTestCase = {
+export type ExerciseTestCaseSource = {
   id: string;
   stdin?: string;
   expectedStdout: string;
 };
 
-export type Exercise = {
+export type ExerciseSource = {
   id: string;
   chapter: number;
   number: number;
   suffix?: string;
   description: string;
   solution: string;
-  tests: ExerciseTestCase[];
+  tests: ExerciseTestCaseSource[];
 };
 
-export type Chapter = {
+export type ChapterSource = {
   number: number;
-  exercises: Exercise[];
+  exercises: ExerciseSource[];
 };
 
 export const STARTER_CODE = `#include <stdio.h>\n\nint main() {\n  return 0;\n}\n`;
-
-export function hashExerciseTests(tests: ExerciseTestCase[]): string {
-  const json = JSON.stringify(tests);
-
-  let hash = 5381;
-  for (let i = 0; i < json.length; i++) {
-    hash = (hash * 33) ^ json.charCodeAt(i);
-  }
-
-  return (hash >>> 0).toString(16);
-}
-
-/**
- * CORRECT MODELS...
- */
-export type ExerciseTestCaseFinalStatus = 'passed' | 'failed' | 'indeterminate';
-
-export type ExerciseTestCaseFinal = {
-  id: string;
-  stdin: string;
-  expectedStdout: string;
-  actualStdout: string;
-  status: ExerciseTestCaseFinalStatus;
-};
-
-export type ExerciseFinalStatus = 'passed' | 'failed' | 'indeterminate';
-
-export type ExerciseFinal = {
-  id: string;
-  chapter: number;
-  number: number;
-  suffix?: string;
-  description: string;
-  code: string;
-  solution: string;
-  tests: ExerciseTestCaseFinal[];
-  state: ExerciseFinalStatus;
-};

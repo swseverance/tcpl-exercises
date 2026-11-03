@@ -1,5 +1,5 @@
 import { createAction, props } from '@ngrx/store';
-import { ExerciseFinal } from '../../../models/exercise';
+import { Exercise } from '../../../shared/models';
 
 export const selectExercise = createAction('Select Exercise', props<{ id: string }>());
 
@@ -8,7 +8,7 @@ export const loadExercise = createAction(
   props<{ id: string; authenticated: boolean }>()
 );
 
-export const exerciseLoaded = createAction('Exercise Loaded', props<{ exercise: ExerciseFinal }>());
+export const exerciseLoaded = createAction('Exercise Loaded', props<{ exercise: Exercise }>());
 
 export const loadExerciseFailure = createAction(
   'Load Exercise Failure',
@@ -36,7 +36,7 @@ export const submitExercise = createAction('Submit Exercise', props<{ code: stri
 
 export const exerciseSubmitted = createAction(
   'Exercise Submitted',
-  props<{ exercise: ExerciseFinal }>()
+  props<{ exercise: Exercise }>()
 );
 
 export const submitExerciseFailed = createAction(

@@ -1,6 +1,6 @@
 import { Command, CommandFinished, Sandbox } from '@vercel/sandbox';
 import { Readable } from 'node:stream';
-import { ExerciseTestCase } from '../../models/exercise';
+import { ExerciseTestCaseSource } from '../../models/exercise';
 import { ExerciseTestResult } from '../../models/exercise-submission';
 import { RunCResponse } from '../../models/run-c';
 
@@ -71,7 +71,7 @@ function compareOutput(actual: string, expected: string): boolean {
  */
 export async function gradeSubmission(
   code: string,
-  tests: ExerciseTestCase[]
+  tests: ExerciseTestCaseSource[]
 ): Promise<{ compile: RunCResponse; results: ExerciseTestResult[] }> {
   const sandbox = await Sandbox.create({
     ...getCredentials(),

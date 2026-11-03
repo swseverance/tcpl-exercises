@@ -1,12 +1,7 @@
 import { RequestHandler } from 'express';
-import {
-  Exercise,
-  ExerciseFinal,
-  ExerciseFinalStatus,
-  ExerciseTestCaseFinal,
-  STARTER_CODE
-} from '../../models/exercise';
+import { ExerciseSource } from '../../models/exercise';
 import { ExerciseRecordTestResult } from '../../models/exercise-record';
+import { Exercise, ExerciseStatus, ExerciseTestCase } from '../../shared/models';
 import {
   getExerciseRecord,
   saveExerciseRecordCode,
@@ -14,19 +9,21 @@ import {
 } from '../firestore/exercise-records';
 import { gradeSubmission } from '../sandbox/run-c';
 
+const STARTER_CODE = `#include <stdio.h>\n\nint main() {\n  return 0;\n}\n`;
+
 type ExerciseCodeRequestBody = {
   code: string;
 };
 
-function toExerciseFinal(
-  exercise: Exercise,
+function toExercise(
+  exercise: ExerciseSource,
   code: string,
   tests: Record<string, ExerciseRecordTestResult>
-): ExerciseFinal {
+): Exercise {
   const { id, chapter, number, suffix, description, solution } = exercise;
 
-  const finalTests: ExerciseTestCaseFinal[] = exercise.tests.map(
-    ({ id: testId, stdin, expectedStdout }): ExerciseTestCaseFinal => {
+  const finalTests: ExerciseTestCase[] = exercise.tests.map(
+    ({ id: testId, stdin, expectedStdout }): ExerciseTestCase => {
       const result: ExerciseRecordTestResult | undefined = tests[testId];
 
       if (!result) {
@@ -49,7 +46,7 @@ function toExerciseFinal(
     }
   );
 
-  const state: ExerciseFinalStatus = finalTests.some((test) => test.status === 'indeterminate')
+  const state: ExerciseStatus = finalTests.some((test) => test.status === 'indeterminate')
     ? 'indeterminate'
     : finalTests.some((test) => test.status === 'failed')
       ? 'failed'
@@ -69,7 +66,7 @@ function toExerciseFinal(
 }
 
 export const getExercisePublicHandler: RequestHandler<{ id: string }> = async (req, res) => {
-  res.json(toExerciseFinal(req.exercise, `#include <stdio.h>\n\nint main() {\n\n}\n`, {}));
+  res.json(toExercise(req.exercise, `#include <stdio.h>\n\nint main() {\n\n}\n`, {}));
 };
 
 const MAX_CODE_LENGTH = 20_000;
@@ -93,7 +90,7 @@ export const saveExerciseCodeHandler: RequestHandler<
 
   try {
     const record = await saveExerciseRecordCode(req.uid!, req.params.id, code);
-    res.json(toExerciseFinal(req.exercise, record.code, record.tests));
+    res.json(toExercise(req.exercise, record.code, record.tests));
   } catch (err) {
     console.error('[exercise] save code failed:', err);
     res.status(500).json({ message: 'Failed to save code' });
@@ -102,7 +99,7 @@ export const saveExerciseCodeHandler: RequestHandler<
 
 export const getExercisePrivateHandler: RequestHandler<{ id: string }> = async (req, res) => {
   const record = await getExerciseRecord(req.uid!, req.params.id);
-  res.json(toExerciseFinal(req.exercise, record?.code ?? STARTER_CODE, record?.tests ?? {}));
+  res.json(toExercise(req.exercise, record?.code ?? STARTER_CODE, record?.tests ?? {}));
 };
 
 export const submitExerciseHandler: RequestHandler<
@@ -138,7 +135,7 @@ export const submitExerciseHandler: RequestHandler<
         );
 
     const record = await saveExerciseRecordSubmission(req.uid!, req.params.id, code, tests);
-    res.json(toExerciseFinal(req.exercise, record.code, record.tests));
+    res.json(toExercise(req.exercise, record.code, record.tests));
   } catch (err) {
     console.error('[exercise] submit failed:', err);
     res.status(500).json({ message: 'Failed to submit exercise' });

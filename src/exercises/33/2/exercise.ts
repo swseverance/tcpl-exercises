@@ -1,7 +1,7 @@
-import { Exercise } from '../../../models/exercise';
+import { ExerciseSource } from '../../../models/exercise';
 import solution from './main.c' with { type: 'text' };
 
-export const exercise33_2: Exercise = {
+export const exercise33_2: ExerciseSource = {
   id: '33-2',
   chapter: 33,
   number: 2,

@@ -1,23 +1,23 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Service } from '@angular/core';
 import { Observable } from 'rxjs';
-import { ExerciseFinal } from '../../models/exercise';
+import { Exercise } from '../../shared/models';
 
 @Service()
 export class ExerciseService {
   private readonly http = inject(HttpClient);
 
-  getExercsise(exerciseId: string, authenticated: boolean): Observable<ExerciseFinal> {
-    return this.http.get<ExerciseFinal>(
+  getExercsise(exerciseId: string, authenticated: boolean): Observable<Exercise> {
+    return this.http.get<Exercise>(
       `/api/${authenticated ? 'private' : 'public'}/exercises/${exerciseId}`
     );
   }
 
-  saveCode(exerciseId: string, code: string): Observable<ExerciseFinal> {
-    return this.http.put<ExerciseFinal>(`/api/private/exercises/${exerciseId}/code`, { code });
+  saveCode(exerciseId: string, code: string): Observable<Exercise> {
+    return this.http.put<Exercise>(`/api/private/exercises/${exerciseId}/code`, { code });
   }
 
-  submitExercise(exerciseId: string, code: string): Observable<ExerciseFinal> {
-    return this.http.post<ExerciseFinal>(`/api/private/exercises/${exerciseId}/submit`, { code });
+  submitExercise(exerciseId: string, code: string): Observable<Exercise> {
+    return this.http.post<Exercise>(`/api/private/exercises/${exerciseId}/submit`, { code });
   }
 }
