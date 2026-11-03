@@ -17,6 +17,7 @@ import {
   withLatestFrom
 } from 'rxjs';
 import { ExerciseService } from '../services/exercise-service';
+import { Logger } from '../services/logger';
 import { AUTH, USER$ } from '../tokens/firebase';
 import {
   exerciseDraftLoaded,
@@ -49,6 +50,7 @@ export class AppEffects {
   private readonly auth = inject(AUTH);
   private readonly exerciseService = inject(ExerciseService);
   private readonly user$ = inject(USER$);
+  private readonly logger = inject(Logger);
 
   loadExerciseDraft$ = createEffect(() =>
     this.actions$.pipe(
@@ -74,7 +76,7 @@ export class AppEffects {
       this.actions$.pipe(
         ofType(loadExerciseDraftFailure),
         tap(({ error }) => {
-          console.error('[exercise-draft] load failed:', error);
+          this.logger.error('[exercise-draft] load failed:', error);
           this.message.error('Failed to Load Exercise Draft');
         })
       ),
@@ -98,7 +100,7 @@ export class AppEffects {
       this.actions$.pipe(
         ofType(loadExerciseSubmissionsFailure),
         tap(({ error }) => {
-          console.error('[exercise-submissions] load failed:', error);
+          this.logger.error('[exercise-submissions] load failed:', error);
           this.message.error('Failed to Load Exercise Submissions');
         })
       ),
@@ -122,7 +124,7 @@ export class AppEffects {
       this.actions$.pipe(
         ofType(loadExerciseTestResultsFailure),
         tap(({ error }) => {
-          console.error('[exercise-test-results] load failed:', error);
+          this.logger.error('[exercise-test-results] load failed:', error);
           this.message.error('Failed to Load Test Results');
         })
       ),
@@ -158,10 +160,10 @@ export class AppEffects {
         ofType(saveExerciseDraftFailure),
         tap(({ id, error }) => {
           if (error instanceof HttpErrorResponse && error.status === 400) {
-            console.error(`[exercise-draft] save rejected for ${id}, dropped:`, error);
+            this.logger.error(`[exercise-draft] save rejected for ${id}, dropped:`, error);
             this.message.error('Exercise Draft Could Not Be Saved');
           } else {
-            console.error(`[exercise-draft] save failed for ${id}, will retry:`, error);
+            this.logger.error(`[exercise-draft] save failed for ${id}, will retry:`, error);
             this.message.error('Failed to Save Exercise Draft');
           }
         })
@@ -187,7 +189,7 @@ export class AppEffects {
       this.actions$.pipe(
         ofType(submitExerciseFailure),
         tap(({ id, error }) => {
-          console.error(`[exercise-submission] submit failed for ${id}:`, error);
+          this.logger.error(`[exercise-submission] submit failed for ${id}:`, error);
           this.message.error('Failed to Submit Exercise');
         })
       ),

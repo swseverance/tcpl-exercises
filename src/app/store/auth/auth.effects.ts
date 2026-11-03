@@ -5,6 +5,7 @@ import { GoogleAuthProvider, signInWithRedirect, signOut } from 'firebase/auth';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzModalService } from 'ng-zorro-antd/modal';
 import { map, Observable, switchMap, tap } from 'rxjs';
+import { Logger } from '../../services/logger';
 import { AUTH, USER$ } from '../../tokens/firebase';
 import {
   authStateChange,
@@ -23,6 +24,7 @@ export class AuthEffects {
   private readonly message = inject(NzMessageService);
   private readonly auth = inject(AUTH);
   private readonly user$ = inject(USER$);
+  private readonly logger = inject(Logger);
 
   authStateChange$ = createEffect(() =>
     this.user$.pipe(map((user) => authStateChange({ authenticated: Boolean(user) })))
@@ -81,7 +83,7 @@ export class AuthEffects {
       this.actions$.pipe(
         ofType(signOutFailure),
         tap(({ error }) => {
-          console.error('[auth] sign out failed:', error);
+          this.logger.error('[auth] sign out failed:', error);
           this.message.error('Failed to Sign Out');
         })
       ),

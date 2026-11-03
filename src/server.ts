@@ -19,6 +19,7 @@ import {
   submitExerciseHandler
 } from './server/api/exercise-submissions.handler';
 import { getExercisePrivateHandler, getExercisePublicHandler } from './server/api/exercise.handler';
+import { logHandler } from './server/api/log.handler';
 import { appCheckMiddleware } from './server/middleware/appcheck';
 import { authMiddleware } from './server/middleware/auth';
 
@@ -59,6 +60,7 @@ app.put('/api/private/exercises/:id/draft', saveExerciseDraftHandler);
 app.post('/api/private/exercises/:id/submit', submitExerciseHandler);
 app.get('/api/private/exercises/:id/submissions', listExerciseSubmissionsHandler);
 app.get('/api/private/exercises/:id/test-results', getExerciseTestResultsHandler);
+app.post('/api/private/logs', logHandler);
 
 /**
  * Serve static files from /browser

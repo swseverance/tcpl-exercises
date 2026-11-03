@@ -3,7 +3,7 @@
 
 <div class="exercise-layout">
   <div class="editor-section">
-    <app-code-editor [code]="exercise.code" [theme]="theme" (codeChange)="onCodeChange($event)" />
+    <app-code-editor [code]="exercise!.code" [theme]="theme!" (codeChange)="onCodeChange($event)" />
     <button nz-button nzType="primary" type="button" (click)="onSubmit()">Submit</button>
   </div>
 

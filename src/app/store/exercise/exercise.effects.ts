@@ -1,10 +1,10 @@
-import { HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { catchError, combineLatest, filter, map, of, switchMap, tap } from 'rxjs';
 import { ExerciseService } from '../../services/exercise-service';
+import { Logger } from '../../services/logger';
 import { AppState } from '../app.state';
 import { selectAuthenticated } from '../auth/auth.selectors';
 import { exerciseLoaded, loadExercise, loadExerciseFailure } from './exercise.actions';
@@ -16,6 +16,7 @@ export class ExerciseEffects {
   private store = inject(Store<AppState>);
   private exercise = inject(ExerciseService);
   private message = inject(NzMessageService);
+  private logger = inject(Logger);
 
   shouldLoadExercise$ = createEffect(() =>
     combineLatest([
@@ -43,12 +44,7 @@ export class ExerciseEffects {
       this.actions$.pipe(
         ofType(loadExerciseFailure),
         tap(({ error }) => {
-          if (error instanceof HttpErrorResponse) {
-            console.error(`[exercise] load failed (${error.status}):`, error.message);
-          } else {
-            console.error('[exercise] load failed:', error);
-          }
-
+          this.logger.error('[exercise] load failed:', error);
           this.message.error('Failed to Load Exercise');
         })
       ),
