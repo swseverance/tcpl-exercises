@@ -5,10 +5,10 @@ import { AppState } from './app.state';
 import { openSignInModal, signOutWithGoogle } from './auth/auth.actions';
 import { selectAuthenticated } from './auth/auth.selectors';
 import {
+  attemptToSubmitExercise,
   codeEdited,
   loadExercises,
-  selectExercise,
-  submitExercise
+  selectExercise
 } from './exercise/exercise.actions';
 import {
   selectChapters,
@@ -51,7 +51,7 @@ export class AppFacade {
   }
 
   submitExercise(code: string): void {
-    this.store.dispatch(submitExercise({ code }));
+    this.store.dispatch(attemptToSubmitExercise({ code }));
   }
 
   loadExercises(authenticated: boolean): void {

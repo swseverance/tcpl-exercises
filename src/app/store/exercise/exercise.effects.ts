@@ -18,8 +18,10 @@ import {
 import { ExerciseService } from '../../services/exercise-service';
 import { Logger } from '../../services/logger';
 import { AppState } from '../app.state';
+import { openSignInModal } from '../auth/auth.actions';
 import { selectAuthenticated } from '../auth/auth.selectors';
 import {
+  attemptToSubmitExercise,
   exerciseLoaded,
   exercisesLoaded,
   exerciseSubmitted,
@@ -120,6 +122,16 @@ export class ExerciseEffects {
         })
       ),
     { dispatch: false }
+  );
+
+  attemptToSubmitExercise$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(attemptToSubmitExercise),
+      withLatestFrom(this.store.select(selectAuthenticated)),
+      map(([{ code }, authenticated]) =>
+        authenticated ? submitExercise({ code }) : openSignInModal()
+      )
+    )
   );
 
   submitExercise$ = createEffect(() =>

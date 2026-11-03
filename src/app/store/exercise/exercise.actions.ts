@@ -32,6 +32,11 @@ export const savePendingChangesFailure = createAction(
   props<{ id: string; error: unknown }>()
 );
 
+export const attemptToSubmitExercise = createAction(
+  'Attempt To Submit Exercise',
+  props<{ code: string }>()
+);
+
 export const submitExercise = createAction('Submit Exercise', props<{ code: string }>());
 
 export const exerciseSubmitted = createAction(
