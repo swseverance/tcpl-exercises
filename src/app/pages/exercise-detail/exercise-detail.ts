@@ -32,7 +32,7 @@ export class ExerciseDetail implements OnInit {
   }
 
   protected onCodeChange(code: string): void {
-    this.facade.updateExerciseDraftCode(code);
+    this.facade.codeEdited(code);
   }
 
   protected onSubmit(): void {

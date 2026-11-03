@@ -2,13 +2,34 @@ import { inject, Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { NzMessageService } from 'ng-zorro-antd/message';
-import { catchError, combineLatest, filter, map, of, switchMap, tap } from 'rxjs';
+import {
+  catchError,
+  combineLatest,
+  filter,
+  from,
+  interval,
+  map,
+  mergeMap,
+  of,
+  switchMap,
+  tap,
+  withLatestFrom
+} from 'rxjs';
 import { ExerciseService } from '../../services/exercise-service';
 import { Logger } from '../../services/logger';
 import { AppState } from '../app.state';
 import { selectAuthenticated } from '../auth/auth.selectors';
-import { exerciseLoaded, loadExercise, loadExerciseFailure } from './exercise.actions';
-import { selectId } from './exercise.selectors';
+import {
+  exerciseLoaded,
+  loadExercise,
+  loadExerciseFailure,
+  pendingChangesSaved,
+  savePendingChanges,
+  savePendingChangesFailure
+} from './exercise.actions';
+import { selectId, selectPendingChanges } from './exercise.selectors';
+
+const SAVE_INTERVAL_MS = 5_000;
 
 @Injectable()
 export class ExerciseEffects {
@@ -46,6 +67,50 @@ export class ExerciseEffects {
         tap(({ error }) => {
           this.logger.error('[exercise] load failed:', error);
           this.message.error('Failed to Load Exercise');
+        })
+      ),
+    { dispatch: false }
+  );
+
+  checkForPendingChanges$ = createEffect(() =>
+    interval(SAVE_INTERVAL_MS).pipe(
+      withLatestFrom(
+        this.store.select(selectPendingChanges),
+        this.store.select(selectAuthenticated)
+      ),
+      filter(
+        ([, pendingChanges, authenticated]) =>
+          Boolean(authenticated) && Object.keys(pendingChanges).length > 0
+      ),
+      mergeMap(([, pendingChanges]) =>
+        from(
+          Object.entries(pendingChanges)
+            .filter(([, pending]) => !pending.saving)
+            .map(([id, pending]) => savePendingChanges({ id, code: pending.code }))
+        )
+      )
+    )
+  );
+
+  savePendingChanges$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(savePendingChanges),
+      mergeMap(({ id, code }) =>
+        this.exercise.saveCode(id, code).pipe(
+          map(() => pendingChangesSaved({ id, code })),
+          catchError((error) => of(savePendingChangesFailure({ id, error })))
+        )
+      )
+    )
+  );
+
+  savePendingChangesFailure$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(savePendingChangesFailure),
+        tap(({ error }) => {
+          this.logger.error('[exercise] save pending changes failed:', error);
+          this.message.error('Failed to Save Changes');
         })
       ),
     { dispatch: false }

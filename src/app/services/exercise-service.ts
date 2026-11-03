@@ -16,6 +16,10 @@ export class ExerciseService {
     );
   }
 
+  saveCode(exerciseId: string, code: string): Observable<ExerciseFinal> {
+    return this.http.put<ExerciseFinal>(`/api/private/exercises/${exerciseId}/code`, { code });
+  }
+
   getDraft(exerciseId: string): Observable<ExerciseDraft> {
     return this.http.get<ExerciseDraft>(`/api/private/exercises/${exerciseId}/draft`);
   }

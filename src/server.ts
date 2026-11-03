@@ -18,10 +18,15 @@ import {
   listExerciseSubmissionsHandler,
   submitExerciseHandler
 } from './server/api/exercise-submissions.handler';
-import { getExercisePrivateHandler, getExercisePublicHandler } from './server/api/exercise.handler';
+import {
+  getExercisePrivateHandler,
+  getExercisePublicHandler,
+  saveExerciseCodeHandler
+} from './server/api/exercise.handler';
 import { logHandler } from './server/api/log.handler';
 import { appCheckMiddleware } from './server/middleware/appcheck';
 import { authMiddleware } from './server/middleware/auth';
+import { exerciseExistsMiddleware } from './server/middleware/exercise-exists';
 
 const browserDistFolder = join(import.meta.dirname, '../browser');
 
@@ -49,17 +54,22 @@ app.use('/api', (_req, res, next) => {
 app.use('/api', express.json({ limit: '64kb' }));
 
 // Public API
-app.get('/api/public/exercises/:id', getExercisePublicHandler);
+app.get('/api/public/exercises/:id', exerciseExistsMiddleware, getExercisePublicHandler);
 
 // Requires authentication
 app.use('/api/private', appCheckMiddleware);
 app.use('/api/private', authMiddleware);
-app.get('/api/private/exercises/:id', getExercisePrivateHandler);
+app.get('/api/private/exercises/:id', exerciseExistsMiddleware, getExercisePrivateHandler);
+app.put('/api/private/exercises/:id/code', exerciseExistsMiddleware, saveExerciseCodeHandler);
+
+// REFACTOR/REMOVE BEGIN
 app.get('/api/private/exercises/:id/draft', getExerciseDraftHandler);
 app.put('/api/private/exercises/:id/draft', saveExerciseDraftHandler);
 app.post('/api/private/exercises/:id/submit', submitExerciseHandler);
 app.get('/api/private/exercises/:id/submissions', listExerciseSubmissionsHandler);
 app.get('/api/private/exercises/:id/test-results', getExerciseTestResultsHandler);
+// REFACTOR/REMOVE END
+
 app.post('/api/private/logs', logHandler);
 
 /**

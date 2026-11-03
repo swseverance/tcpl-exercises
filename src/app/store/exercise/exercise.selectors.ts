@@ -5,4 +5,14 @@ export const selectExerciseState = createFeatureSelector<ExerciseState>('exercis
 
 export const selectId = createSelector(selectExerciseState, (state) => state.id);
 
+export const selectExerciseLoading = createSelector(
+  selectExerciseState,
+  (state) => state.exerciseLoading
+);
+
 export const selectExercise = createSelector(selectExerciseState, (state) => state.exercise);
+
+export const selectPendingChanges = createSelector(
+  selectExerciseState,
+  (state) => state.pendingChanges
+);

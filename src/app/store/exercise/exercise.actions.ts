@@ -14,3 +14,20 @@ export const loadExerciseFailure = createAction(
   'Load Exercise Failure',
   props<{ error: unknown }>()
 );
+
+export const codeEdited = createAction('Code Edited', props<{ code: string }>());
+
+export const savePendingChanges = createAction(
+  'Save Pending Changes',
+  props<{ id: string; code: string }>()
+);
+
+export const pendingChangesSaved = createAction(
+  'Pending Changes Saved',
+  props<{ id: string; code: string }>()
+);
+
+export const savePendingChangesFailure = createAction(
+  'Save Pending Changes Failure',
+  props<{ id: string; error: unknown }>()
+);

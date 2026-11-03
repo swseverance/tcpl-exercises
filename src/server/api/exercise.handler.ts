@@ -1,26 +1,21 @@
 import { RequestHandler } from 'express';
-import { EXERCISES_BY_ID } from '../../exercises';
-import { ExerciseFinal } from '../../models/exercise';
+import { Exercise, ExerciseFinal } from '../../models/exercise';
+import { saveExerciseRecordCode } from '../firestore/exercise-records';
 
-export const getExercisePublicHandler: RequestHandler<{ id: string }> = async (req, res) => {
-  const exerciseId = req.params.id;
+type SaveExerciseCodeRequestBody = {
+  code: string;
+};
 
-  const exercise = EXERCISES_BY_ID[exerciseId];
-
-  if (!exercise) {
-    res.status(404).json({ message: 'Exercise not found' });
-    return;
-  }
-
+function toExerciseFinal(exercise: Exercise, code: string): ExerciseFinal {
   const { id, chapter, number, suffix, description, solution, tests } = exercise;
 
-  res.json({
+  return {
     id,
     chapter,
     number,
     suffix,
     description,
-    code: `#include <stdio.h>\n\nint main() {\n\n}\n`,
+    code,
     solution,
     tests: tests.map(({ id, stdin, expectedStdout }) => ({
       id,
@@ -30,36 +25,41 @@ export const getExercisePublicHandler: RequestHandler<{ id: string }> = async (r
       status: 'indeterminate'
     })),
     state: 'indeterminate'
-  } satisfies ExerciseFinal);
+  };
+}
+
+export const getExercisePublicHandler: RequestHandler<{ id: string }> = async (req, res) => {
+  res.json(toExerciseFinal(req.exercise, `#include <stdio.h>\n\nint main() {\n\n}\n`));
+};
+
+const MAX_CODE_LENGTH = 20_000;
+
+export const saveExerciseCodeHandler: RequestHandler<
+  { id: string },
+  unknown,
+  SaveExerciseCodeRequestBody
+> = async (req, res) => {
+  const code = req.body.code === null ? '' : req.body.code;
+
+  if (typeof code !== 'string') {
+    res.status(400).json({ message: 'code is required' });
+    return;
+  }
+
+  if (code.length > MAX_CODE_LENGTH) {
+    res.status(400).json({ message: `code must be at most ${MAX_CODE_LENGTH} characters` });
+    return;
+  }
+
+  try {
+    const record = await saveExerciseRecordCode(req.uid!, req.params.id, code);
+    res.json(toExerciseFinal(req.exercise, record.code));
+  } catch (err) {
+    console.error('[exercise] save code failed:', err);
+    res.status(500).json({ message: 'Failed to save code' });
+  }
 };
 
 export const getExercisePrivateHandler: RequestHandler<{ id: string }> = async (req, res) => {
-  const exerciseId = req.params.id;
-
-  const exercise = EXERCISES_BY_ID[exerciseId];
-
-  if (!exercise) {
-    res.status(404).json({ message: 'Exercise not found' });
-    return;
-  }
-
-  const { id, chapter, number, suffix, description, solution, tests } = exercise;
-
-  res.json({
-    id,
-    chapter,
-    number,
-    suffix,
-    description,
-    code: 'there will be code here',
-    solution,
-    tests: tests.map(({ id, stdin, expectedStdout }) => ({
-      id,
-      stdin: stdin ?? '',
-      expectedStdout,
-      actualStdout: '',
-      status: 'indeterminate'
-    })),
-    state: 'indeterminate'
-  } satisfies ExerciseFinal);
+  res.json(toExerciseFinal(req.exercise, 'there will be code here'));
 };

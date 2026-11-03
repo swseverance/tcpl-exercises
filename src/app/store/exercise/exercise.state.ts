@@ -3,6 +3,14 @@ import { ExerciseFinal } from '../../../models/exercise';
 export type ExerciseState = {
   id: string;
 
+  pendingChanges: Record<
+    string,
+    {
+      code: string;
+      saving: boolean;
+    }
+  >;
+
   exerciseLoading: boolean;
 
   exercise: ExerciseFinal;
@@ -10,6 +18,8 @@ export type ExerciseState = {
 
 export const initialAuthState: ExerciseState = {
   id: '',
+
+  pendingChanges: {},
 
   exerciseLoading: false,
 
