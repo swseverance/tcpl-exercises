@@ -4,11 +4,12 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { CodeEditor } from '../../components/code-editor/code-editor';
+import { TestCases } from '../../components/test-cases/test-cases';
 import { AppFacade } from '../../store/app.facade';
 
 @Component({
   selector: 'app-exercise-detail',
-  imports: [NzButtonModule, CodeEditor, AsyncPipe],
+  imports: [NzButtonModule, CodeEditor, AsyncPipe, TestCases],
   templateUrl: './exercise-detail.html',
   styleUrl: './exercise-detail.scss'
 })

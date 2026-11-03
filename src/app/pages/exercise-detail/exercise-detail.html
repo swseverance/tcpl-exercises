@@ -7,7 +7,7 @@
     <button nz-button nzType="primary" type="button" (click)="onSubmit()">Submit</button>
   </div>
 
-  <!-- <app-test-cases [tests]="exercise.tests" [results]="testResults ?? {}" ngSkipHydration /> -->
+  <app-test-cases [tests]="exercise!.tests" ngSkipHydration />
 
   <!-- <app-submissions [submissions]="submissions ?? []" ngSkipHydration /> -->
 </div>

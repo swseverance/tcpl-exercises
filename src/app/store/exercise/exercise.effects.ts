@@ -29,7 +29,7 @@ import {
 } from './exercise.actions';
 import { selectId, selectPendingChanges } from './exercise.selectors';
 
-const SAVE_INTERVAL_MS = 5_000;
+const SAVE_INTERVAL_MS = 10_000;
 
 @Injectable()
 export class ExerciseEffects {
