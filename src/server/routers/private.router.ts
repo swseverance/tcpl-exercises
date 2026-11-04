@@ -7,10 +7,10 @@ import {
 } from '../api/exercise.handler';
 import { getExercisesPrivateHandler } from '../api/exercises.handler';
 import { logHandler } from '../api/log.handler';
-import { appCheckMiddleware } from '../middleware/appcheck';
-import { authMiddleware } from '../middleware/auth';
-import { exerciseExistsMiddleware } from '../middleware/exercise-exists';
-import { rateLimitMiddleware } from '../middleware/rate-limit';
+import { appCheckMiddleware } from '../middleware/appcheck/appcheck';
+import { authMiddleware } from '../middleware/auth/auth';
+import { exerciseExistsMiddleware } from '../middleware/exercise-exists/exercise-exists';
+import { rateLimitMiddleware } from '../middleware/rate-limit/rate-limit';
 import { redis } from '../redis';
 
 // Submitting runs the code in a real Vercel Sandbox, which costs money, so
