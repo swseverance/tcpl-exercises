@@ -6,12 +6,13 @@ import { NzBadgeModule } from 'ng-zorro-antd/badge';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzTabsModule } from 'ng-zorro-antd/tabs';
 import { CodeEditor } from '../../components/code-editor/code-editor';
+import { Panel } from '../../components/panel/panel';
 import { TestCases } from '../../components/test-cases/test-cases';
 import { AppFacade } from '../../store/app.facade';
 
 @Component({
   selector: 'app-exercise-detail',
-  imports: [NzButtonModule, NzTabsModule, NzBadgeModule, CodeEditor, AsyncPipe, TestCases],
+  imports: [NzButtonModule, NzTabsModule, NzBadgeModule, CodeEditor, AsyncPipe, TestCases, Panel],
   templateUrl: './exercise-detail.html',
   styleUrl: './exercise-detail.scss'
 })
