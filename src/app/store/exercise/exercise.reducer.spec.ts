@@ -31,7 +31,7 @@ const EXERCISE: Exercise = {
       status: 'indeterminate'
     }
   ],
-  state: 'indeterminate'
+  status: 'indeterminate'
 };
 
 describe('exerciseReducer', () => {
@@ -315,7 +315,7 @@ describe('exerciseReducer', () => {
       const submittedExercise: Exercise = {
         ...EXERCISE,
         code: 'submitted code',
-        state: 'passed',
+        status: 'passed',
         tests: [{ ...EXERCISE.tests[0], status: 'passed' }]
       };
 

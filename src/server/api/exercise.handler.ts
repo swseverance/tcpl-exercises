@@ -1,7 +1,8 @@
 import { RequestHandler } from 'express';
 import { ExerciseSource } from '../../models/exercise';
 import { ExerciseRecordTestResult } from '../../models/exercise-record';
-import { Exercise, ExerciseStatus, ExerciseTestCase } from '../../shared/models';
+import { Exercise, ExerciseTestCase } from '../../shared/models';
+import { computeExerciseStatus } from '../exercises/status';
 import {
   getExerciseRecord,
   saveExerciseRecordCode,
@@ -46,11 +47,7 @@ function toExercise(
     }
   );
 
-  const state: ExerciseStatus = finalTests.some((test) => test.status === 'indeterminate')
-    ? 'indeterminate'
-    : finalTests.some((test) => test.status === 'failed')
-      ? 'failed'
-      : 'passed';
+  const status = computeExerciseStatus(exercise.tests, tests);
 
   return {
     id,
@@ -61,7 +58,7 @@ function toExercise(
     code,
     solution,
     tests: finalTests,
-    state
+    status
   };
 }
 

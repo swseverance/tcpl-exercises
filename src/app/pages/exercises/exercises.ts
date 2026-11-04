@@ -23,14 +23,16 @@ export class Exercises {
   private destroyRef = inject(DestroyRef);
 
   protected readonly statusLabels: Record<ExerciseStatus, string> = {
-    passed: 'P',
-    failed: 'F',
+    passed: 'Passed',
+    failed: 'Failed',
+    pending: 'Pending',
     indeterminate: '—'
   };
 
   protected readonly statusColors: Record<ExerciseStatus, string | undefined> = {
     passed: 'success',
     failed: 'error',
+    pending: 'info',
     indeterminate: undefined
   };
 

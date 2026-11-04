@@ -8,7 +8,7 @@ export type ExerciseTestCase = {
   status: ExerciseTestCaseStatus;
 };
 
-export type ExerciseStatus = 'passed' | 'failed' | 'indeterminate';
+export type ExerciseStatus = 'passed' | 'failed' | 'indeterminate' | 'pending';
 
 export type Exercise = {
   id: string;
@@ -19,18 +19,12 @@ export type Exercise = {
   code: string;
   solution: string;
   tests: ExerciseTestCase[];
-  state: ExerciseStatus;
+  status: ExerciseStatus;
 };
 
 export type Chapter = {
   number: number;
-  exercises: Array<{
-    id: string;
-    chapter: number;
-    number: number;
-    suffix?: string;
-    status: 'passed' | 'failed' | 'indeterminate';
-  }>;
+  exercises: Array<Pick<Exercise, 'id' | 'chapter' | 'number' | 'suffix' | 'status'>>;
 };
 
 export type ExercisesResponseBody = {

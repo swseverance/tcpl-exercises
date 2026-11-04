@@ -30,6 +30,10 @@ function exerciseRecordRef(uid: string, exerciseId: string) {
   return getFirestore().doc(`users/${uid}/exercises/${exerciseId}`);
 }
 
+function exerciseRecordsCollectionRef(uid: string) {
+  return getFirestore().collection(`users/${uid}/exercises`);
+}
+
 export async function saveExerciseRecordCode(
   uid: string,
   exerciseId: string,
@@ -102,4 +106,14 @@ export async function getExerciseRecord(
   }
 
   return { id: exerciseId, code: data.code, tests: data.tests };
+}
+
+export async function getExerciseRecordTestsByExerciseId(
+  uid: string
+): Promise<Record<string, Record<string, ExerciseRecordTestResult>>> {
+  const snapshot = await exerciseRecordsCollectionRef(uid).get();
+
+  return Object.fromEntries(
+    snapshot.docs.map((doc) => [doc.id, (doc.data() as ReadExerciseRecord).tests])
+  );
 }
