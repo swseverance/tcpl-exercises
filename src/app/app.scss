@@ -30,3 +30,41 @@ nz-content {
   flex-direction: column;
   overflow-y: auto;
 }
+
+:host-context(.tcpl-exercises-light-theme) {
+  background: #fff;
+  color: rgba(0, 0, 0, 0.85);
+
+  --whitespace-tab-color: #237804;
+  --whitespace-newline-color: #0958d9;
+  --whitespace-space-color: rgba(0, 0, 0, 0.35);
+
+  .ant-layout-header {
+    background: #fff;
+    color: rgba(0, 0, 0, 0.85);
+    border-bottom: 1px solid #1890ff;
+  }
+
+  .ant-layout-content {
+    background: #fff;
+  }
+}
+
+:host-context(.tcpl-exercises-dark-theme) {
+  background: rgb(20, 20, 20);
+  color: rgba(255, 255, 255, 0.85);
+
+  --whitespace-tab-color: #73d13d;
+  --whitespace-newline-color: #69b1ff;
+  --whitespace-space-color: rgba(255, 255, 255, 0.35);
+
+  .ant-layout-header {
+    background: rgb(20, 20, 20);
+    color: rgba(255, 255, 255, 0.85);
+    border-bottom: 1px solid #177ddc;
+  }
+
+  .ant-layout-content {
+    background: rgb(20, 20, 20);
+  }
+}
