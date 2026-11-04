@@ -8,6 +8,16 @@
   gap: 16px;
 }
 
+.top-row {
+  display: flex;
+  gap: 16px;
+
+  > app-panel {
+    flex: 1 1 50%;
+    min-width: 0;
+  }
+}
+
 .editor-section {
   height: 50vh;
   display: flex;
