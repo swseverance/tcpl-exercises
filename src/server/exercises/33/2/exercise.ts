@@ -1,11 +1,12 @@
 import { ExerciseSource } from '../../../../models/exercise';
+import description from './description.md' with { type: 'text' };
 import solution from './main.c' with { type: 'text' };
 
 export const exercise33_2: ExerciseSource = {
   id: '33-2',
   chapter: 33,
   number: 2,
-  description: 'Dummy exercise: read two integers and print their sum.',
+  description,
   solution,
   tests: [
     { id: 'ff73f465', stdin: '1 2', expectedStdout: '3\n' },

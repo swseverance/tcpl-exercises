@@ -1,11 +1,12 @@
 import { ExerciseSource } from '../../../../models/exercise';
+import description from './description.md' with { type: 'text' };
 import solution from './main.c' with { type: 'text' };
 
 export const exercise1_8: ExerciseSource = {
   id: '1-8',
   chapter: 1,
   number: 8,
-  description: 'Write a program to count blanks, tabs, and newlines.',
+  description,
   solution,
   tests: [
     {
