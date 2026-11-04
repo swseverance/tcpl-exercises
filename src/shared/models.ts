@@ -20,6 +20,7 @@ export type Exercise = {
   solution: string;
   tests: ExerciseTestCase[];
   status: ExerciseStatus;
+  compilationError: string;
 };
 
 export type Chapter = {

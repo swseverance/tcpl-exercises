@@ -19,7 +19,8 @@ type ExerciseCodeRequestBody = {
 function toExercise(
   exercise: ExerciseSource,
   code: string,
-  tests: Record<string, ExerciseRecordTestResult>
+  tests: Record<string, ExerciseRecordTestResult>,
+  compilationError: string
 ): Exercise {
   const { id, chapter, number, suffix, description, solution } = exercise;
 
@@ -58,12 +59,13 @@ function toExercise(
     code,
     solution,
     tests: finalTests,
-    status
+    status,
+    compilationError
   };
 }
 
 export const getExercisePublicHandler: RequestHandler<{ id: string }> = async (req, res) => {
-  res.json(toExercise(req.exercise, `#include <stdio.h>\n\nint main() {\n\n}\n`, {}));
+  res.json(toExercise(req.exercise, `#include <stdio.h>\n\nint main() {\n\n}\n`, {}, ''));
 };
 
 const MAX_CODE_LENGTH = 20_000;
@@ -87,7 +89,7 @@ export const saveExerciseCodeHandler: RequestHandler<
 
   try {
     const record = await saveExerciseRecordCode(req.uid!, req.params.id, code);
-    res.json(toExercise(req.exercise, record.code, record.tests));
+    res.json(toExercise(req.exercise, record.code, record.tests, record.compilationError));
   } catch (err) {
     console.error('[exercise] save code failed:', err);
     res.status(500).json({ message: 'Failed to save code' });
@@ -96,7 +98,14 @@ export const saveExerciseCodeHandler: RequestHandler<
 
 export const getExercisePrivateHandler: RequestHandler<{ id: string }> = async (req, res) => {
   const record = await getExerciseRecord(req.uid!, req.params.id);
-  res.json(toExercise(req.exercise, record?.code ?? STARTER_CODE, record?.tests ?? {}));
+  res.json(
+    toExercise(
+      req.exercise,
+      record?.code ?? STARTER_CODE,
+      record?.tests ?? {},
+      record?.compilationError ?? ''
+    )
+  );
 };
 
 export const submitExerciseHandler: RequestHandler<
@@ -119,20 +128,23 @@ export const submitExerciseHandler: RequestHandler<
   try {
     const { compile, results } = await gradeSubmission(code, req.exercise.tests);
     const compileFailed = compile.timedOut || compile.exitCode !== 0;
+    const compilationError = compileFailed ? compile.stderr : '';
 
-    const tests: Record<string, ExerciseRecordTestResult> = compileFailed
-      ? Object.fromEntries(
-          req.exercise.tests.map((test) => [test.id, { status: 'failed', actualStdout: '' }])
-        )
-      : Object.fromEntries(
-          results.map((result) => [
-            result.id,
-            { status: result.passed ? 'passed' : 'failed', actualStdout: result.stdout }
-          ])
-        );
+    const tests: Record<string, ExerciseRecordTestResult> = Object.fromEntries(
+      results.map((result) => [
+        result.id,
+        { status: result.passed ? 'passed' : 'failed', actualStdout: result.stdout }
+      ])
+    );
 
-    const record = await saveExerciseRecordSubmission(req.uid!, req.params.id, code, tests);
-    res.json(toExercise(req.exercise, record.code, record.tests));
+    const record = await saveExerciseRecordSubmission(
+      req.uid!,
+      req.params.id,
+      code,
+      tests,
+      compilationError
+    );
+    res.json(toExercise(req.exercise, record.code, record.tests, record.compilationError));
   } catch (err) {
     console.error('[exercise] submit failed:', err);
     res.status(500).json({ message: 'Failed to submit exercise' });

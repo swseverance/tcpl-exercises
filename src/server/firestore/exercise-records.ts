@@ -4,6 +4,7 @@ import { ExerciseRecord, ExerciseRecordTestResult } from '../../models/exercise-
 type WriteExerciseRecord = {
   code: string;
   tests: Record<string, ExerciseRecordTestResult>;
+  compilationError: string;
   created: FieldValue;
   lastUpdated: FieldValue;
 };
@@ -16,12 +17,14 @@ type UpdateExerciseRecord = {
 type UpdateExerciseRecordWithTests = {
   code: string;
   tests: Record<string, ExerciseRecordTestResult>;
+  compilationError: string;
   lastUpdated: FieldValue;
 };
 
 type ReadExerciseRecord = {
   code: string;
   tests: Record<string, ExerciseRecordTestResult>;
+  compilationError: string | undefined;
   created: Timestamp;
   lastUpdated: Timestamp;
 };
@@ -46,12 +49,13 @@ export async function saveExerciseRecordCode(
     const write: WriteExerciseRecord = {
       code,
       tests: {},
+      compilationError: '',
       created: FieldValue.serverTimestamp(),
       lastUpdated: FieldValue.serverTimestamp()
     };
     await ref.set(write);
 
-    return { id: exerciseId, code, tests: {} };
+    return { id: exerciseId, code, tests: {}, compilationError: '' };
   }
 
   const update: UpdateExerciseRecord = {
@@ -60,16 +64,17 @@ export async function saveExerciseRecordCode(
   };
   await ref.update(update);
 
-  const tests = (snapshot.data() as ReadExerciseRecord).tests;
+  const { tests, compilationError } = snapshot.data() as ReadExerciseRecord;
 
-  return { id: exerciseId, code, tests };
+  return { id: exerciseId, code, tests, compilationError: compilationError ?? '' };
 }
 
 export async function saveExerciseRecordSubmission(
   uid: string,
   exerciseId: string,
   code: string,
-  tests: Record<string, ExerciseRecordTestResult>
+  tests: Record<string, ExerciseRecordTestResult>,
+  compilationError: string
 ): Promise<ExerciseRecord> {
   const ref = exerciseRecordRef(uid, exerciseId);
   const snapshot = await ref.get();
@@ -78,6 +83,7 @@ export async function saveExerciseRecordSubmission(
     const write: WriteExerciseRecord = {
       code,
       tests,
+      compilationError,
       created: FieldValue.serverTimestamp(),
       lastUpdated: FieldValue.serverTimestamp()
     };
@@ -86,12 +92,13 @@ export async function saveExerciseRecordSubmission(
     const update: UpdateExerciseRecordWithTests = {
       code,
       tests,
+      compilationError,
       lastUpdated: FieldValue.serverTimestamp()
     };
     await ref.update(update);
   }
 
-  return { id: exerciseId, code, tests };
+  return { id: exerciseId, code, tests, compilationError };
 }
 
 export async function getExerciseRecord(
@@ -105,7 +112,12 @@ export async function getExerciseRecord(
     return undefined;
   }
 
-  return { id: exerciseId, code: data.code, tests: data.tests };
+  return {
+    id: exerciseId,
+    code: data.code,
+    tests: data.tests,
+    compilationError: data.compilationError ?? ''
+  };
 }
 
 export async function getExerciseRecordTestsByExerciseId(

@@ -31,7 +31,8 @@ const EXERCISE: Exercise = {
       status: 'indeterminate'
     }
   ],
-  status: 'indeterminate'
+  status: 'indeterminate',
+  compilationError: ''
 };
 
 const CHAPTERS: Chapter[] = [

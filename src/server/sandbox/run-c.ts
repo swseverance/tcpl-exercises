@@ -92,7 +92,13 @@ export async function gradeSubmission(
     );
 
     if (compile.timedOut || compile.exitCode !== 0) {
-      return { compile: { stage: 'compile', ...compile }, results: [] };
+      const results: ExerciseTestResult[] = tests.map((test) => ({
+        id: test.id,
+        passed: false,
+        stdout: ''
+      }));
+
+      return { compile: { stage: 'compile', ...compile }, results };
     }
 
     const results: ExerciseTestResult[] = [];

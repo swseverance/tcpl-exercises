@@ -9,4 +9,5 @@ export type ExerciseRecord = {
   id: string;
   code: string;
   tests: Record<string, ExerciseRecordTestResult>;
+  compilationError: string;
 };

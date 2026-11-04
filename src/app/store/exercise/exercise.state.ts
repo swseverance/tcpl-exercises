@@ -37,7 +37,8 @@ export const initialAuthState: ExerciseState = {
     code: '',
     solution: '',
     tests: [],
-    status: 'indeterminate'
+    status: 'indeterminate',
+    compilationError: ''
   },
 
   submissionPending: false,
