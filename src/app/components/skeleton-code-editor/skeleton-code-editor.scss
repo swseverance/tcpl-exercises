@@ -20,19 +20,16 @@
   border-right: 1px solid #ddd;
 }
 
-.spinner {
-  display: flex;
+.lines {
   flex: 1;
-  align-items: center;
-  justify-content: center;
-  transform: scale(2);
+  min-width: 0;
+  padding: 16px;
 }
 
 :host-context(.tcpl-exercises-dark-theme) .skeleton {
   background: #282c34;
 
   .gutter {
-    background: #282c34;
-    border-right: none;
+    display: none;
   }
 }

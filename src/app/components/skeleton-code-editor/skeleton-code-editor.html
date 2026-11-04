@@ -1,4 +1,11 @@
 <div class="skeleton">
   <div class="gutter"></div>
-  <nz-spin nzSimple class="spinner" />
+  <div class="lines">
+    <nz-skeleton
+      [nzActive]="true"
+      [nzTitle]="false"
+      [nzAvatar]="false"
+      [nzParagraph]="{ rows: 8 }"
+    />
+  </div>
 </div>
