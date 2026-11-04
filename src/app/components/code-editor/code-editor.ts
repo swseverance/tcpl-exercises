@@ -23,6 +23,18 @@ import { basicSetup, EditorView } from 'codemirror';
 import { ThemeName } from '../../services/theme';
 import { SkeletonCodeEditor } from '../skeleton-code-editor/skeleton-code-editor';
 
+const editorStyles = EditorView.theme({
+  '&': {
+    border: '1px solid rgba(0, 0, 0, 0.15)',
+    borderRadius: '4px',
+    fontSize: '16px',
+    height: '100%'
+  },
+  '.cm-scroller': {
+    overflow: 'auto'
+  }
+});
+
 @Component({
   selector: 'app-code-editor',
   imports: [SkeletonCodeEditor],
@@ -30,8 +42,6 @@ import { SkeletonCodeEditor } from '../skeleton-code-editor/skeleton-code-editor
   styleUrl: './code-editor.scss'
 })
 export class CodeEditor implements AfterViewInit, OnChanges, OnDestroy {
-  loaded = false;
-
   private _code = '';
 
   @Input() set code(code: string) {
@@ -54,8 +64,6 @@ export class CodeEditor implements AfterViewInit, OnChanges, OnDestroy {
 
   @Output() codeChange = new EventEmitter<string>();
 
-  @Output() readonly ready = new EventEmitter<void>();
-
   @ViewChild('host', { static: true }) private host!: ElementRef<HTMLDivElement>;
 
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
@@ -74,6 +82,7 @@ export class CodeEditor implements AfterViewInit, OnChanges, OnDestroy {
         keymap.of([indentWithTab]),
         indentUnit.of('  '),
         cpp(),
+        editorStyles,
         EditorView.updateListener.of((update) => {
           const isUserInput = update.transactions.some(
             (tr) => tr.annotation(Transaction.userEvent) !== undefined
@@ -83,13 +92,10 @@ export class CodeEditor implements AfterViewInit, OnChanges, OnDestroy {
             this.codeChange.emit(update.state.doc.toString());
           }
         }),
-        this.themeCompartment.of(this.darkTheme() ? oneDark : [])
+        this.themeCompartment.of(this.theme === 'dark' ? oneDark : [])
       ],
       parent: this.host.nativeElement
     });
-
-    this.loaded = true;
-    this.ready.emit();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -99,7 +105,7 @@ export class CodeEditor implements AfterViewInit, OnChanges, OnDestroy {
 
     if (changes['theme']) {
       this.view.dispatch({
-        effects: this.themeCompartment.reconfigure(this.darkTheme() ? oneDark : [])
+        effects: this.themeCompartment.reconfigure(this.theme === 'dark' ? oneDark : [])
       });
     }
 
@@ -116,9 +122,5 @@ export class CodeEditor implements AfterViewInit, OnChanges, OnDestroy {
 
   getCode(): string {
     return this.view?.state.doc.toString() ?? this.code;
-  }
-
-  private darkTheme(): boolean {
-    return this.theme === 'dark';
   }
 }

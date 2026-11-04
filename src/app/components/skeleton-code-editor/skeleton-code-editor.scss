@@ -25,6 +25,7 @@
   flex: 1;
   align-items: center;
   justify-content: center;
+  transform: scale(2);
 }
 
 :host-context(.tcpl-exercises-dark-theme) .skeleton {
@@ -34,8 +35,4 @@
     background: #282c34;
     border-right: none;
   }
-}
-
-::ng-deep .spinner .ant-spin {
-  transform: scale(2);
 }
