@@ -1,5 +1,5 @@
 import { AsyncPipe } from '@angular/common';
-import { Component, DestroyRef, inject, OnInit, ViewChild } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, signal, ViewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { NzBadgeModule } from 'ng-zorro-antd/badge';
@@ -26,6 +26,7 @@ export class ExerciseDetail implements OnInit {
   protected readonly theme$ = this.facade.theme$;
   protected readonly exercise$ = this.facade.exercise$;
   protected readonly submissionPending$ = this.facade.submissionPending$;
+  protected readonly selectedTabIndex = signal(0);
 
   ngOnInit(): void {
     this.route.paramMap

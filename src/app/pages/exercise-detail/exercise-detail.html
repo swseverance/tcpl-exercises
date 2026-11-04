@@ -8,9 +8,26 @@
   </nz-badge>
 </ng-template>
 
+<ng-template #submit>
+  <button
+    nz-button
+    nzType="primary"
+    type="button"
+    [disabled]="submissionPending || selectedTabIndex() !== 0"
+    (click)="onSubmit()"
+  >
+    Submit
+  </button>
+</ng-template>
+
 <div class="exercise-layout">
   <app-panel>
-    <nz-tabs>
+    <nz-tabs
+      nzDestroyInactiveTabPane
+      [nzTabBarExtraContent]="submit"
+      [nzSelectedIndex]="selectedTabIndex()"
+      (nzSelectedIndexChange)="selectedTabIndex.set($event)"
+    >
       <nz-tab nzTitle="Code">
         <div class="editor-section">
           <app-code-editor
@@ -18,15 +35,6 @@
             [theme]="theme!"
             (codeChange)="onCodeChange($event)"
           />
-          <button
-            nz-button
-            nzType="primary"
-            type="button"
-            [disabled]="submissionPending"
-            (click)="onSubmit()"
-          >
-            Submit
-          </button>
         </div>
       </nz-tab>
 
