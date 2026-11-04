@@ -1,41 +1,48 @@
 import { Component, input } from '@angular/core';
-import { NzTableModule } from 'ng-zorro-antd/table';
+import { NzCollapseModule } from 'ng-zorro-antd/collapse';
+import { NzDividerModule } from 'ng-zorro-antd/divider';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 import { ExerciseTestCase } from '../../../shared/models';
-import { Whitespace } from '../whitespace/whitespace';
+import { TestCaseIo } from '../test-case-io/test-case-io';
 
 @Component({
   selector: 'app-test-cases',
-  imports: [NzTableModule, NzTagModule, Whitespace],
+  imports: [NzCollapseModule, NzDividerModule, NzTagModule, TestCaseIo],
   template: `
-    <nz-table
-      [nzData]="tests()"
-      [nzShowPagination]="false"
-      nzSize="small"
-      nzTitle="Test Cases"
-      nzNoResult="No test cases"
-    >
-      <thead>
-        <tr>
-          <th>stdin</th>
-          <th>expected stdout</th>
-          <th>actual stdout</th>
-          <th>status</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (test of tests(); track test.id) {
-          <tr>
-            <td><app-whitespace [text]="test.stdin || '(none)'" /></td>
-            <td><app-whitespace [text]="test.expectedStdout" /></td>
-            <td>
-              @if (test.status === 'indeterminate') {
-                —
-              } @else {
-                <app-whitespace [text]="test.actualStdout" />
-              }
-            </td>
-            <td>
+    <div class="header">
+      <h2 class="section-title">Test Cases</h2>
+      @if (tests().length > 0) {
+        <div class="legend">
+          <span class="legend-item"><span class="space">S</span> space</span>
+          <span class="legend-item"><span class="tab">T</span> tab</span>
+          <span class="legend-item"><span class="newline">N</span> newline</span>
+        </div>
+      }
+    </div>
+
+    @if (tests().length === 0) {
+      <p class="empty">No test cases</p>
+    } @else {
+      <nz-collapse>
+        @for (test of tests(); track test.id; let i = $index) {
+          <nz-collapse-panel [nzHeader]="'Test Case ' + (i + 1)" [nzExtra]="statusTpl">
+            <app-test-case-io [rows]="[{ label: 'stdin', text: test.stdin }]" />
+
+            <nz-divider />
+
+            <app-test-case-io
+              [rows]="[
+                { label: 'stdout (expected)', text: test.expectedStdout },
+                {
+                  label: 'stdout (actual)',
+                  text: test.actualStdout,
+                  pending: test.status === 'indeterminate'
+                }
+              ]"
+              [compare]="true"
+            />
+
+            <ng-template #statusTpl>
               @if (submissionPending()) {
                 <nz-tag nzColor="processing">Pending...</nz-tag>
               } @else {
@@ -43,12 +50,13 @@ import { Whitespace } from '../whitespace/whitespace';
                   statusLabels[test.status]
                 }}</nz-tag>
               }
-            </td>
-          </tr>
+            </ng-template>
+          </nz-collapse-panel>
         }
-      </tbody>
-    </nz-table>
-  `
+      </nz-collapse>
+    }
+  `,
+  styleUrl: './test-cases.scss'
 })
 export class TestCases {
   tests = input.required<ExerciseTestCase[]>();
