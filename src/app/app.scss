@@ -51,7 +51,7 @@ nz-content {
 }
 
 :host-context(.tcpl-exercises-dark-theme) {
-  background: rgb(20, 20, 20);
+  background: #1f1f1f;
   color: rgba(255, 255, 255, 0.85);
 
   --whitespace-tab-color: #73d13d;
@@ -59,12 +59,12 @@ nz-content {
   --whitespace-space-color: rgba(255, 255, 255, 0.35);
 
   .ant-layout-header {
-    background: rgb(20, 20, 20);
+    background: #1f1f1f;
     color: rgba(255, 255, 255, 0.85);
     border-bottom: 1px solid #177ddc;
   }
 
   .ant-layout-content {
-    background: rgb(20, 20, 20);
+    background: #1f1f1f;
   }
 }
