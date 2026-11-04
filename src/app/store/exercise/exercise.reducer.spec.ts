@@ -1,5 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Exercise } from '../../../shared/models';
+import { Chapter, Exercise } from '../../../shared/models';
 import {
   codeEdited,
   exerciseLoaded,
@@ -33,6 +33,16 @@ const EXERCISE: Exercise = {
   ],
   status: 'indeterminate'
 };
+
+const CHAPTERS: Chapter[] = [
+  {
+    number: 1,
+    exercises: [
+      { id: '1-1', chapter: 1, number: 1, status: 'indeterminate' },
+      { id: '1-2', chapter: 1, number: 2, status: 'passed' }
+    ]
+  }
+];
 
 describe('exerciseReducer', () => {
   describe('selectExercise', () => {
@@ -308,6 +318,26 @@ describe('exerciseReducer', () => {
         submissionPending: true
       });
     });
+
+    it('sets the sidebar status of the exercise being submitted to pending, leaving other exercises untouched', () => {
+      const previousState = { ...initialAuthState, id: '1-1', chapters: CHAPTERS };
+
+      const state = exerciseReducer(previousState, submitExercise({ code: 'submitted code' }));
+
+      expect(state).toEqual({
+        ...previousState,
+        submissionPending: true,
+        chapters: [
+          {
+            number: 1,
+            exercises: [
+              { id: '1-1', chapter: 1, number: 1, status: 'pending' },
+              { id: '1-2', chapter: 1, number: 2, status: 'passed' }
+            ]
+          }
+        ]
+      });
+    });
   });
 
   describe('exerciseSubmitted', () => {
@@ -367,6 +397,38 @@ describe('exerciseReducer', () => {
         submissionPending: false
       });
     });
+
+    it('updates the sidebar status of the submitted exercise to match the result, leaving other exercises untouched', () => {
+      const submittedExercise: Exercise = { ...EXERCISE, status: 'failed' };
+
+      const previousState = {
+        ...initialAuthState,
+        chapters: [
+          {
+            number: 1,
+            exercises: [
+              { id: '1-1', chapter: 1, number: 1, status: 'pending' },
+              { id: '1-2', chapter: 1, number: 2, status: 'passed' }
+            ]
+          }
+        ] as Chapter[],
+        submissionPending: true
+      };
+
+      const state = exerciseReducer(
+        previousState,
+        exerciseSubmitted({ exercise: submittedExercise })
+      );
+
+      expect(state.chapters).toEqual(
+        CHAPTERS.map((chapter) => ({
+          ...chapter,
+          exercises: chapter.exercises.map((exercise) =>
+            exercise.id === '1-1' ? { ...exercise, status: 'failed' } : exercise
+          )
+        }))
+      );
+    });
   });
 
   describe('submitExerciseFailed', () => {
@@ -378,6 +440,31 @@ describe('exerciseReducer', () => {
       expect(state).toEqual({
         ...previousState,
         submissionPending: false
+      });
+    });
+
+    it('sets the sidebar status of the exercise being submitted back to indeterminate, leaving other exercises untouched', () => {
+      const previousState = {
+        ...initialAuthState,
+        id: '1-1',
+        chapters: [
+          {
+            number: 1,
+            exercises: [
+              { id: '1-1', chapter: 1, number: 1, status: 'pending' },
+              { id: '1-2', chapter: 1, number: 2, status: 'passed' }
+            ]
+          }
+        ] as Chapter[],
+        submissionPending: true
+      };
+
+      const state = exerciseReducer(previousState, submitExerciseFailed({ error: 'boom' }));
+
+      expect(state).toEqual({
+        ...previousState,
+        submissionPending: false,
+        chapters: CHAPTERS
       });
     });
   });

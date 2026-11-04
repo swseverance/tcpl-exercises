@@ -1,5 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { createReducer, on } from '@ngrx/store';
+import { Chapter, ExerciseStatus } from '../../../shared/models';
 import {
   chaptersTransferred,
   codeEdited,
@@ -18,6 +19,25 @@ import {
   submitExerciseFailed
 } from './exercise.actions';
 import { initialAuthState } from './exercise.state';
+
+function updateExerciseStatus(
+  chapters: Chapter[],
+  exerciseId: string,
+  status: ExerciseStatus
+): Chapter[] {
+  return chapters.map((chapter) => {
+    const index = chapter.exercises.findIndex((exercise) => exercise.id === exerciseId);
+
+    if (index === -1) {
+      return chapter;
+    }
+
+    const exercises = [...chapter.exercises];
+    exercises[index] = { ...exercises[index], status };
+
+    return { ...chapter, exercises };
+  });
+}
 
 export const exerciseReducer = createReducer(
   initialAuthState,
@@ -109,11 +129,16 @@ export const exerciseReducer = createReducer(
     };
   }),
 
-  on(submitExercise, (state) => ({ ...state, submissionPending: true })),
+  on(submitExercise, (state) => ({
+    ...state,
+    submissionPending: true,
+    chapters: updateExerciseStatus(state.chapters, state.id, 'pending')
+  })),
 
   on(exerciseSubmitted, (state, { exercise }) => {
     const code = state.exercise.code;
     const pending = state.pendingChanges[exercise.id];
+    const chapters = updateExerciseStatus(state.chapters, exercise.id, exercise.status);
 
     if (pending && pending.code === exercise.code) {
       const { [exercise.id]: _removed, ...pendingChanges } = state.pendingChanges;
@@ -122,6 +147,7 @@ export const exerciseReducer = createReducer(
         ...state,
         exercise: { ...exercise, code },
         pendingChanges,
+        chapters,
         submissionPending: false
       };
     }
@@ -129,12 +155,17 @@ export const exerciseReducer = createReducer(
     return {
       ...state,
       exercise: { ...exercise, code },
+      chapters,
       submissionPending: false
     };
   }),
 
   on(submitExerciseFailed, (state) => {
-    return { ...state, submissionPending: false };
+    return {
+      ...state,
+      submissionPending: false,
+      chapters: updateExerciseStatus(state.chapters, state.id, 'indeterminate')
+    };
   }),
 
   on(loadExercises, (state) => ({

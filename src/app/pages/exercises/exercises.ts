@@ -32,7 +32,7 @@ export class Exercises {
   protected readonly statusColors: Record<ExerciseStatus, string | undefined> = {
     passed: 'success',
     failed: 'error',
-    pending: 'info',
+    pending: 'processing',
     indeterminate: undefined
   };
 
