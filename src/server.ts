@@ -8,7 +8,6 @@ import express from 'express';
 import { initializeApp } from 'firebase-admin/app';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import { join } from 'node:path';
-import { environment } from './environments/environment';
 import {
   getExercisePrivateHandler,
   getExercisePublicHandler,
@@ -25,19 +24,16 @@ import { authMiddleware } from './server/middleware/auth';
 import { exerciseExistsMiddleware } from './server/middleware/exercise-exists';
 
 const browserDistFolder = join(import.meta.dirname, '../browser');
+const firebaseProjectId = process.env['FIREBASE_PROJECT_ID'];
 
-if (environment.name === 'local') {
-  process.env['FIRESTORE_EMULATOR_HOST'] = 'localhost:8080';
-}
-
-initializeApp({ projectId: environment.firebaseConfig.projectId });
+initializeApp({ projectId: firebaseProjectId });
 
 const app = express();
 const angularApp = new AngularNodeAppEngine();
 
 app.use(
   createProxyMiddleware({
-    target: `https://${environment.firebaseConfig.projectId}.firebaseapp.com`,
+    target: `https://${firebaseProjectId}.firebaseapp.com`,
     changeOrigin: true,
     pathFilter: '/__/auth/**'
   })

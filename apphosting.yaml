@@ -19,3 +19,11 @@ env:
     value: team_0M3MOKT5ntF9hBTAuhcJCd0g
     availability:
       - RUNTIME
+  # Not secret, just a hostname. Same Upstash Redis database for every
+  # environment; UPSTASH_REDIS_REST_TOKEN is the actual credential and is
+  # set per environment in apphosting.local.yaml / apphosting.dev.yaml /
+  # apphosting.prod.yaml instead.
+  - variable: UPSTASH_REDIS_REST_URL
+    value: https://loyal-minnow-40926.upstash.io
+    availability:
+      - RUNTIME

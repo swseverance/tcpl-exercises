@@ -2,6 +2,10 @@ scripts:
   buildCommand: ng build --configuration=production
 
 env:
+  - variable: FIREBASE_PROJECT_ID
+    value: tcpl-exercises-prod
+    availability:
+      - RUNTIME
   - variable: VERCEL_PROJECT_ID
     value: prj_hDT7wwchGhgvhjZTFnn4br5p5huv # tcpl-exercises-prod
     availability:
@@ -11,5 +15,9 @@ env:
   # references even though they share the same name.
   - variable: VERCEL_TOKEN
     secret: VERCEL_TOKEN
+    availability:
+      - RUNTIME
+  - variable: UPSTASH_REDIS_REST_TOKEN
+    secret: UPSTASH_REDIS_REST_TOKEN
     availability:
       - RUNTIME
