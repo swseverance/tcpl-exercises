@@ -16,7 +16,7 @@ import {
 import { indentWithTab } from '@codemirror/commands';
 import { cpp } from '@codemirror/lang-cpp';
 import { indentUnit } from '@codemirror/language';
-import { Compartment, Transaction } from '@codemirror/state';
+import { Compartment, EditorState, Transaction } from '@codemirror/state';
 import { oneDark } from '@codemirror/theme-one-dark';
 import { keymap } from '@codemirror/view';
 import { basicSetup, EditorView } from 'codemirror';
@@ -62,13 +62,30 @@ export class CodeEditor implements AfterViewInit, OnChanges, OnDestroy {
     return this._theme;
   }
 
+  private _readonly = false;
+
+  @Input() set readonly(readonly: boolean) {
+    this._readonly = readonly ?? false;
+  }
+
+  get readonly() {
+    return this._readonly;
+  }
+
+  @Input() language: 'cpp' | 'text' = 'cpp';
+
   @Output() codeChange = new EventEmitter<string>();
 
   @ViewChild('host', { static: true }) private host!: ElementRef<HTMLDivElement>;
 
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   private readonly themeCompartment = new Compartment();
+  private readonly readonlyCompartment = new Compartment();
   private view?: EditorView;
+
+  private readonlyExtensions() {
+    return [EditorView.editable.of(!this.readonly), EditorState.readOnly.of(this.readonly)];
+  }
 
   ngAfterViewInit(): void {
     if (!this.isBrowser) {
@@ -81,7 +98,7 @@ export class CodeEditor implements AfterViewInit, OnChanges, OnDestroy {
         basicSetup,
         keymap.of([indentWithTab]),
         indentUnit.of('  '),
-        cpp(),
+        this.language === 'cpp' ? cpp() : [],
         editorStyles,
         EditorView.updateListener.of((update) => {
           const isUserInput = update.transactions.some(
@@ -92,7 +109,8 @@ export class CodeEditor implements AfterViewInit, OnChanges, OnDestroy {
             this.codeChange.emit(update.state.doc.toString());
           }
         }),
-        this.themeCompartment.of(this.theme === 'dark' ? oneDark : [])
+        this.themeCompartment.of(this.theme === 'dark' ? oneDark : []),
+        this.readonlyCompartment.of(this.readonlyExtensions())
       ],
       parent: this.host.nativeElement
     });
@@ -106,6 +124,12 @@ export class CodeEditor implements AfterViewInit, OnChanges, OnDestroy {
     if (changes['theme']) {
       this.view.dispatch({
         effects: this.themeCompartment.reconfigure(this.theme === 'dark' ? oneDark : [])
+      });
+    }
+
+    if (changes['readonly']) {
+      this.view.dispatch({
+        effects: this.readonlyCompartment.reconfigure(this.readonlyExtensions())
       });
     }
 

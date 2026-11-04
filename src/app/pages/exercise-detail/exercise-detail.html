@@ -2,19 +2,50 @@
 @let theme = theme$ | async;
 @let submissionPending = submissionPending$ | async;
 
+<ng-template #compilationErrorsTitle>
+  <nz-badge [nzDot]="!!exercise!.compilationError">
+    <span>Compilation Errors&nbsp;&nbsp;</span>
+  </nz-badge>
+</ng-template>
+
 <div class="exercise-layout">
-  <div class="editor-section">
-    <app-code-editor [code]="exercise!.code" [theme]="theme!" (codeChange)="onCodeChange($event)" />
-    <button
-      nz-button
-      nzType="primary"
-      type="button"
-      [disabled]="submissionPending"
-      (click)="onSubmit()"
-    >
-      Submit
-    </button>
-  </div>
+  <nz-tabs>
+    <nz-tab nzTitle="Code">
+      <div class="editor-section">
+        <app-code-editor
+          [code]="exercise!.code"
+          [theme]="theme!"
+          (codeChange)="onCodeChange($event)"
+        />
+        <button
+          nz-button
+          nzType="primary"
+          type="button"
+          [disabled]="submissionPending"
+          (click)="onSubmit()"
+        >
+          Submit
+        </button>
+      </div>
+    </nz-tab>
+
+    <nz-tab [nzTitle]="compilationErrorsTitle">
+      <div class="readonly-editor">
+        <app-code-editor
+          [code]="exercise!.compilationError"
+          [theme]="theme!"
+          [readonly]="true"
+          language="text"
+        />
+      </div>
+    </nz-tab>
+
+    <nz-tab nzTitle="Solution">
+      <div class="readonly-editor">
+        <app-code-editor [code]="exercise!.solution" [theme]="theme!" [readonly]="true" />
+      </div>
+    </nz-tab>
+  </nz-tabs>
 
   <app-test-cases
     [tests]="exercise!.tests"

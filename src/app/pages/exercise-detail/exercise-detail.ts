@@ -2,14 +2,16 @@ import { AsyncPipe } from '@angular/common';
 import { Component, DestroyRef, inject, OnInit, ViewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
+import { NzBadgeModule } from 'ng-zorro-antd/badge';
 import { NzButtonModule } from 'ng-zorro-antd/button';
+import { NzTabsModule } from 'ng-zorro-antd/tabs';
 import { CodeEditor } from '../../components/code-editor/code-editor';
 import { TestCases } from '../../components/test-cases/test-cases';
 import { AppFacade } from '../../store/app.facade';
 
 @Component({
   selector: 'app-exercise-detail',
-  imports: [NzButtonModule, CodeEditor, AsyncPipe, TestCases],
+  imports: [NzButtonModule, NzTabsModule, NzBadgeModule, CodeEditor, AsyncPipe, TestCases],
   templateUrl: './exercise-detail.html',
   styleUrl: './exercise-detail.scss'
 })
