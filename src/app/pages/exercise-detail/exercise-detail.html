@@ -1,6 +1,7 @@
 @let exercise = exercise$ | async;
 @let theme = theme$ | async;
 @let submissionPending = submissionPending$ | async;
+@let exerciseLoading = exerciseLoading$ | async;
 
 <ng-template #compilationErrorsTitle>
   <nz-badge [nzDot]="!!exercise!.compilationError">
@@ -22,7 +23,7 @@
 
 <div class="exercise-layout">
   <div class="top-row">
-    <app-panel heading="Description">
+    <app-panel heading="Description" [loading]="exerciseLoading!">
       <app-exercise-description [description]="exercise!.description" />
     </app-panel>
 
@@ -39,6 +40,7 @@
               [code]="exercise!.code"
               [theme]="theme!"
               (codeChange)="onCodeChange($event)"
+              [loading]="exerciseLoading!"
             />
           </div>
         </nz-tab>
@@ -50,20 +52,34 @@
               [theme]="theme!"
               [readonly]="true"
               language="text"
+              [loading]="exerciseLoading!"
             />
           </div>
         </nz-tab>
 
         <nz-tab nzTitle="Solution">
           <div class="readonly-editor">
-            <app-code-editor [code]="exercise!.solution" [theme]="theme!" [readonly]="true" />
+            <app-code-editor
+              [code]="exercise!.solution"
+              [theme]="theme!"
+              [readonly]="true"
+              [loading]="exerciseLoading!"
+            />
           </div>
         </nz-tab>
       </nz-tabs>
     </app-panel>
   </div>
 
-  <app-panel>
+  <app-panel heading="Test Cases" [loading]="exerciseLoading!">
+    @if (exercise!.tests.length > 0) {
+      <div panel-extra class="legend">
+        <span class="legend-item"><span class="space">S</span> space</span>
+        <span class="legend-item"><span class="tab">T</span> tab</span>
+        <span class="legend-item"><span class="newline">N</span> newline</span>
+      </div>
+    }
+
     <app-test-cases
       [tests]="exercise!.tests"
       [submissionPending]="submissionPending ?? false"

@@ -42,6 +42,8 @@ const editorStyles = EditorView.theme({
   styleUrl: './code-editor.scss'
 })
 export class CodeEditor implements AfterViewInit, OnChanges, OnDestroy {
+  @Input() loading: boolean = false;
+
   private _code = '';
 
   @Input() set code(code: string) {

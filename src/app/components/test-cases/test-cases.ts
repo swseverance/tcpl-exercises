@@ -9,17 +9,6 @@ import { TestCaseIo } from '../test-case-io/test-case-io';
   selector: 'app-test-cases',
   imports: [NzCollapseModule, NzDividerModule, NzTagModule, TestCaseIo],
   template: `
-    <div class="header">
-      <h2 class="section-title">Test Cases</h2>
-      @if (tests().length > 0) {
-        <div class="legend">
-          <span class="legend-item"><span class="space">S</span> space</span>
-          <span class="legend-item"><span class="tab">T</span> tab</span>
-          <span class="legend-item"><span class="newline">N</span> newline</span>
-        </div>
-      }
-    </div>
-
     @if (tests().length === 0) {
       <p class="empty">No test cases</p>
     } @else {

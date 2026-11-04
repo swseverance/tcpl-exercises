@@ -15,3 +15,7 @@
 .editor-container:has(.cm-editor) app-skeleton-code-editor {
   display: none;
 }
+
+.editor-container.loading:has(.cm-editor) app-skeleton-code-editor {
+  display: block;
+}

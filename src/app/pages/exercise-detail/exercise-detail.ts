@@ -35,6 +35,7 @@ export class ExerciseDetail implements OnInit {
   protected readonly facade = inject(AppFacade);
   protected readonly theme$ = this.facade.theme$;
   protected readonly exercise$ = this.facade.exercise$;
+  protected readonly exerciseLoading$ = this.facade.exerciseLoading$;
   protected readonly submissionPending$ = this.facade.submissionPending$;
   protected readonly selectedTabIndex = signal(0);
 

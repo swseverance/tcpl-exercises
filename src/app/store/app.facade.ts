@@ -12,6 +12,7 @@ import {
 } from './exercise/exercise.actions';
 import {
   selectChapters,
+  selectExerciseLoading,
   selectExercise as selectExerciseSelector,
   selectExercisesLoading,
   selectSubmissionPending
@@ -26,6 +27,7 @@ export class AppFacade {
   readonly authenticated$ = this.store.select(selectAuthenticated);
   readonly theme$ = this.store.select(selectTheme);
   readonly exercise$ = this.store.select(selectExerciseSelector);
+  readonly exerciseLoading$ = this.store.select(selectExerciseLoading);
   readonly submissionPending$ = this.store.select(selectSubmissionPending);
   readonly chapters$ = this.store.select(selectChapters);
   readonly exercisesLoading$ = this.store.select(selectExercisesLoading);
