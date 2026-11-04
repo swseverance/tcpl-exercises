@@ -22,6 +22,7 @@ import { keymap } from '@codemirror/view';
 import { basicSetup, EditorView } from 'codemirror';
 import { ThemeName } from '../../services/theme';
 import { SkeletonCodeEditor } from '../skeleton-code-editor/skeleton-code-editor';
+import { SmartLoader } from '../smart-loader/smart-loader';
 
 const editorStyles = EditorView.theme({
   '&': {
@@ -37,7 +38,7 @@ const editorStyles = EditorView.theme({
 
 @Component({
   selector: 'app-code-editor',
-  imports: [SkeletonCodeEditor],
+  imports: [SkeletonCodeEditor, SmartLoader],
   templateUrl: './code-editor.html',
   styleUrl: './code-editor.scss'
 })

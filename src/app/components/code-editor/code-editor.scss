@@ -8,14 +8,24 @@
   height: 100%;
 }
 
-.editor-container > div {
+.cm-host {
   height: 100%;
 }
 
-.editor-container:has(.cm-editor) app-skeleton-code-editor {
-  display: none;
+app-skeleton-code-editor {
+  display: block;
+  height: 100%;
 }
 
-.editor-container.loading:has(.cm-editor) app-skeleton-code-editor {
-  display: block;
+/* Force the skeleton visible (and the editor host hidden) until CodeMirror has
+   actually mounted, covering the SSR-to-hydration gap: the `loading` input
+   only reflects the exercise data fetch, not whether CodeMirror itself has
+   initialized client-side, and that gap can't be covered by app-smart-loader's
+   timer-based logic since nothing fires during the synchronous SSR render. */
+.editor-container:not(:has(.cm-editor)) .smart-loader-skeleton {
+  display: contents !important;
+}
+
+.editor-container:not(:has(.cm-editor)) .smart-loader-content {
+  display: none !important;
 }
