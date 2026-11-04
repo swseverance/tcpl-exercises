@@ -1,0 +1,15 @@
+import { Ratelimit } from '@upstash/ratelimit';
+import { RequestHandler } from 'express';
+
+export function rateLimitMiddleware(ratelimit: Ratelimit): RequestHandler {
+  return async (req, res, next) => {
+    const { success } = await ratelimit.limit(req.uid);
+
+    if (!success) {
+      res.status(429).json({ message: 'Too Many Requests' });
+      return;
+    }
+
+    next();
+  };
+}
