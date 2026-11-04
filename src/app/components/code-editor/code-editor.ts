@@ -21,13 +21,17 @@ import { oneDark } from '@codemirror/theme-one-dark';
 import { keymap } from '@codemirror/view';
 import { basicSetup, EditorView } from 'codemirror';
 import { ThemeName } from '../../services/theme';
+import { SkeletonCodeEditor } from '../skeleton-code-editor/skeleton-code-editor';
 
 @Component({
   selector: 'app-code-editor',
-  template: '<div #host></div>',
+  imports: [SkeletonCodeEditor],
+  templateUrl: './code-editor.html',
   styleUrl: './code-editor.scss'
 })
 export class CodeEditor implements AfterViewInit, OnChanges, OnDestroy {
+  loaded = false;
+
   private _code = '';
 
   @Input() set code(code: string) {
@@ -49,6 +53,8 @@ export class CodeEditor implements AfterViewInit, OnChanges, OnDestroy {
   }
 
   @Output() codeChange = new EventEmitter<string>();
+
+  @Output() readonly ready = new EventEmitter<void>();
 
   @ViewChild('host', { static: true }) private host!: ElementRef<HTMLDivElement>;
 
@@ -81,6 +87,9 @@ export class CodeEditor implements AfterViewInit, OnChanges, OnDestroy {
       ],
       parent: this.host.nativeElement
     });
+
+    this.loaded = true;
+    this.ready.emit();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
