@@ -62,3 +62,8 @@ export const chaptersTransferred = createAction(
   'Chapters Transferred',
   props<{ chapters: Chapter[] }>()
 );
+
+export const exerciseTransferred = createAction(
+  'Exercise Transferred',
+  props<{ exercise: Exercise }>()
+);

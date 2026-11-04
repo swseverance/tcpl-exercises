@@ -2,7 +2,7 @@ import { isPlatformServer } from '@angular/common';
 import { inject, Injectable, makeStateKey, PLATFORM_ID, TransferState } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
-import { NzMessageService } from 'ng-zorro-antd/message';
+import { NzMessageRef, NzMessageService } from 'ng-zorro-antd/message';
 import {
   catchError,
   combineLatest,
@@ -16,7 +16,7 @@ import {
   tap,
   withLatestFrom
 } from 'rxjs';
-import { Chapter } from '../../../shared/models';
+import { Chapter, Exercise } from '../../../shared/models';
 import { ExerciseService } from '../../services/exercise-service';
 import { Logger } from '../../services/logger';
 import { AppState } from '../app.state';
@@ -28,6 +28,7 @@ import {
   exerciseLoaded,
   exercisesLoaded,
   exerciseSubmitted,
+  exerciseTransferred,
   loadExercise,
   loadExerciseFailure,
   loadExercises,
@@ -41,6 +42,7 @@ import {
 import { selectId, selectPendingChanges } from './exercise.selectors';
 
 const CHAPTERS_TRANSFER_KEY = makeStateKey<Chapter[]>('chapters');
+const EXERCISE_TRANSFER_KEY = makeStateKey<Exercise>('exercise');
 
 const SAVE_INTERVAL_MS = 10_000;
 
@@ -53,6 +55,7 @@ export class ExerciseEffects {
   private logger = inject(Logger);
   private platformId = inject(PLATFORM_ID);
   private transferState = inject(TransferState);
+  private messageRef: NzMessageRef | null = null;
 
   shouldLoadExercise$ = createEffect(() =>
     combineLatest([
@@ -154,11 +157,26 @@ export class ExerciseEffects {
     )
   );
 
+  displayPendingMessage$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(submitExercise),
+        tap(() => (this.messageRef = this.message.info('Running Tests...', { nzDuration: 0 })))
+      ),
+    { dispatch: false }
+  );
+
   exerciseSubmitted$ = createEffect(
     () =>
       this.actions$.pipe(
         ofType(exerciseSubmitted),
-        tap(() => this.message.success('Exercise Submitted'))
+        tap(() => {
+          if (this.messageRef) {
+            this.message.remove(this.messageRef.messageId);
+            this.messageRef = null;
+          }
+          this.message.success('All Tests Passed');
+        })
       ),
     { dispatch: false }
   );
@@ -221,5 +239,33 @@ export class ExerciseEffects {
     this.transferState.remove(CHAPTERS_TRANSFER_KEY);
 
     return of(chaptersTransferred({ chapters }));
+  });
+
+  transferExerciseToClient$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(exerciseLoaded),
+        tap(({ exercise }) => {
+          if (isPlatformServer(this.platformId)) {
+            this.transferState.set(EXERCISE_TRANSFER_KEY, exercise);
+          }
+        })
+      ),
+    { dispatch: false }
+  );
+
+  readTransferredExercise$ = createEffect(() => {
+    if (!this.transferState.hasKey(EXERCISE_TRANSFER_KEY)) {
+      return of();
+    }
+
+    const exercise = this.transferState.get(EXERCISE_TRANSFER_KEY, null);
+    this.transferState.remove(EXERCISE_TRANSFER_KEY);
+
+    if (!exercise) {
+      return of();
+    }
+
+    return of(exerciseTransferred({ exercise }));
   });
 }

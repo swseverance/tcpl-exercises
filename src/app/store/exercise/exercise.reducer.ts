@@ -6,6 +6,7 @@ import {
   exerciseLoaded,
   exercisesLoaded,
   exerciseSubmitted,
+  exerciseTransferred,
   loadExerciseFailure,
   loadExercises,
   loadExercisesFailed,
@@ -27,7 +28,7 @@ export const exerciseReducer = createReducer(
     exerciseLoading: true
   })),
 
-  on(exerciseLoaded, (state, { exercise }) => {
+  on(exerciseLoaded, exerciseTransferred, (state, { exercise }) => {
     const pending = state.pendingChanges[exercise.id];
 
     return {
