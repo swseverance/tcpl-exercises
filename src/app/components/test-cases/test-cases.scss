@@ -36,6 +36,10 @@
   gap: 4px;
 }
 
+.panel-content {
+  min-height: 220px;
+}
+
 @include char-chip.char-chip-base;
 
 :host-context(.tcpl-exercises-dark-theme) {
