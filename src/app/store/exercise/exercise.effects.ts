@@ -206,6 +206,7 @@ export class ExerciseEffects {
         ofType(submitExerciseFailed),
         tap(({ error }) => {
           this.logger.error('[exercise] submit failed:', error);
+          // TODO - CHECK IF USER WAS RATE LIMITED
           this.message.error('Failed to Submit Exercise');
         })
       ),

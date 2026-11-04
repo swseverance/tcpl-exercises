@@ -22,7 +22,7 @@ export type ExerciseState = {
   exercisesLoading: boolean;
 };
 
-export const initialAuthState: ExerciseState = {
+export const initialExerciseState: ExerciseState = {
   id: '',
 
   pendingChanges: {},

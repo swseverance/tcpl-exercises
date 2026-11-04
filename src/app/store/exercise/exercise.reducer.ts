@@ -18,7 +18,7 @@ import {
   submitExercise,
   submitExerciseFailed
 } from './exercise.actions';
-import { initialAuthState } from './exercise.state';
+import { initialExerciseState } from './exercise.state';
 
 function updateExerciseStatus(
   chapters: Chapter[],
@@ -40,7 +40,7 @@ function updateExerciseStatus(
 }
 
 export const exerciseReducer = createReducer(
-  initialAuthState,
+  initialExerciseState,
 
   on(selectExercise, (state, { id }) => ({
     ...state,
