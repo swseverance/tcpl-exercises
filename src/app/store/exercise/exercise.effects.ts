@@ -170,12 +170,31 @@ export class ExerciseEffects {
     () =>
       this.actions$.pipe(
         ofType(exerciseSubmitted),
-        tap(() => {
+        tap(({ exercise }) => {
           if (this.messageRef) {
             this.message.remove(this.messageRef.messageId);
             this.messageRef = null;
           }
-          this.message.success('All Tests Passed');
+
+          if (exercise.compilationError) {
+            this.message.error('Compilation Error');
+          } else {
+            let passed = 0;
+            let failed = 0;
+            for (const test of exercise.tests) {
+              if (test.status === 'passed') {
+                ++passed;
+              } else if (test.status === 'failed') {
+                ++failed;
+              }
+            }
+
+            if (failed) {
+              this.message.error(`${failed}/${passed + failed} Tests Failed`);
+            } else {
+              this.message.success(`${passed}/${passed} Tests Passed`);
+            }
+          }
         })
       ),
     { dispatch: false }
