@@ -8,20 +8,8 @@ import express from 'express';
 import { initializeApp } from 'firebase-admin/app';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import { join } from 'node:path';
-import {
-  getExercisePrivateHandler,
-  getExercisePublicHandler,
-  saveExerciseCodeHandler,
-  submitExerciseHandler
-} from './server/api/exercise.handler';
-import {
-  getExercisesPrivateHandler,
-  getExercisesPublicHandler
-} from './server/api/exercises.handler';
-import { logHandler } from './server/api/log.handler';
-import { appCheckMiddleware } from './server/middleware/appcheck';
-import { authMiddleware } from './server/middleware/auth';
-import { exerciseExistsMiddleware } from './server/middleware/exercise-exists';
+import { privateRouter } from './server/routers/private.router';
+import { publicRouter } from './server/routers/public.router';
 
 const browserDistFolder = join(import.meta.dirname, '../browser');
 const firebaseProjectId = process.env['FIREBASE_PROJECT_ID'];
@@ -45,18 +33,8 @@ app.use('/api', (_req, res, next) => {
 });
 app.use('/api', express.json({ limit: '64kb' }));
 
-// Public API
-app.get('/api/public/exercises', getExercisesPublicHandler);
-app.get('/api/public/exercises/:id', exerciseExistsMiddleware, getExercisePublicHandler);
-
-// Private API
-app.use('/api/private', appCheckMiddleware);
-app.use('/api/private', authMiddleware);
-app.get('/api/private/exercises', getExercisesPrivateHandler);
-app.get('/api/private/exercises/:id', exerciseExistsMiddleware, getExercisePrivateHandler);
-app.put('/api/private/exercises/:id/code', exerciseExistsMiddleware, saveExerciseCodeHandler);
-app.post('/api/private/exercises/:id/submit', exerciseExistsMiddleware, submitExerciseHandler);
-app.post('/api/private/logs', logHandler);
+app.use('/api/public', publicRouter);
+app.use('/api/private', privateRouter);
 
 /**
  * Serve static files from /browser
