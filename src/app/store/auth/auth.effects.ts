@@ -72,11 +72,15 @@ export class AuthEffects {
     }).pipe(map((user) => authStateChange({ user })))
   );
 
-  syncCookie$ = createEffect(() =>
-    new Observable<SessionUser | null>((observer) =>
+  syncCookie$ = createEffect(() => {
+    if (!this.auth) {
+      return of();
+    }
+
+    return new Observable<SessionUser | null>((observer) =>
       onAuthStateChanged(this.auth!, (user) => observer.next(user ? { uid: user.uid } : null))
-    ).pipe(map((user) => (user ? saveCookie() : clearCookie())))
-  );
+    ).pipe(map((user) => (user ? saveCookie() : clearCookie())));
+  });
 
   loadToken$ = createEffect(() =>
     this.actions$.pipe(
