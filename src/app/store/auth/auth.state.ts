@@ -1,7 +1,9 @@
+import { SessionUser } from '../../../shared/models';
+
 export type AuthState = {
-  authenticated: boolean | undefined;
+  user: SessionUser | null;
 };
 
 export const initialAuthState: AuthState = {
-  authenticated: undefined
+  user: null
 };

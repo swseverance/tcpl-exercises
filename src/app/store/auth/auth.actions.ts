@@ -1,17 +1,28 @@
 import { createAction, props } from '@ngrx/store';
+import { SessionUser } from '../../../shared/models';
 
 export const authStateChange = createAction(
   'Auth State Change',
-  props<{ authenticated: boolean }>()
+  props<{ user: SessionUser | null }>()
 );
 
 export const openSignInModal = createAction('Open Sign In Modal');
 
 export const closeSignInModal = createAction('Close Sign In Modal');
 
-export const signInWithGoogle = createAction('Sign In With Google');
+export const signInWithProvider = createAction(
+  'Sign In With Provider',
+  props<{ provider: 'google' }>()
+);
 
-export const signOutWithGoogle = createAction('Sign Out With Google');
+export const signInWithProviderSuccess = createAction('Sign In With Provider Success');
+
+export const signInWithProviderFailure = createAction(
+  'Sign In With Provider Failure',
+  props<{ error: unknown }>()
+);
+
+export const signOutWithProvider = createAction('Sign Out With Provider');
 
 export const signOutSuccess = createAction('Sign Out Success');
 

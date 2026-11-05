@@ -1,21 +1,26 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, makeStateKey, REQUEST_CONTEXT, TransferState } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Action } from '@ngrx/store';
-import { GoogleAuthProvider, signInWithRedirect, signOut } from 'firebase/auth';
+import { GoogleAuthProvider, onAuthStateChanged, signInWithRedirect, signOut } from 'firebase/auth';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzModalService } from 'ng-zorro-antd/modal';
 import { map, Observable, switchMap, tap } from 'rxjs';
+import { SessionUser, SsrContext } from '../../../shared/models';
 import { Logger } from '../../services/logger';
-import { AUTH, USER$ } from '../../tokens/firebase';
+import { AUTH } from '../../tokens/firebase';
 import {
   authStateChange,
   closeSignInModal,
   openSignInModal,
-  signInWithGoogle,
+  signInWithProvider,
+  signInWithProviderFailure,
+  signInWithProviderSuccess,
   signOutFailure,
   signOutSuccess,
-  signOutWithGoogle
+  signOutWithProvider
 } from './auth.actions';
+
+const SESSION_USER_KEY = makeStateKey<SessionUser | null>('sessionUser');
 
 @Injectable()
 export class AuthEffects {
@@ -23,11 +28,33 @@ export class AuthEffects {
   private readonly modal = inject(NzModalService);
   private readonly message = inject(NzMessageService);
   private readonly auth = inject(AUTH);
-  private readonly user$ = inject(USER$);
   private readonly logger = inject(Logger);
+  private readonly ssrContext = inject<SsrContext>(REQUEST_CONTEXT, { optional: true });
+  private readonly transferState = inject(TransferState);
 
   authStateChange$ = createEffect(() =>
-    this.user$.pipe(map((user) => authStateChange({ authenticated: Boolean(user) })))
+    new Observable<SessionUser | null>((observer) => {
+      if (this.ssrContext) {
+        this.transferState.set(SESSION_USER_KEY, this.ssrContext.user);
+
+        observer.next(this.ssrContext.user);
+
+        return () => {};
+      } else if (this.auth) {
+        observer.next(this.transferState.get(SESSION_USER_KEY, null));
+
+        return onAuthStateChanged(this.auth, (user) => {
+          observer.next(user ? { uid: user.uid } : null);
+        });
+      } else {
+        // Neither present: ng build's internal route-discovery pass, which
+        // renders once at build time with no real request and no browser
+        // platform. Nothing meaningful to report.
+        observer.next(null);
+
+        return () => {};
+      }
+    }).pipe(map((user) => authStateChange({ user })))
   );
 
   openSignInModal$ = createEffect(() =>
@@ -40,7 +67,7 @@ export class AuthEffects {
               nzTitle: 'Sign in required',
               nzContent: 'Sign in with your Google account to continue.',
               nzOkText: 'Sign in with Google',
-              nzOnOk: () => subscriber.next(signInWithGoogle()),
+              nzOnOk: () => subscriber.next(signInWithProvider({ provider: 'google' })),
               nzOnCancel: () => subscriber.next(closeSignInModal()),
               nzCancelText: 'Cancel'
             });
@@ -49,18 +76,34 @@ export class AuthEffects {
     )
   );
 
-  signIn$ = createEffect(
+  signInWithProvider$ = createEffect(
     () =>
       this.actions$.pipe(
-        ofType(signInWithGoogle),
-        switchMap(() => signInWithRedirect(this.auth!, new GoogleAuthProvider()))
+        ofType(signInWithProvider),
+        switchMap(() =>
+          signInWithRedirect(this.auth!, new GoogleAuthProvider())
+            .then(() => signInWithProviderSuccess())
+            .catch((error) => signInWithProviderFailure({ error }))
+        )
       ),
     { dispatch: false }
   );
 
-  signOutWithGoogle$ = createEffect(() =>
+  signInWithProviderError$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(signInWithProviderFailure),
+        tap(({ error }) => {
+          this.logger.error('sign in with provider failed', error);
+          this.message.error('Failed to Sign In');
+        })
+      ),
+    { dispatch: false }
+  );
+
+  signOutWithProvider$ = createEffect(() =>
     this.actions$.pipe(
-      ofType(signOutWithGoogle),
+      ofType(signOutWithProvider),
       switchMap(() =>
         signOut(this.auth!)
           .then(() => signOutSuccess())

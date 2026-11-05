@@ -2,8 +2,8 @@ import { inject, Injectable } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { ThemeName } from '../services/theme';
 import { AppState } from './app.state';
-import { openSignInModal, signOutWithGoogle } from './auth/auth.actions';
-import { selectAuthenticated } from './auth/auth.selectors';
+import { openSignInModal, signOutWithProvider } from './auth/auth.actions';
+import { selectUser } from './auth/auth.selectors';
 import {
   attemptToSubmitExercise,
   codeEdited,
@@ -24,7 +24,7 @@ import { selectTheme } from './settings/settings.selectors';
 export class AppFacade {
   private readonly store = inject(Store<AppState>);
 
-  readonly authenticated$ = this.store.select(selectAuthenticated);
+  readonly user$ = this.store.select(selectUser);
   readonly theme$ = this.store.select(selectTheme);
   readonly exercise$ = this.store.select(selectExerciseSelector);
   readonly exerciseLoading$ = this.store.select(selectExerciseLoading);
@@ -37,7 +37,7 @@ export class AppFacade {
   }
 
   signOut(): void {
-    this.store.dispatch(signOutWithGoogle());
+    this.store.dispatch(signOutWithProvider());
   }
 
   setTheme(name: ThemeName): void {

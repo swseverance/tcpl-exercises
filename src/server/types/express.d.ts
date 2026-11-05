@@ -6,7 +6,7 @@ declare global {
     interface Request {
       uid: string; // TODO: Remove
       exercise?: ExerciseSource;
-      user: SessionUser | null;
+      user?: SessionUser;
     }
   }
 }

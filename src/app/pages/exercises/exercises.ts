@@ -1,10 +1,8 @@
 import { AsyncPipe } from '@angular/common';
-import { Component, DestroyRef, inject } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Component, inject } from '@angular/core';
 import { RouterLink, RouterOutlet } from '@angular/router';
 import { NzMenuModule } from 'ng-zorro-antd/menu';
 import { NzTagModule } from 'ng-zorro-antd/tag';
-import { filter } from 'rxjs';
 import { Chapter } from '../../../shared/models';
 import { AppFacade } from '../../store/app.facade';
 
@@ -20,8 +18,6 @@ export class Exercises {
   protected readonly facade = inject(AppFacade);
   protected readonly chapters$ = this.facade.chapters$;
 
-  private destroyRef = inject(DestroyRef);
-
   protected readonly statusLabels: Record<ExerciseStatus, string> = {
     passed: 'Passed',
     failed: 'Failed',
@@ -35,13 +31,4 @@ export class Exercises {
     pending: 'processing',
     indeterminate: undefined
   };
-
-  ngOnInit(): void {
-    this.facade.authenticated$
-      .pipe(
-        filter((authenticated) => authenticated !== undefined),
-        takeUntilDestroyed(this.destroyRef)
-      )
-      .subscribe((authenticated) => this.facade.loadExercises(authenticated));
-  }
 }

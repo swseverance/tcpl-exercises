@@ -39,7 +39,6 @@ const SESSION_MAX_AGE_MS = 14 * 24 * 60 * 60 * 1000;
 export const verifySessionCookieHandler: RequestHandler = async (req, _res, next) => {
   const cookie = req.cookies?.[SESSION_COOKIE_NAME];
   if (!cookie) {
-    req.user = null;
     return next();
   }
 
@@ -47,7 +46,7 @@ export const verifySessionCookieHandler: RequestHandler = async (req, _res, next
     const { uid } = await auth.verifySessionCookie(cookie, true);
     req.user = { uid };
   } catch {
-    req.user = null;
+    // leave req.user unset
   }
 
   next();

@@ -3,27 +3,12 @@ import { inject, Injectable, makeStateKey, PLATFORM_ID, TransferState } from '@a
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { NzMessageRef, NzMessageService } from 'ng-zorro-antd/message';
-import {
-  catchError,
-  combineLatest,
-  filter,
-  from,
-  interval,
-  map,
-  mergeMap,
-  of,
-  switchMap,
-  tap,
-  withLatestFrom
-} from 'rxjs';
+import { catchError, map, mergeMap, of, switchMap, tap, withLatestFrom } from 'rxjs';
 import { Chapter, Exercise } from '../../../shared/models';
 import { ExerciseService } from '../../services/exercise-service';
 import { Logger } from '../../services/logger';
 import { AppState } from '../app.state';
-import { openSignInModal } from '../auth/auth.actions';
-import { selectAuthenticated } from '../auth/auth.selectors';
 import {
-  attemptToSubmitExercise,
   chaptersTransferred,
   exerciseLoaded,
   exercisesLoaded,
@@ -39,7 +24,7 @@ import {
   submitExercise,
   submitExerciseFailed
 } from './exercise.actions';
-import { selectExercisesWithPendingChanges, selectId } from './exercise.selectors';
+import { selectId } from './exercise.selectors';
 
 const CHAPTERS_TRANSFER_KEY = makeStateKey<Chapter[]>('chapters');
 const EXERCISE_TRANSFER_KEY = makeStateKey<Exercise>('exercise');
@@ -57,14 +42,14 @@ export class ExerciseEffects {
   private transferState = inject(TransferState);
   private messageRef: NzMessageRef | null = null;
 
-  shouldLoadExercise$ = createEffect(() =>
-    combineLatest([
-      this.store.select(selectId).pipe(filter(Boolean)),
-      this.store
-        .select(selectAuthenticated)
-        .pipe(filter((authenticated) => authenticated !== undefined))
-    ]).pipe(map(([id, authenticated]) => loadExercise({ id, authenticated })))
-  );
+  // shouldLoadExercise$ = createEffect(() =>
+  //   combineLatest([
+  //     this.store.select(selectId).pipe(filter(Boolean)),
+  //     this.store
+  //       .select(selectAuthenticated)
+  //       .pipe(filter((authenticated) => authenticated !== undefined))
+  //   ]).pipe(map(([id, authenticated]) => loadExercise({ id, authenticated })))
+  // );
 
   loadExercise$ = createEffect(() =>
     this.actions$.pipe(
@@ -90,20 +75,20 @@ export class ExerciseEffects {
     { dispatch: false }
   );
 
-  checkForPendingChanges$ = createEffect(() =>
-    interval(SAVE_INTERVAL_MS).pipe(
-      withLatestFrom(
-        this.store.select(selectExercisesWithPendingChanges),
-        this.store.select(selectAuthenticated)
-      ),
-      filter(([, pending, authenticated]) => Boolean(authenticated) && pending.length > 0),
-      mergeMap(([, pending]) =>
-        from(
-          pending.map(({ id, pendingChanges }) => savePendingChanges({ id, code: pendingChanges }))
-        )
-      )
-    )
-  );
+  // checkForPendingChanges$ = createEffect(() =>
+  //   interval(SAVE_INTERVAL_MS).pipe(
+  //     withLatestFrom(
+  //       this.store.select(selectExercisesWithPendingChanges),
+  //       this.store.select(selectAuthenticated)
+  //     ),
+  //     filter(([, pending, authenticated]) => Boolean(authenticated) && pending.length > 0),
+  //     mergeMap(([, pending]) =>
+  //       from(
+  //         pending.map(({ id, pendingChanges }) => savePendingChanges({ id, code: pendingChanges }))
+  //       )
+  //     )
+  //   )
+  // );
 
   savePendingChanges$ = createEffect(() =>
     this.actions$.pipe(
@@ -129,15 +114,15 @@ export class ExerciseEffects {
     { dispatch: false }
   );
 
-  attemptToSubmitExercise$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(attemptToSubmitExercise),
-      withLatestFrom(this.store.select(selectAuthenticated)),
-      map(([{ code }, authenticated]) =>
-        authenticated ? submitExercise({ code }) : openSignInModal()
-      )
-    )
-  );
+  // attemptToSubmitExercise$ = createEffect(() =>
+  //   this.actions$.pipe(
+  //     ofType(attemptToSubmitExercise),
+  //     withLatestFrom(this.store.select(selectAuthenticated)),
+  //     map(([{ code }, authenticated]) =>
+  //       authenticated ? submitExercise({ code }) : openSignInModal()
+  //     )
+  //   )
+  // );
 
   submitExercise$ = createEffect(() =>
     this.actions$.pipe(

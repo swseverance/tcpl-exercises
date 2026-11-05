@@ -2,8 +2,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { inject, InjectionToken, PLATFORM_ID } from '@angular/core';
 import { FirebaseApp, initializeApp } from 'firebase/app';
 import { AppCheck, initializeAppCheck, ReCaptchaEnterpriseProvider } from 'firebase/app-check';
-import { Auth, connectAuthEmulator, getAuth, onAuthStateChanged, User } from 'firebase/auth';
-import { Observable, of } from 'rxjs';
+import { Auth, connectAuthEmulator, getAuth } from 'firebase/auth';
 import { ENVIRONMENT } from './environment';
 import { WINDOW } from './window';
 
@@ -42,21 +41,6 @@ export const AUTH = new InjectionToken<Auth | null>('AUTH', {
     }
 
     return auth;
-  }
-});
-
-export const USER$ = new InjectionToken<Observable<User | null>>('USER$', {
-  providedIn: 'root',
-  factory: () => {
-    const auth = inject(AUTH);
-
-    if (!auth) {
-      return of(null);
-    }
-
-    return new Observable<User | null>((subscriber) =>
-      onAuthStateChanged(auth, (user) => subscriber.next(user))
-    );
   }
 });
 

@@ -47,3 +47,7 @@ export type Chapter = {
 export type ExercisesResponseBody = {
   chapters: Chapter[];
 };
+
+export type SsrContext = {
+  user: SessionUser;
+};

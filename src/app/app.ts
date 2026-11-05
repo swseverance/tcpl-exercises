@@ -23,6 +23,6 @@ import { AppFacade } from './store/app.facade';
 })
 export class App {
   protected readonly facade = inject(AppFacade);
-  protected readonly authenticated$ = this.facade.authenticated$;
+  protected readonly user$ = this.facade.user$;
   protected readonly theme$ = this.facade.theme$;
 }
