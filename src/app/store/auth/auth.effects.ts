@@ -1,23 +1,37 @@
+import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, makeStateKey, REQUEST_CONTEXT, TransferState } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Action } from '@ngrx/store';
 import { GoogleAuthProvider, onAuthStateChanged, signInWithRedirect, signOut } from 'firebase/auth';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzModalService } from 'ng-zorro-antd/modal';
-import { map, Observable, switchMap, tap } from 'rxjs';
-import { SessionUser, SsrContext } from '../../../shared/models';
+import { catchError, map, Observable, of, switchMap, tap } from 'rxjs';
+import {
+  CreateSessionRequestBody,
+  CreateSessionResponseBody,
+  SessionUser,
+  SsrContext
+} from '../../../shared/models';
 import { Logger } from '../../services/logger';
 import { AUTH } from '../../tokens/firebase';
 import {
   authStateChange,
+  clearCookie,
+  clearCookieFailed,
   closeSignInModal,
+  cookieCleared,
+  cookieSaved,
+  loadTokenFailed,
   openSignInModal,
+  saveCookie,
+  saveCookieFailed,
   signInWithProvider,
   signInWithProviderFailure,
   signInWithProviderSuccess,
   signOutFailure,
   signOutSuccess,
-  signOutWithProvider
+  signOutWithProvider,
+  tokenLoaded
 } from './auth.actions';
 
 const SESSION_USER_KEY = makeStateKey<SessionUser | null>('sessionUser');
@@ -31,6 +45,7 @@ export class AuthEffects {
   private readonly logger = inject(Logger);
   private readonly ssrContext = inject<SsrContext>(REQUEST_CONTEXT, { optional: true });
   private readonly transferState = inject(TransferState);
+  private readonly http = inject(HttpClient);
 
   authStateChange$ = createEffect(() =>
     new Observable<SessionUser | null>((observer) => {
@@ -55,6 +70,80 @@ export class AuthEffects {
         return () => {};
       }
     }).pipe(map((user) => authStateChange({ user })))
+  );
+
+  syncCookie$ = createEffect(() =>
+    new Observable<SessionUser | null>((observer) =>
+      onAuthStateChanged(this.auth!, (user) => observer.next(user ? { uid: user.uid } : null))
+    ).pipe(map((user) => (user ? saveCookie() : clearCookie())))
+  );
+
+  loadToken$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(saveCookie),
+      switchMap(() =>
+        this.auth!.currentUser!.getIdToken()
+          .then((token) => tokenLoaded({ token }))
+          .catch((error) => loadTokenFailed({ error }))
+      )
+    )
+  );
+
+  loadTokenFailed$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(loadTokenFailed),
+        tap(({ error }) => {
+          this.logger.error('Load Token Failed', error);
+          this.message.error('Load Token Failed');
+        })
+      ),
+    {
+      dispatch: false
+    }
+  );
+
+  // TODO: is this required? filter((response) => response.status === 'created'),
+  saveCookie$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(tokenLoaded),
+      switchMap(({ token }) =>
+        this.http
+          .post<CreateSessionResponseBody>('/api/session', {
+            idToken: token
+          } satisfies CreateSessionRequestBody)
+          .pipe(
+            map(() => cookieSaved()),
+            catchError((error) => of(saveCookieFailed({ error })))
+          )
+      )
+    )
+  );
+
+  clearCookie$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(clearCookie),
+      switchMap(() =>
+        this.http.delete('/api/session').pipe(
+          map(() => cookieCleared()),
+          catchError((error) => of(clearCookieFailed({ error })))
+        )
+      )
+    )
+  );
+
+  clearCookieFailed$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(clearCookieFailed),
+        tap(({ error }) => {
+          this.logger.error('Clear Cookie Failed', error);
+          this.message.error('Clear Cookie Failed');
+        })
+      ),
+    {
+      dispatch: false
+    }
   );
 
   openSignInModal$ = createEffect(() =>
