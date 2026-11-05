@@ -4,16 +4,21 @@ import {
   codeEdited,
   exerciseLoaded,
   exerciseSubmitted,
+  loadExercise,
   loadExerciseFailure,
   pendingChangesSaved,
-  savePendingChanges,
   savePendingChangesFailure,
   selectExercise,
   submitExercise,
   submitExerciseFailed
 } from './exercise.actions';
 import { exerciseReducer } from './exercise.reducer';
-import { initialAuthState } from './exercise.state';
+import {
+  ExerciseEntity,
+  exerciseEntityAdapter,
+  ExerciseState,
+  initialExerciseState
+} from './exercise.state';
 
 const EXERCISE: Exercise = {
   id: '1-1',
@@ -35,6 +40,13 @@ const EXERCISE: Exercise = {
   compilationError: ''
 };
 
+const ENTITY: ExerciseEntity = {
+  ...EXERCISE,
+  pendingChanges: '',
+  loading: false,
+  submitting: false
+};
+
 const CHAPTERS: Chapter[] = [
   {
     number: 1,
@@ -45,151 +57,121 @@ const CHAPTERS: Chapter[] = [
   }
 ];
 
+function withEntities(...entities: ExerciseEntity[]): ExerciseState {
+  return exerciseEntityAdapter.setAll(entities, initialExerciseState);
+}
+
 describe('exerciseReducer', () => {
   describe('selectExercise', () => {
-    it('sets the id and marks the exercise as loading, leaving everything else unchanged', () => {
-      const state = exerciseReducer(initialAuthState, selectExercise({ id: '1-1' }));
+    it('sets the id, leaving everything else unchanged', () => {
+      const state = exerciseReducer(initialExerciseState, selectExercise({ id: '1-1' }));
 
-      expect(state).toEqual({
-        ...initialAuthState,
-        id: '1-1',
-        exerciseLoading: true
-      });
+      expect(state).toEqual({ ...initialExerciseState, id: '1-1' });
+    });
+  });
+
+  describe('loadExercise', () => {
+    it('creates a loading placeholder entity when none exists', () => {
+      const state = exerciseReducer(
+        initialExerciseState,
+        loadExercise({ id: '1-1', authenticated: true })
+      );
+
+      expect(state.entities['1-1']).toEqual(
+        expect.objectContaining({ id: '1-1', loading: true, pendingChanges: '' })
+      );
+    });
+
+    it('marks an existing entity as loading, leaving its other fields unchanged', () => {
+      const previousState = withEntities(ENTITY);
+
+      const state = exerciseReducer(
+        previousState,
+        loadExercise({ id: '1-1', authenticated: true })
+      );
+
+      expect(state.entities['1-1']).toEqual({ ...ENTITY, loading: true });
     });
   });
 
   describe('exerciseLoaded', () => {
-    it('sets the exercise and clears exerciseLoading, leaving everything else unchanged', () => {
-      const previousState = { ...initialAuthState, id: '1-1', exerciseLoading: true };
-
-      const state = exerciseReducer(previousState, exerciseLoaded({ exercise: EXERCISE }));
-
-      expect(state).toEqual({
-        ...previousState,
-        exercise: EXERCISE,
-        exerciseLoading: false
-      });
-    });
-
-    it('merges in the pending code for that exercise when one exists, so an unsaved edit survives navigating away and back', () => {
+    it('adds the loaded exercise and clears loading, leaving everything else unchanged', () => {
       const previousState = {
-        ...initialAuthState,
-        id: '1-1',
-        exerciseLoading: true,
-        pendingChanges: {
-          '1-1': { code: 'unsaved edit', saving: false }
-        }
+        ...withEntities({ ...ENTITY, loading: true }),
+        id: '1-1'
       };
 
       const state = exerciseReducer(previousState, exerciseLoaded({ exercise: EXERCISE }));
 
-      expect(state).toEqual({
-        ...previousState,
-        exercise: { ...EXERCISE, code: 'unsaved edit' },
-        exerciseLoading: false
-      });
+      expect(state.entities['1-1']).toEqual({ ...ENTITY, loading: false });
     });
 
-    it('uses the loaded code as-is when there is no pending change for that exercise', () => {
+    it('folds an existing pending change into code, so an unsaved edit survives navigating away and back', () => {
       const previousState = {
-        ...initialAuthState,
-        id: '1-1',
-        exerciseLoading: true,
-        pendingChanges: {
-          '2-1': { code: 'untouched', saving: false }
-        }
+        ...withEntities({
+          ...ENTITY,
+          loading: true,
+          pendingChanges: 'unsaved edit'
+        }),
+        id: '1-1'
       };
 
       const state = exerciseReducer(previousState, exerciseLoaded({ exercise: EXERCISE }));
 
-      expect(state).toEqual({
-        ...previousState,
-        exercise: EXERCISE,
-        exerciseLoading: false
+      expect(state.entities['1-1']).toEqual({
+        ...ENTITY,
+        code: 'unsaved edit',
+        loading: false,
+        pendingChanges: 'unsaved edit'
       });
     });
   });
 
   describe('loadExerciseFailure', () => {
-    it('clears exerciseLoading, leaving everything else unchanged', () => {
-      const previousState = { ...initialAuthState, id: '1-1', exerciseLoading: true };
+    it('clears loading for the failed exercise, leaving everything else unchanged', () => {
+      const previousState = withEntities({ ...ENTITY, loading: true });
 
-      const state = exerciseReducer(previousState, loadExerciseFailure({ error: 'boom' }));
+      const state = exerciseReducer(
+        previousState,
+        loadExerciseFailure({ id: '1-1', error: 'boom' })
+      );
 
-      expect(state).toEqual({
-        ...previousState,
-        exerciseLoading: false
-      });
-    });
-  });
-
-  describe('codeEdited', () => {
-    it('creates a new pending change for the selected exercise when none exists', () => {
-      const previousState = { ...initialAuthState, id: '1-1', pendingChanges: {} };
-
-      const state = exerciseReducer(previousState, codeEdited({ code: 'new code' }));
-
-      expect(state).toEqual({
-        ...previousState,
-        pendingChanges: { '1-1': { code: 'new code', saving: false } }
-      });
+      expect(state.entities['1-1']).toEqual({ ...ENTITY, loading: false });
     });
 
-    it('only updates the code of the existing pending change for the selected exercise, leaving the saving flag and other entries untouched', () => {
+    it('only clears loading for the exercise that failed, leaving a different, currently-selected exercise untouched', () => {
       const previousState = {
-        ...initialAuthState,
-        id: '1-1',
-        pendingChanges: {
-          '1-1': { code: 'old code', saving: true },
-          '2-1': { code: 'untouched', saving: false }
-        }
-      };
-
-      const state = exerciseReducer(previousState, codeEdited({ code: 'new code' }));
-
-      expect(state).toEqual({
-        ...previousState,
-        pendingChanges: {
-          '1-1': { code: 'new code', saving: true },
-          '2-1': { code: 'untouched', saving: false }
-        }
-      });
-    });
-  });
-
-  describe('savePendingChanges', () => {
-    it('only toggles saving to true for the given id, leaving code and other entries untouched', () => {
-      const previousState = {
-        ...initialAuthState,
-        pendingChanges: {
-          '1-1': { code: 'some code', saving: false },
-          '2-1': { code: 'untouched', saving: false }
-        }
+        ...withEntities({ ...ENTITY, loading: true }, { ...ENTITY, id: '2-1', loading: true }),
+        id: '2-1'
       };
 
       const state = exerciseReducer(
         previousState,
-        savePendingChanges({ id: '1-1', code: 'some code' })
+        loadExerciseFailure({ id: '1-1', error: 'boom' })
       );
 
-      expect(state).toEqual({
-        ...previousState,
-        pendingChanges: {
-          '1-1': { code: 'some code', saving: true },
-          '2-1': { code: 'untouched', saving: false }
-        }
-      });
+      expect(state.entities['1-1']).toEqual({ ...ENTITY, loading: false });
+      expect(state.entities['2-1']).toEqual({ ...ENTITY, id: '2-1', loading: true });
+    });
+  });
+
+  describe('codeEdited', () => {
+    it('sets pendingChanges for the selected exercise, leaving other entities untouched', () => {
+      const previousState = {
+        ...withEntities(ENTITY, { ...ENTITY, id: '2-1' }),
+        id: '1-1'
+      };
+
+      const state = exerciseReducer(previousState, codeEdited({ code: 'new code' }));
+
+      expect(state.entities['1-1']).toEqual({ ...ENTITY, pendingChanges: 'new code' });
+      expect(state.entities['2-1']).toEqual({ ...ENTITY, id: '2-1' });
     });
   });
 
   describe('pendingChangesSaved', () => {
     it('does nothing when there is no pending change for the given id', () => {
-      const previousState = {
-        ...initialAuthState,
-        pendingChanges: {
-          '2-1': { code: 'untouched', saving: false }
-        }
-      };
+      const previousState = withEntities({ ...ENTITY, id: '2-1' });
 
       const state = exerciseReducer(
         previousState,
@@ -199,60 +181,35 @@ describe('exerciseReducer', () => {
       expect(state).toBe(previousState);
     });
 
-    it('removes the pending change entirely when the saved code still matches what was last typed', () => {
-      const previousState = {
-        ...initialAuthState,
-        pendingChanges: {
-          '1-1': { code: 'some code', saving: true },
-          '2-1': { code: 'untouched', saving: false }
-        }
-      };
+    it('clears pendingChanges when it still matches what was last typed, leaving code untouched so the live editor is never overwritten', () => {
+      const previousState = withEntities({ ...ENTITY, pendingChanges: 'some code' });
 
       const state = exerciseReducer(
         previousState,
         pendingChangesSaved({ id: '1-1', code: 'some code' })
       );
 
-      expect(state).toEqual({
-        ...previousState,
-        pendingChanges: {
-          '2-1': { code: 'untouched', saving: false }
-        }
+      expect(state.entities['1-1']).toEqual({
+        ...ENTITY,
+        pendingChanges: ''
       });
     });
 
-    it('just clears saving when the user has typed more since the save was dispatched, leaving the newer pending code in place', () => {
-      const previousState = {
-        ...initialAuthState,
-        pendingChanges: {
-          '1-1': { code: 'newer code', saving: true },
-          '2-1': { code: 'untouched', saving: false }
-        }
-      };
+    it('leaves the newer pending code in place when the user has typed more since the save was dispatched', () => {
+      const previousState = withEntities({ ...ENTITY, pendingChanges: 'newer code' });
 
       const state = exerciseReducer(
         previousState,
         pendingChangesSaved({ id: '1-1', code: 'older code' })
       );
 
-      expect(state).toEqual({
-        ...previousState,
-        pendingChanges: {
-          '1-1': { code: 'newer code', saving: false },
-          '2-1': { code: 'untouched', saving: false }
-        }
-      });
+      expect(state).toBe(previousState);
     });
   });
 
   describe('savePendingChangesFailure', () => {
     it('does nothing when there is no pending change for the given id', () => {
-      const previousState = {
-        ...initialAuthState,
-        pendingChanges: {
-          '2-1': { code: 'untouched', saving: false }
-        }
-      };
+      const previousState = withEntities({ ...ENTITY, id: '2-1' });
 
       const state = exerciseReducer(
         previousState,
@@ -263,81 +220,51 @@ describe('exerciseReducer', () => {
     });
 
     it('drops the pending change entirely when the backend rejects the code as invalid (400)', () => {
-      const previousState = {
-        ...initialAuthState,
-        pendingChanges: {
-          '1-1': { code: 'some code', saving: true },
-          '2-1': { code: 'untouched', saving: false }
-        }
-      };
+      const previousState = withEntities({ ...ENTITY, pendingChanges: 'some code' });
 
       const state = exerciseReducer(
         previousState,
         savePendingChangesFailure({ id: '1-1', error: new HttpErrorResponse({ status: 400 }) })
       );
 
-      expect(state).toEqual({
-        ...previousState,
-        pendingChanges: {
-          '2-1': { code: 'untouched', saving: false }
-        }
-      });
+      expect(state.entities['1-1']).toEqual({ ...ENTITY, pendingChanges: '' });
     });
 
-    it('just clears saving on any other error, keeping the pending change so it gets retried', () => {
-      const previousState = {
-        ...initialAuthState,
-        pendingChanges: {
-          '1-1': { code: 'some code', saving: true },
-          '2-1': { code: 'untouched', saving: false }
-        }
-      };
+    it('keeps the pending change on any other error, so it gets retried', () => {
+      const previousState = withEntities({ ...ENTITY, pendingChanges: 'some code' });
 
       const state = exerciseReducer(
         previousState,
         savePendingChangesFailure({ id: '1-1', error: new HttpErrorResponse({ status: 500 }) })
       );
 
-      expect(state).toEqual({
-        ...previousState,
-        pendingChanges: {
-          '1-1': { code: 'some code', saving: false },
-          '2-1': { code: 'untouched', saving: false }
-        }
-      });
+      expect(state).toBe(previousState);
     });
   });
 
   describe('submitExercise', () => {
-    it('sets submissionPending to true, leaving everything else unchanged', () => {
-      const previousState = { ...initialAuthState, id: '1-1' };
+    it('sets submitting to true for the selected exercise, leaving everything else unchanged', () => {
+      const previousState = { ...withEntities(ENTITY), id: '1-1' };
 
       const state = exerciseReducer(previousState, submitExercise({ code: 'submitted code' }));
 
-      expect(state).toEqual({
-        ...previousState,
-        submissionPending: true
-      });
+      expect(state.entities['1-1']).toEqual({ ...ENTITY, submitting: true });
     });
 
     it('sets the sidebar status of the exercise being submitted to pending, leaving other exercises untouched', () => {
-      const previousState = { ...initialAuthState, id: '1-1', chapters: CHAPTERS };
+      const previousState = { ...withEntities(ENTITY), id: '1-1', chapters: CHAPTERS };
 
       const state = exerciseReducer(previousState, submitExercise({ code: 'submitted code' }));
 
-      expect(state).toEqual({
-        ...previousState,
-        submissionPending: true,
-        chapters: [
-          {
-            number: 1,
-            exercises: [
-              { id: '1-1', chapter: 1, number: 1, status: 'pending' },
-              { id: '1-2', chapter: 1, number: 2, status: 'passed' }
-            ]
-          }
-        ]
-      });
+      expect(state.chapters).toEqual([
+        {
+          number: 1,
+          exercises: [
+            { id: '1-1', chapter: 1, number: 1, status: 'pending' },
+            { id: '1-2', chapter: 1, number: 2, status: 'passed' }
+          ]
+        }
+      ]);
     });
   });
 
@@ -350,52 +277,48 @@ describe('exerciseReducer', () => {
         tests: [{ ...EXERCISE.tests[0], status: 'passed' }]
       };
 
-      const previousState = {
-        ...initialAuthState,
-        exercise: { ...EXERCISE, code: 'typed after submit' },
-        pendingChanges: {
-          '1-1': { code: 'submitted code', saving: false },
-          '2-1': { code: 'untouched', saving: false }
-        },
-        submissionPending: true
-      };
+      const previousState = withEntities({
+        ...ENTITY,
+        code: 'typed after submit',
+        pendingChanges: 'submitted code',
+        submitting: true
+      });
 
       const state = exerciseReducer(
         previousState,
         exerciseSubmitted({ exercise: submittedExercise })
       );
 
-      expect(state).toEqual({
-        ...previousState,
-        exercise: { ...submittedExercise, code: 'typed after submit' },
-        pendingChanges: {
-          '2-1': { code: 'untouched', saving: false }
-        },
-        submissionPending: false
+      expect(state.entities['1-1']).toEqual({
+        ...submittedExercise,
+        code: 'typed after submit',
+        pendingChanges: '',
+        loading: false,
+        submitting: false
       });
     });
 
     it('leaves the pending change in place when it no longer matches what was submitted', () => {
       const submittedExercise: Exercise = { ...EXERCISE, code: 'submitted code' };
 
-      const previousState = {
-        ...initialAuthState,
-        exercise: { ...EXERCISE, code: 'typed after submit' },
-        pendingChanges: {
-          '1-1': { code: 'even newer code', saving: false }
-        },
-        submissionPending: true
-      };
+      const previousState = withEntities({
+        ...ENTITY,
+        code: 'typed after submit',
+        pendingChanges: 'even newer code',
+        submitting: true
+      });
 
       const state = exerciseReducer(
         previousState,
         exerciseSubmitted({ exercise: submittedExercise })
       );
 
-      expect(state).toEqual({
-        ...previousState,
-        exercise: { ...submittedExercise, code: 'typed after submit' },
-        submissionPending: false
+      expect(state.entities['1-1']).toEqual({
+        ...submittedExercise,
+        code: 'typed after submit',
+        pendingChanges: 'even newer code',
+        loading: false,
+        submitting: false
       });
     });
 
@@ -403,7 +326,7 @@ describe('exerciseReducer', () => {
       const submittedExercise: Exercise = { ...EXERCISE, status: 'failed' };
 
       const previousState = {
-        ...initialAuthState,
+        ...withEntities({ ...ENTITY, submitting: true }),
         chapters: [
           {
             number: 1,
@@ -412,8 +335,7 @@ describe('exerciseReducer', () => {
               { id: '1-2', chapter: 1, number: 2, status: 'passed' }
             ]
           }
-        ] as Chapter[],
-        submissionPending: true
+        ] as Chapter[]
       };
 
       const state = exerciseReducer(
@@ -433,21 +355,38 @@ describe('exerciseReducer', () => {
   });
 
   describe('submitExerciseFailed', () => {
-    it('clears submissionPending, leaving everything else unchanged', () => {
-      const previousState = { ...initialAuthState, submissionPending: true };
+    it('clears submitting for the submitted exercise, leaving everything else unchanged', () => {
+      const previousState = withEntities({ ...ENTITY, submitting: true });
 
-      const state = exerciseReducer(previousState, submitExerciseFailed({ error: 'boom' }));
+      const state = exerciseReducer(
+        previousState,
+        submitExerciseFailed({ id: '1-1', error: 'boom' })
+      );
 
-      expect(state).toEqual({
-        ...previousState,
-        submissionPending: false
-      });
+      expect(state.entities['1-1']).toEqual({ ...ENTITY, submitting: false });
+    });
+
+    it('only clears submitting for the exercise that failed, leaving a different, currently-selected exercise untouched', () => {
+      const previousState = {
+        ...withEntities(
+          { ...ENTITY, submitting: true },
+          { ...ENTITY, id: '2-1', submitting: true }
+        ),
+        id: '2-1'
+      };
+
+      const state = exerciseReducer(
+        previousState,
+        submitExerciseFailed({ id: '1-1', error: 'boom' })
+      );
+
+      expect(state.entities['1-1']).toEqual({ ...ENTITY, submitting: false });
+      expect(state.entities['2-1']).toEqual({ ...ENTITY, id: '2-1', submitting: true });
     });
 
     it('sets the sidebar status of the exercise being submitted back to indeterminate, leaving other exercises untouched', () => {
       const previousState = {
-        ...initialAuthState,
-        id: '1-1',
+        ...withEntities({ ...ENTITY, submitting: true }),
         chapters: [
           {
             number: 1,
@@ -456,17 +395,15 @@ describe('exerciseReducer', () => {
               { id: '1-2', chapter: 1, number: 2, status: 'passed' }
             ]
           }
-        ] as Chapter[],
-        submissionPending: true
+        ] as Chapter[]
       };
 
-      const state = exerciseReducer(previousState, submitExerciseFailed({ error: 'boom' }));
+      const state = exerciseReducer(
+        previousState,
+        submitExerciseFailed({ id: '1-1', error: 'boom' })
+      );
 
-      expect(state).toEqual({
-        ...previousState,
-        submissionPending: false,
-        chapters: CHAPTERS
-      });
+      expect(state.chapters).toEqual(CHAPTERS);
     });
   });
 });

@@ -8,17 +8,17 @@ import {
   exercisesLoaded,
   exerciseSubmitted,
   exerciseTransferred,
+  loadExercise,
   loadExerciseFailure,
   loadExercises,
   loadExercisesFailed,
   pendingChangesSaved,
-  savePendingChanges,
   savePendingChangesFailure,
   selectExercise,
   submitExercise,
   submitExerciseFailed
 } from './exercise.actions';
-import { initialExerciseState } from './exercise.state';
+import { DEFAULT_EXERCISE, exerciseEntityAdapter, initialExerciseState } from './exercise.state';
 
 function updateExerciseStatus(
   chapters: Chapter[],
@@ -42,151 +42,116 @@ function updateExerciseStatus(
 export const exerciseReducer = createReducer(
   initialExerciseState,
 
-  on(selectExercise, (state, { id }) => ({
-    ...state,
-    id,
-    exerciseLoading: true
-  })),
+  on(selectExercise, (state, { id }) => ({ ...state, id })),
+
+  on(loadExercise, (state, { id }) => {
+    const existing = state.entities[id];
+
+    return exerciseEntityAdapter.upsertOne(
+      existing
+        ? { ...existing, loading: true }
+        : { ...DEFAULT_EXERCISE, id, pendingChanges: '', loading: true, submitting: false },
+      state
+    );
+  }),
 
   on(exerciseLoaded, exerciseTransferred, (state, { exercise }) => {
-    const pending = state.pendingChanges[exercise.id];
+    const existing = state.entities[exercise.id];
 
-    return {
-      ...state,
-      exercise: pending ? { ...exercise, code: pending.code } : exercise,
-      exerciseLoading: false
-    };
+    return exerciseEntityAdapter.upsertOne(
+      existing
+        ? {
+            ...exercise,
+            code: existing.pendingChanges || exercise.code,
+            pendingChanges: existing.pendingChanges,
+            submitting: existing.submitting,
+            loading: false
+          }
+        : { ...exercise, pendingChanges: '', submitting: false, loading: false },
+      state
+    );
   }),
 
-  on(loadExerciseFailure, (state) => ({
-    ...state,
-    exerciseLoading: false
-  })),
+  on(loadExerciseFailure, (state, { id }) =>
+    exerciseEntityAdapter.updateOne({ id, changes: { loading: false } }, state)
+  ),
 
-  on(codeEdited, (state, { code }) => {
-    return {
-      ...state,
-      pendingChanges: {
-        ...state.pendingChanges,
-        [state.id]: {
-          ...(state.pendingChanges[state.id] ?? { saving: false }),
-          code
-        }
-      }
-    };
-  }),
-
-  on(savePendingChanges, (state, { id }) => ({
-    ...state,
-    pendingChanges: {
-      ...state.pendingChanges,
-      [id]: {
-        ...state.pendingChanges[id],
-        saving: true
-      }
-    }
-  })),
+  on(codeEdited, (state, { code }) =>
+    exerciseEntityAdapter.updateOne({ id: state.id, changes: { pendingChanges: code } }, state)
+  ),
 
   on(pendingChangesSaved, (state, { id, code }) => {
-    const pending = state.pendingChanges[id];
+    const entity = state.entities[id];
 
-    if (!pending) {
+    if (!entity || entity.pendingChanges !== code) {
       return state;
     }
 
-    if (pending.code === code) {
-      const { [id]: _removed, ...pendingChanges } = state.pendingChanges;
-      return { ...state, pendingChanges };
-    }
-
-    return {
-      ...state,
-      pendingChanges: {
-        ...state.pendingChanges,
-        [id]: { ...pending, saving: false }
-      }
-    };
+    return exerciseEntityAdapter.updateOne({ id, changes: { pendingChanges: '' } }, state);
   }),
 
   on(savePendingChangesFailure, (state, { id, error }) => {
-    const pending = state.pendingChanges[id];
+    const entity = state.entities[id];
 
-    if (!pending) {
+    if (!entity || !(error instanceof HttpErrorResponse) || error.status !== 400) {
       return state;
     }
 
-    if (error instanceof HttpErrorResponse && error.status === 400) {
-      const { [id]: _removed, ...pendingChanges } = state.pendingChanges;
-      return { ...state, pendingChanges };
-    }
-
-    return {
-      ...state,
-      pendingChanges: {
-        ...state.pendingChanges,
-        [id]: { ...pending, saving: false }
-      }
-    };
+    return exerciseEntityAdapter.updateOne({ id, changes: { pendingChanges: '' } }, state);
   }),
 
   on(submitExercise, (state) => ({
-    ...state,
-    submissionPending: true,
+    ...exerciseEntityAdapter.updateOne({ id: state.id, changes: { submitting: true } }, state),
     chapters: updateExerciseStatus(state.chapters, state.id, 'pending')
   })),
 
   on(exerciseSubmitted, (state, { exercise }) => {
-    const code = state.exercise.code;
-    const pending = state.pendingChanges[exercise.id];
+    const entity = state.entities[exercise.id];
     const chapters = updateExerciseStatus(state.chapters, exercise.id, exercise.status);
 
-    if (pending && pending.code === exercise.code) {
-      const { [exercise.id]: _removed, ...pendingChanges } = state.pendingChanges;
-
-      return {
-        ...state,
-        exercise: { ...exercise, code },
-        pendingChanges,
-        chapters,
-        submissionPending: false
-      };
+    if (!entity) {
+      return { ...state, chapters };
     }
 
-    return {
-      ...state,
-      exercise: { ...exercise, code },
-      chapters,
-      submissionPending: false
-    };
+    const { code: _submittedCode, ...rest } = exercise;
+
+    return exerciseEntityAdapter.updateOne(
+      {
+        id: exercise.id,
+        changes: {
+          ...rest,
+          pendingChanges: entity.pendingChanges === exercise.code ? '' : entity.pendingChanges,
+          submitting: false
+        }
+      },
+      { ...state, chapters }
+    );
   }),
 
-  on(submitExerciseFailed, (state) => {
-    return {
-      ...state,
-      submissionPending: false,
-      chapters: updateExerciseStatus(state.chapters, state.id, 'indeterminate')
-    };
-  }),
+  on(submitExerciseFailed, (state, { id }) => ({
+    ...exerciseEntityAdapter.updateOne({ id, changes: { submitting: false } }, state),
+    chapters: updateExerciseStatus(state.chapters, id, 'indeterminate')
+  })),
 
   on(loadExercises, (state) => ({
     ...state,
-    exercisesLoading: true
+    chaptersLoading: true
   })),
 
   on(exercisesLoaded, (state, { chapters }) => ({
     ...state,
     chapters,
-    exercisesLoading: false
+    chaptersLoading: false
   })),
 
   on(loadExercisesFailed, (state) => ({
     ...state,
-    exercisesLoading: false
+    chaptersLoading: false
   })),
 
   on(chaptersTransferred, (state, { chapters }) => ({
     ...state,
     chapters,
-    exercisesLoading: false
+    chaptersLoading: false
   }))
 );

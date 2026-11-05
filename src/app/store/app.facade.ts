@@ -12,9 +12,9 @@ import {
 } from './exercise/exercise.actions';
 import {
   selectChapters,
+  selectChaptersLoading,
   selectExerciseLoading,
   selectExercise as selectExerciseSelector,
-  selectExercisesLoading,
   selectSubmissionPending
 } from './exercise/exercise.selectors';
 import { setTheme } from './settings/settings.actions';
@@ -30,7 +30,7 @@ export class AppFacade {
   readonly exerciseLoading$ = this.store.select(selectExerciseLoading);
   readonly submissionPending$ = this.store.select(selectSubmissionPending);
   readonly chapters$ = this.store.select(selectChapters);
-  readonly exercisesLoading$ = this.store.select(selectExercisesLoading);
+  readonly chaptersLoading$ = this.store.select(selectChaptersLoading);
 
   openSignInModal(): void {
     this.store.dispatch(openSignInModal());

@@ -1,30 +1,47 @@
 import { createFeatureSelector, createSelector } from '@ngrx/store';
-import { ExerciseState } from './exercise.state';
+import {
+  DEFAULT_EXERCISE,
+  ExerciseEntity,
+  exerciseEntityAdapter,
+  ExerciseState
+} from './exercise.state';
 
 export const selectExerciseState = createFeatureSelector<ExerciseState>('exercise');
 
 export const selectId = createSelector(selectExerciseState, (state) => state.id);
 
-export const selectExerciseLoading = createSelector(
+export const selectChapters = createSelector(selectExerciseState, (state) => state.chapters);
+
+export const selectChaptersLoading = createSelector(
   selectExerciseState,
-  (state) => state.exerciseLoading
+  (state) => state.chaptersLoading
 );
 
-export const selectExercise = createSelector(selectExerciseState, (state) => state.exercise);
+const { selectEntities } = exerciseEntityAdapter.getSelectors(selectExerciseState);
 
-export const selectPendingChanges = createSelector(
-  selectExerciseState,
-  (state) => state.pendingChanges
+export const selectCurrentEntity = createSelector(
+  selectEntities,
+  selectId,
+  (entities, id) => entities[id]
+);
+
+export const selectExercise = createSelector(
+  selectCurrentEntity,
+  (entity) => entity ?? DEFAULT_EXERCISE
+);
+
+export const selectExerciseLoading = createSelector(
+  selectCurrentEntity,
+  (entity) => entity?.loading ?? false
 );
 
 export const selectSubmissionPending = createSelector(
-  selectExerciseState,
-  (state) => state.submissionPending
+  selectCurrentEntity,
+  (entity) => entity?.submitting ?? false
 );
 
-export const selectChapters = createSelector(selectExerciseState, (state) => state.chapters);
-
-export const selectExercisesLoading = createSelector(
-  selectExerciseState,
-  (state) => state.exercisesLoading
+export const selectExercisesWithPendingChanges = createSelector(selectEntities, (entities) =>
+  Object.values(entities).filter(
+    (entity): entity is ExerciseEntity => entity !== undefined && entity.pendingChanges !== ''
+  )
 );

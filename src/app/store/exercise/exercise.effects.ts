@@ -39,7 +39,7 @@ import {
   submitExercise,
   submitExerciseFailed
 } from './exercise.actions';
-import { selectId, selectPendingChanges } from './exercise.selectors';
+import { selectExercisesWithPendingChanges, selectId } from './exercise.selectors';
 
 const CHAPTERS_TRANSFER_KEY = makeStateKey<Chapter[]>('chapters');
 const EXERCISE_TRANSFER_KEY = makeStateKey<Exercise>('exercise');
@@ -72,7 +72,7 @@ export class ExerciseEffects {
       switchMap(({ id, authenticated }) =>
         this.exercise.getExercsise(id, authenticated).pipe(
           map((exercise) => exerciseLoaded({ exercise })),
-          catchError((error) => of(loadExerciseFailure({ error })))
+          catchError((error) => of(loadExerciseFailure({ id, error })))
         )
       )
     )
@@ -93,18 +93,13 @@ export class ExerciseEffects {
   checkForPendingChanges$ = createEffect(() =>
     interval(SAVE_INTERVAL_MS).pipe(
       withLatestFrom(
-        this.store.select(selectPendingChanges),
+        this.store.select(selectExercisesWithPendingChanges),
         this.store.select(selectAuthenticated)
       ),
-      filter(
-        ([, pendingChanges, authenticated]) =>
-          Boolean(authenticated) && Object.keys(pendingChanges).length > 0
-      ),
-      mergeMap(([, pendingChanges]) =>
+      filter(([, pending, authenticated]) => Boolean(authenticated) && pending.length > 0),
+      mergeMap(([, pending]) =>
         from(
-          Object.entries(pendingChanges)
-            .filter(([, pending]) => !pending.saving)
-            .map(([id, pending]) => savePendingChanges({ id, code: pending.code }))
+          pending.map(({ id, pendingChanges }) => savePendingChanges({ id, code: pendingChanges }))
         )
       )
     )
@@ -151,7 +146,7 @@ export class ExerciseEffects {
       switchMap(([{ code }, id]) =>
         this.exercise.submitExercise(id, code).pipe(
           map((exercise) => exerciseSubmitted({ exercise })),
-          catchError((error) => of(submitExerciseFailed({ error })))
+          catchError((error) => of(submitExerciseFailed({ id, error })))
         )
       )
     )
