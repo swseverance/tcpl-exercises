@@ -7,28 +7,17 @@ import {
   CreateSessionResponseBody,
   ErrorResponseBody
 } from '../../../shared/models';
-import { serializeError } from '../../utils/serialize-error';
 
 const app = initializeApp({ projectId: process.env['FIREBASE_PROJECT_ID'] });
 const auth = getAuth(app);
 
-export const authMiddleware: RequestHandler = async (req, res, next) => {
-  const header = req.headers.authorization;
-  const token = header?.startsWith('Bearer ') ? header.slice('Bearer '.length) : undefined;
-
-  if (!token) {
-    res.status(401).json({ message: 'Unauthorized' });
+export const requireUserMiddleware: RequestHandler = (req, res, next) => {
+  if (!req.user) {
+    res.status(401).json({ message: 'Unauthorized' } satisfies ErrorResponseBody);
     return;
   }
 
-  try {
-    const { uid } = await getAuth().verifyIdToken(token);
-    req.uid = uid;
-    next();
-  } catch (err) {
-    logger.error('[auth] verifyIdToken failed', { error: serializeError(err) });
-    res.status(401).json({ message: 'Unauthorized' });
-  }
+  next();
 };
 
 const SESSION_COOKIE_NAME = '__session';

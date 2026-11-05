@@ -35,7 +35,7 @@ export const getExercisesPrivateHandler: RequestHandler<
   const testsByExerciseId: Record<
     string,
     Record<string, ExerciseRecordTestResult>
-  > = await getExerciseRecordTestsByExerciseId(req.uid);
+  > = await getExerciseRecordTestsByExerciseId(req.user!.uid);
 
   res.json({
     chapters: toChapters((exercise) =>

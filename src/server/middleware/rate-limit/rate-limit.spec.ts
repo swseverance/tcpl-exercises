@@ -13,7 +13,7 @@ vi.mock('firebase-functions/logger', () => ({
 const ratelimit = { limit } as unknown as Ratelimit;
 
 function createRequest(uid: string): Request {
-  return { uid } as Request;
+  return { user: { uid } } as Request;
 }
 
 function createResponse(): Response {

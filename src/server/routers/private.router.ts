@@ -8,7 +8,7 @@ import {
 import { getExercisesPrivateHandler } from '../api/exercises.handler';
 import { logHandler } from '../api/log.handler';
 import { appCheckMiddleware } from '../middleware/appcheck/appcheck';
-import { authMiddleware } from '../middleware/auth/auth';
+import { requireUserMiddleware } from '../middleware/auth/auth';
 import { exerciseExistsMiddleware } from '../middleware/exercise-exists/exercise-exists';
 import { rateLimitMiddleware } from '../middleware/rate-limit/rate-limit';
 import { redis } from '../redis';
@@ -24,7 +24,7 @@ const submitExerciseRatelimit = new Ratelimit({
 export const privateRouter = Router();
 
 privateRouter.use(appCheckMiddleware);
-privateRouter.use(authMiddleware);
+privateRouter.use(requireUserMiddleware);
 
 privateRouter.get('/exercises', getExercisesPrivateHandler);
 privateRouter.get('/exercises/:id', exerciseExistsMiddleware, getExercisePrivateHandler);

@@ -27,6 +27,6 @@ export const logHandler: RequestHandler<unknown, unknown, LogRequestBody> = (req
     return;
   }
 
-  logger[level](message, { uid: req.uid, data });
+  logger[level](message, { uid: req.user!.uid, data });
   res.status(204).end();
 };

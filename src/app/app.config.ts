@@ -22,7 +22,6 @@ import { en_US, provideNzI18n } from 'ng-zorro-antd/i18n';
 import { provideNzIcons } from 'ng-zorro-antd/icon';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { routes } from './app.routes';
-import { authInterceptor } from './interceptors/auth.interceptor';
 import { recaptchaInterceptor } from './interceptors/recaptcha.interceptor';
 import { AppEffects } from './store/app.effects';
 import { appReducer } from './store/app.reducer';
@@ -44,7 +43,7 @@ export const appConfig: ApplicationConfig = {
     provideNzI18n(en_US),
     provideNzDateFnsAdapter(),
     provideNzIcons([GithubOutline, LoginOutline, LogoutOutline, MoonOutline, SunOutline]),
-    provideHttpClient(withFetch(), withInterceptors([recaptchaInterceptor, authInterceptor])),
+    provideHttpClient(withFetch(), withInterceptors([recaptchaInterceptor])),
     importProvidersFrom(NzModalModule),
     provideStore({
       app: appReducer,

@@ -88,7 +88,7 @@ export const saveExerciseCodeHandler: RequestHandler<
   }
 
   try {
-    const record = await saveExerciseRecordCode(req.uid!, req.params.id, code);
+    const record = await saveExerciseRecordCode(req.user!.uid, req.params.id, code);
     res.json(toExercise(req.exercise!, record.code, record.tests, record.compilationError));
   } catch (err) {
     console.error('[exercise] save code failed:', err);
@@ -97,7 +97,7 @@ export const saveExerciseCodeHandler: RequestHandler<
 };
 
 export const getExercisePrivateHandler: RequestHandler<{ id: string }> = async (req, res) => {
-  const record = await getExerciseRecord(req.uid!, req.params.id);
+  const record = await getExerciseRecord(req.user!.uid, req.params.id);
   res.json(
     toExercise(
       req.exercise!,
@@ -138,7 +138,7 @@ export const submitExerciseHandler: RequestHandler<
     );
 
     const record = await saveExerciseRecordSubmission(
-      req.uid!,
+      req.user!.uid,
       req.params.id,
       code,
       tests,
