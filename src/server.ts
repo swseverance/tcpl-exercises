@@ -4,40 +4,35 @@ import {
   isMainModule,
   writeResponseToNodeResponse
 } from '@angular/ssr/node';
+import cookieParser from 'cookie-parser';
 import express from 'express';
-import { initializeApp } from 'firebase-admin/app';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import { join } from 'node:path';
+import {
+  createSessionHandler,
+  deleteSessionHandler,
+  verifySessionCookieHandler
+} from './server/middleware/auth/auth';
 import { privateRouter } from './server/routers/private.router';
 import { publicRouter } from './server/routers/public.router';
 
 const browserDistFolder = join(import.meta.dirname, '../browser');
-const firebaseProjectId = process.env['FIREBASE_PROJECT_ID'];
-
-initializeApp({ projectId: firebaseProjectId });
 
 const app = express();
 const angularApp = new AngularNodeAppEngine();
 
 app.use(
   createProxyMiddleware({
-    target: `https://${firebaseProjectId}.firebaseapp.com`,
+    target: `https://${process.env['FIREBASE_PROJECT_ID']}.firebaseapp.com`,
     changeOrigin: true,
     pathFilter: '/__/auth/**'
   })
 );
 
-app.use('/api', (_req, res, next) => {
-  res.setHeader('Cache-Control', 'no-store');
-  next();
-});
-app.use('/api', express.json({ limit: '64kb' }));
-
-app.use('/api/public', publicRouter);
-app.use('/api/private', privateRouter);
-
 /**
- * Serve static files from /browser
+ * Serve static files from /browser. Matched requests are handled here and
+ * never reach the cookie parsing/verification below, so static assets skip
+ * that work entirely.
  */
 app.use(
   express.static(browserDistFolder, {
@@ -46,6 +41,21 @@ app.use(
     redirect: false
   })
 );
+
+app.use(cookieParser());
+app.use(verifySessionCookieHandler);
+
+app.use('/api', (_req, res, next) => {
+  res.setHeader('Cache-Control', 'no-store');
+  next();
+});
+app.use('/api', express.json({ limit: '64kb' }));
+
+app.post('/api/session', createSessionHandler);
+app.delete('/api/session', deleteSessionHandler);
+
+app.use('/api/public', publicRouter);
+app.use('/api/private', privateRouter);
 
 /**
  * Handle all other requests by rendering the Angular application.

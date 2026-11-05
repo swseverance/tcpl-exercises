@@ -1,3 +1,19 @@
+export type SessionUser = {
+  uid: string;
+};
+
+export type CreateSessionRequestBody = {
+  idToken: string;
+};
+
+export type CreateSessionResponseBody = {
+  status: 'valid' | 'created';
+};
+
+export type ErrorResponseBody = {
+  message: string;
+};
+
 export type ExerciseTestCaseStatus = 'passed' | 'failed' | 'indeterminate';
 
 export type ExerciseTestCase = {
