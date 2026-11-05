@@ -20,18 +20,19 @@ import {
   clearCookieFailed,
   closeSignInModal,
   cookieCleared,
-  cookieSaved,
+  cookieValidated,
   loadTokenFailed,
+  newCookie,
   openSignInModal,
-  saveCookie,
-  saveCookieFailed,
   signInWithProvider,
   signInWithProviderFailure,
   signInWithProviderSuccess,
   signOutFailure,
   signOutSuccess,
   signOutWithProvider,
-  tokenLoaded
+  tokenLoaded,
+  validateCookie,
+  validateCookieFailed
 } from './auth.actions';
 
 const SESSION_USER_KEY = makeStateKey<SessionUser | null>('sessionUser');
@@ -79,12 +80,12 @@ export class AuthEffects {
 
     return new Observable<SessionUser | null>((observer) =>
       onAuthStateChanged(this.auth!, (user) => observer.next(user ? { uid: user.uid } : null))
-    ).pipe(map((user) => (user ? saveCookie() : clearCookie())));
+    ).pipe(map((user) => (user ? validateCookie() : clearCookie())));
   });
 
   loadToken$ = createEffect(() =>
     this.actions$.pipe(
-      ofType(saveCookie),
+      ofType(validateCookie),
       switchMap(() =>
         this.auth!.currentUser!.getIdToken()
           .then((token) => tokenLoaded({ token }))
@@ -107,8 +108,7 @@ export class AuthEffects {
     }
   );
 
-  // TODO: is this required? filter((response) => response.status === 'created'),
-  saveCookie$ = createEffect(() =>
+  validateCookie$ = createEffect(() =>
     this.actions$.pipe(
       ofType(tokenLoaded),
       switchMap(({ token }) =>
@@ -117,8 +117,8 @@ export class AuthEffects {
             idToken: token
           } satisfies CreateSessionRequestBody)
           .pipe(
-            map(() => cookieSaved()),
-            catchError((error) => of(saveCookieFailed({ error })))
+            map((response) => (response.status === 'created' ? newCookie() : cookieValidated())),
+            catchError((error) => of(validateCookieFailed({ error })))
           )
       )
     )

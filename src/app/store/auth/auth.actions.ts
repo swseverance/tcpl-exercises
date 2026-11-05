@@ -28,7 +28,7 @@ export const signOutSuccess = createAction('Sign Out Success');
 
 export const signOutFailure = createAction('Sign Out Failure', props<{ error: any }>());
 
-export const saveCookie = createAction('Save Cookie');
+export const validateCookie = createAction('Validate Cookie');
 
 export const loadToken = createAction('Load  Token');
 
@@ -36,9 +36,14 @@ export const tokenLoaded = createAction('Token Loaded', props<{ token: string }>
 
 export const loadTokenFailed = createAction('Load Token Failed', props<{ error: unknown }>());
 
-export const cookieSaved = createAction('Cookie Saved');
+export const newCookie = createAction('New Cookie');
 
-export const saveCookieFailed = createAction('Save Cookie Failed', props<{ error: unknown }>());
+export const cookieValidated = createAction('Cookie Validated');
+
+export const validateCookieFailed = createAction(
+  'Validate Cookie Failed',
+  props<{ error: unknown }>()
+);
 
 export const clearCookie = createAction('Clear Cookie');
 
